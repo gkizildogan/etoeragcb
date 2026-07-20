@@ -19,11 +19,14 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from app.auth.rate_limit import RateLimiter, RedisRateLimiter
 from app.auth.routes import router as auth_router
 from app.auth.security import SecurityService
+from app.collections.routes import router as collections_router
 from app.config import Settings, get_settings
 from app.core.db import create_database_engine, create_session_factory
 from app.core.logging import configure_logging
 from app.core.metrics import Metrics
+from app.core.pagination import CursorCodec
 from app.core.readiness import ReadinessChecker
+from app.sessions.routes import router as sessions_router
 
 logger = structlog.get_logger(__name__)
 
@@ -64,6 +67,9 @@ def create_app(
         app.state.session_factory = configured_factory
         app.state.rate_limiter = configured_limiter
         app.state.security = security or SecurityService(configured)
+        app.state.cursor_codec = CursorCodec(
+            configured.resolved_signing_secret().get_secret_value()
+        )
         logger.info("application_started", environment=configured.app_env)
         try:
             yield
@@ -95,6 +101,8 @@ def create_app(
         max_age=600,
     )
     app.include_router(auth_router)
+    app.include_router(sessions_router)
+    app.include_router(collections_router)
 
     @app.middleware("http")
     async def enforce_origin(request: Request, call_next: RequestResponseEndpoint) -> Response:

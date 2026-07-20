@@ -27,6 +27,7 @@ class Tenant(Base):
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     slug: Mapped[str] = mapped_column(String(80), nullable=False, unique=True)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
+    retrieval_revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=utc_now
     )
@@ -104,6 +105,7 @@ class ChatSession(Base):
             ["user_tenants.user_id", "user_tenants.tenant_id"],
             ondelete="RESTRICT",
         ),
+        UniqueConstraint("id", "tenant_id", "user_id"),
         Index("ix_chat_sessions_owner", "tenant_id", "user_id", "updated_at"),
     )
 
