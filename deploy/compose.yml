@@ -1,0 +1,462 @@
+name: rag-chatbot
+
+x-backend-environment: &backend-environment
+  APP_ENV: production
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:?Set PUBLIC_DOMAIN in deploy/.env}
+  ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL in deploy/.env}
+  ALLOWED_ORIGINS: '["https://${PUBLIC_DOMAIN}"]'
+  INTERNAL_HOSTS: '["backend","localhost","127.0.0.1"]'
+  TRUSTED_PROXY_IPS: '["172.30.0.2"]'
+  DATABASE_URL_FILE: /run/secrets/database_url
+  REDIS_URL: redis://redis:6379/0
+  QDRANT_URL: http://qdrant:6333
+  VLLM_BASE_URL: http://vllm:8000
+  VLLM_MODEL: cyankiwi/Qwen3.5-9B-AWQ-4bit
+  VLLM_MODEL_REVISION: 73536aa464f9a93c550aa5a916f0113a08b2f384
+  MAX_MODEL_LEN: "8000"
+  MAX_NEW_TOKENS: "1000"
+  MAX_GENERATION_CONCURRENCY: "1"
+  EMBED_URL: http://tei-embed:8080
+  EMBED_MODEL: BAAI/bge-m3
+  EMBED_REVISION: 5617a9f61b028005a4858fdac845db406aefb181
+  EMBED_DIM: "1024"
+  RERANK_URL: http://tei-rerank:8080
+  RERANK_MODEL: BAAI/bge-reranker-v2-m3
+  RERANK_REVISION: 953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e
+  JWT_SECRET_FILE: /run/secrets/jwt_secret
+  ACCESS_TOKEN_TTL: "900"
+  REFRESH_TOKEN_TTL: "2592000"
+  SIGNING_SECRET_FILE: /run/secrets/signing_secret
+  SIGNED_URL_TTL: "300"
+  CHUNK_TOKENS: "600"
+  CHUNK_OVERLAP: "80"
+  SECTION_CHUNK_LIMIT: "4"
+  SECTION_NEIGHBOR_RADIUS: "1"
+  RETRIEVE_DENSE_N: "40"
+  RETRIEVE_SPARSE_N: "40"
+  RERANK_POOL_N: "50"
+  RERANK_KEEP: "12"
+  HISTORY_TURNS: "6"
+  HISTORY_TOKEN_BUDGET: "1200"
+  CONTEXT_TOKEN_BUDGET: "5000"
+  WEB_TOP_RESULTS: "5"
+  WEB_FETCH_TIMEOUT: "8"
+  WEB_MAX_BYTES: "2000000"
+  WEB_ALLOWED_PORTS: '[80,443]'
+  UPLOAD_MAX_MB: "50"
+  ALLOWED_MIME: '["application/pdf","text/plain","text/markdown","application/vnd.openxmlformats-officedocument.wordprocessingml.document"]'
+  IDEMPOTENCY_TTL: "86400"
+  LOGIN_RATE_LIMITS: '["5/60","20/3600"]'
+  CHAT_RATE_LIMITS: '["10/60","100/3600"]'
+  CACHE_PLAN_TTL: "300"
+  CACHE_RETRIEVAL_TTL: "300"
+  CACHE_RERANK_TTL: "300"
+  CACHE_ANSWER_TTL: "0"
+  BACKUP_DESTINATION: ${BACKUP_DESTINATION:?Set BACKUP_DESTINATION in deploy/.env}
+  BACKUP_ENCRYPTION_KEY_FILE: /run/secrets/backup_encryption_key
+  BACKUP_RETENTION: ${BACKUP_RETENTION:-30}
+  READINESS_TIMEOUT_SECONDS: "3"
+
+x-backend-secrets: &backend-secrets
+  - database_url
+  - jwt_secret
+  - signing_secret
+  - backup_encryption_key
+
+x-hardened: &hardened
+  read_only: true
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+  restart: unless-stopped
+
+services:
+  caddy:
+    <<: *hardened
+    image: docker.io/library/caddy:2.11.4-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
+    user: "1000:1000"
+    cap_add:
+      - NET_BIND_SERVICE
+    environment:
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:?Set PUBLIC_DOMAIN in deploy/.env}
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL in deploy/.env}
+    ports:
+      - target: 80
+        published: "80"
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: "443"
+        protocol: tcp
+        mode: host
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    networks:
+      edge:
+        ipv4_address: 172.30.0.2
+      caddy_egress: {}
+    depends_on:
+      backend:
+        condition: service_healthy
+      streamlit:
+        condition: service_healthy
+    cpus: 1.0
+    mem_limit: 256m
+
+  streamlit:
+    <<: *hardened
+    image: rag-chatbot-streamlit:0.1.0
+    build:
+      context: ../streamlit_app
+      args:
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+    environment:
+      API_INTERNAL_URL: http://backend:8000/api
+    expose:
+      - "8501"
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    networks:
+      - edge
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=2)"
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    cpus: 1.0
+    mem_limit: 1g
+
+  backend:
+    <<: *hardened
+    image: rag-chatbot-backend:0.1.0
+    build:
+      context: ../backend
+      args:
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+    environment: *backend-environment
+    secrets: *backend-secrets
+    expose:
+      - "8000"
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    networks:
+      - edge
+      - data
+      - model
+      - search
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      vllm:
+        condition: service_started
+      tei-embed:
+        condition: service_started
+      tei-rerank:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/healthz', timeout=2)"
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    cpus: 4.0
+    mem_limit: 4g
+
+  migrate:
+    <<: *hardened
+    restart: "no"
+    image: rag-chatbot-backend:0.1.0
+    build:
+      context: ../backend
+      args:
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+    command: ["alembic", "upgrade", "head"]
+    environment: *backend-environment
+    secrets: *backend-secrets
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    networks:
+      - data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    cpus: 1.0
+    mem_limit: 512m
+
+  worker:
+    <<: *hardened
+    image: rag-chatbot-backend:0.1.0
+    build:
+      context: ../backend
+      args:
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+    command: ["arq", "app.workers.WorkerSettings"]
+    environment: *backend-environment
+    secrets: *backend-secrets
+    tmpfs:
+      - /tmp:size=1g,mode=1777
+    networks:
+      - data
+      - model
+      - search
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    cpus: 4.0
+    mem_limit: 8g
+
+  postgres:
+    <<: *hardened
+    image: docker.io/library/postgres:16.14-bookworm@sha256:92620daddcd947f8d5ab5ba66e848702fe443d87fed30c4cea8e389fd78dfc55
+    user: "999:999"
+    environment:
+      POSTGRES_DB: rag
+      POSTGRES_USER: rag
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_INITDB_ARGS: --auth-local=scram-sha-256 --auth-host=scram-sha-256
+      PGDATA: /var/lib/postgresql/data/pgdata
+    secrets:
+      - postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+      - /var/run/postgresql:size=16m,mode=0770,uid=999,gid=999
+    networks:
+      - data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag -d rag"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    cpus: 2.0
+    mem_limit: 4g
+
+  redis:
+    <<: *hardened
+    image: docker.io/library/redis:7.4.9-alpine@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
+    user: "999:999"
+    command: ["redis-server", "--appendonly", "yes", "--save", "60", "1"]
+    volumes:
+      - redis_data:/data
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    networks:
+      - data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    cpus: 1.0
+    mem_limit: 1g
+
+  qdrant:
+    <<: *hardened
+    image: docker.io/qdrant/qdrant:v1.18.3-unprivileged@sha256:affb67e1d6f2f93d7d20b90d238a7d4b974d36351c162e73bda794e4b2e03483
+    user: "1000:1000"
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: "6333"
+      QDRANT__SERVICE__GRPC_PORT: "6334"
+      QDRANT__TELEMETRY_DISABLED: "true"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    networks:
+      - data
+    cpus: 4.0
+    mem_limit: 6g
+
+  vllm:
+    <<: *hardened
+    image: docker.io/vllm/vllm-openai:v0.25.1@sha256:e4f88a835143cd22aee2397a26ec6bb80b3a4a6fe0c882bcbc63822904766089
+    user: "65532:65532"
+    command:
+      - /models/hub/models--cyankiwi--Qwen3.5-9B-AWQ-4bit/snapshots/73536aa464f9a93c550aa5a916f0113a08b2f384
+      - --served-model-name
+      - cyankiwi/Qwen3.5-9B-AWQ-4bit
+      - --language-model-only
+      - --reasoning-parser
+      - qwen3
+      - --default-chat-template-kwargs
+      - '{"enable_thinking":false}'
+      - --max-model-len
+      - "8000"
+      - --max-num-batched-tokens
+      - "8192"
+      - --max-num-seqs
+      - "2"
+      - --gpu-memory-utilization
+      - "0.80"
+      - --enforce-eager
+      - --no-enable-log-requests
+      - --disable-uvicorn-access-log
+    environment:
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      DO_NOT_TRACK: "1"
+      VLLM_CACHE_ROOT: /jit-cache/vllm
+      TRITON_CACHE_DIR: /jit-cache/triton
+      FLASHINFER_WORKSPACE_BASE: /jit-cache/flashinfer
+      TORCHINDUCTOR_CACHE_DIR: /jit-cache/torchinductor
+      TORCH_EXTENSIONS_DIR: /jit-cache/torch-extensions
+      CUDA_CACHE_PATH: /jit-cache/cuda
+      XDG_CACHE_HOME: /jit-cache/xdg
+      NUMBA_CACHE_DIR: /jit-cache/numba
+    volumes:
+      - type: bind
+        source: ${MODEL_CACHE_HOST_PATH:-../model-cache/huggingface/hub}
+        target: /models/hub
+        read_only: true
+    tmpfs:
+      - /tmp:size=4g,mode=1777
+      - /jit-cache:size=2g,mode=1777,exec
+    networks:
+      - model
+    gpus: all
+    shm_size: 2gb
+    cpus: 8.0
+    mem_limit: 24g
+
+  tei-embed:
+    <<: *hardened
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.9@sha256:ad950d30878eceb72aaf32024d26fa2b1d04a75304fa0b4776b49aa1941fea07
+    user: "65532:65532"
+    command:
+      - --model-id
+      - /models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+      - --served-model-name
+      - BAAI/bge-m3
+      - --port
+      - "8080"
+      - --max-concurrent-requests
+      - "32"
+      - --max-batch-tokens
+      - "8192"
+      - --max-batch-requests
+      - "8"
+      - --max-client-batch-size
+      - "32"
+      - --json-output
+    environment: &tei-environment
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      DO_NOT_TRACK: "1"
+      XDG_CACHE_HOME: /tmp/cache
+    volumes: &model-volume
+      - type: bind
+        source: ${MODEL_CACHE_HOST_PATH:-../model-cache/huggingface/hub}
+        target: /models/hub
+        read_only: true
+    tmpfs:
+      - /tmp:size=2g,mode=1777
+    networks:
+      - model
+    cpus: 8.0
+    mem_limit: 16g
+
+  tei-rerank:
+    <<: *hardened
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.9@sha256:ad950d30878eceb72aaf32024d26fa2b1d04a75304fa0b4776b49aa1941fea07
+    user: "65532:65532"
+    command:
+      - --model-id
+      - /models/hub/models--BAAI--bge-reranker-v2-m3/snapshots/953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e
+      - --served-model-name
+      - BAAI/bge-reranker-v2-m3
+      - --port
+      - "8080"
+      - --max-concurrent-requests
+      - "32"
+      - --max-batch-tokens
+      - "8192"
+      - --max-batch-requests
+      - "8"
+      - --max-client-batch-size
+      - "32"
+      - --json-output
+    environment: *tei-environment
+    volumes: *model-volume
+    tmpfs:
+      - /tmp:size=2g,mode=1777
+    networks:
+      - model
+    cpus: 8.0
+    mem_limit: 16g
+
+  searxng:
+    <<: *hardened
+    image: docker.io/searxng/searxng:2026.7.16-f2432e33d@sha256:9aae08475a1c254c096f936ed05119568d291ad7ee5e2f805452a48acba6caea
+    environment:
+      SEARXNG_BASE_URL: http://searxng:8080/
+      SEARXNG_SECRET: ${SEARXNG_SECRET:?Set SEARXNG_SECRET in deploy/.env}
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    networks:
+      - search
+      - search_egress
+    cpus: 2.0
+    mem_limit: 2g
+
+networks:
+  edge:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+  data:
+    internal: true
+  model:
+    internal: true
+  search:
+    internal: true
+  caddy_egress: {}
+  search_egress: {}
+
+volumes:
+  caddy_data: {}
+  caddy_config: {}
+  postgres_data: {}
+  redis_data: {}
+  qdrant_data: {}
+
+secrets:
+  postgres_password:
+    file: ${POSTGRES_PASSWORD_FILE:-./secrets/postgres_password}
+  database_url:
+    file: ${DATABASE_URL_FILE:-./secrets/database_url}
+  jwt_secret:
+    file: ${JWT_SECRET_FILE:-./secrets/jwt_secret}
+  signing_secret:
+    file: ${SIGNING_SECRET_FILE:-./secrets/signing_secret}
+  backup_encryption_key:
+    file: ${BACKUP_ENCRYPTION_KEY_FILE:-./secrets/backup_encryption_key}

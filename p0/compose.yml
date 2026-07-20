@@ -1,0 +1,191 @@
+name: rag-p0
+
+services:
+  vllm:
+    image: ${VLLM_IMAGE:?Load docker-images.lock}
+    command:
+      - ${VLLM_MODEL_SNAPSHOT:?Load model-revisions.lock}
+      - --served-model-name
+      - ${VLLM_MODEL:?Load model-revisions.lock}
+      - --language-model-only
+      - --reasoning-parser
+      - qwen3
+      - --default-chat-template-kwargs
+      - '{"enable_thinking":false}'
+      - --max-model-len
+      - ${VLLM_MAX_MODEL_LEN:-8192}
+      - --max-num-batched-tokens
+      - ${VLLM_MAX_NUM_BATCHED_TOKENS:-8192}
+      - --max-num-seqs
+      - ${VLLM_MAX_NUM_SEQS:-2}
+      - --gpu-memory-utilization
+      - ${VLLM_GPU_MEMORY_UTILIZATION:-0.80}
+      - --enforce-eager
+      - --api-key
+      - ${P0_VLLM_API_KEY:-p0-vllm-internal}
+      - --no-enable-log-requests
+      - --disable-uvicorn-access-log
+    environment:
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      DO_NOT_TRACK: "1"
+      VLLM_CACHE_ROOT: /jit-cache/vllm
+      TRITON_CACHE_DIR: /jit-cache/triton
+      FLASHINFER_WORKSPACE_BASE: /jit-cache/flashinfer
+      TORCHINDUCTOR_CACHE_DIR: /jit-cache/torchinductor
+      TORCH_EXTENSIONS_DIR: /jit-cache/torch-extensions
+      CUDA_CACHE_PATH: /jit-cache/cuda
+      XDG_CACHE_HOME: /jit-cache/xdg
+      NUMBA_CACHE_DIR: /jit-cache/numba
+    volumes:
+      - type: bind
+        source: ${MODEL_CACHE_HOST_PATH:?Set MODEL_CACHE_HOST_PATH to an absolute path}
+        target: ${MODEL_CACHE_CONTAINER_PATH:-/models/hub}
+        read_only: true
+    networks:
+      - model
+    gpus: all
+    shm_size: 2gb
+    read_only: true
+    tmpfs:
+      - /tmp:size=4g,mode=1777
+      - /jit-cache:size=2g,mode=0700,exec
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    cpus: ${VLLM_CPU_LIMIT:-8.0}
+    mem_limit: ${VLLM_MEMORY_LIMIT:-24g}
+    restart: unless-stopped
+
+  tei-embed:
+    image: ${TEI_IMAGE:?Load docker-images.lock}
+    command:
+      - --model-id
+      - ${EMBED_MODEL_SNAPSHOT:?Load model-revisions.lock}
+      - --served-model-name
+      - ${EMBED_MODEL:?Load model-revisions.lock}
+      - --port
+      - "80"
+      - --max-concurrent-requests
+      - ${TEI_MAX_CONCURRENT_REQUESTS:-32}
+      - --max-batch-tokens
+      - ${TEI_MAX_BATCH_TOKENS:-8192}
+      - --max-batch-requests
+      - ${TEI_MAX_BATCH_REQUESTS:-8}
+      - --max-client-batch-size
+      - ${TEI_MAX_CLIENT_BATCH_SIZE:-32}
+      - --api-key
+      - ${P0_TEI_API_KEY:-p0-tei-internal}
+      - --json-output
+    environment: &tei-environment
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+      DO_NOT_TRACK: "1"
+      XDG_CACHE_HOME: /tmp/cache
+    volumes: &model-volume
+      - type: bind
+        source: ${MODEL_CACHE_HOST_PATH:?Set MODEL_CACHE_HOST_PATH to an absolute path}
+        target: ${MODEL_CACHE_CONTAINER_PATH:-/models/hub}
+        read_only: true
+    networks:
+      - model
+    read_only: true
+    tmpfs:
+      - /tmp:size=2g,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    cpus: ${TEI_EMBED_CPU_LIMIT:-8.0}
+    mem_limit: ${TEI_EMBED_MEMORY_LIMIT:-16g}
+    restart: unless-stopped
+
+  tei-rerank:
+    image: ${TEI_IMAGE:?Load docker-images.lock}
+    command:
+      - --model-id
+      - ${RERANK_MODEL_SNAPSHOT:?Load model-revisions.lock}
+      - --served-model-name
+      - ${RERANK_MODEL:?Load model-revisions.lock}
+      - --port
+      - "80"
+      - --max-concurrent-requests
+      - ${TEI_MAX_CONCURRENT_REQUESTS:-32}
+      - --max-batch-tokens
+      - ${TEI_MAX_BATCH_TOKENS:-8192}
+      - --max-batch-requests
+      - ${TEI_MAX_BATCH_REQUESTS:-8}
+      - --max-client-batch-size
+      - ${TEI_MAX_CLIENT_BATCH_SIZE:-32}
+      - --api-key
+      - ${P0_TEI_API_KEY:-p0-tei-internal}
+      - --json-output
+    environment: *tei-environment
+    volumes: *model-volume
+    networks:
+      - model
+    read_only: true
+    tmpfs:
+      - /tmp:size=2g,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    cpus: ${TEI_RERANK_CPU_LIMIT:-8.0}
+    mem_limit: ${TEI_RERANK_MEMORY_LIMIT:-16g}
+    restart: unless-stopped
+
+  probe:
+    image: ${PYTHON_BASE_IMAGE:?Load docker-images.lock}
+    profiles:
+      - tools
+    user: ${P0_RUN_UID:-65532}:${P0_ARTIFACTS_GID:-65532}
+    working_dir: /workspace
+    entrypoint:
+      - python
+      - /workspace/scripts/p0/qualify.py
+    environment:
+      VLLM_BASE_URL: http://vllm:8000
+      EMBED_URL: http://tei-embed:80
+      RERANK_URL: http://tei-rerank:80
+      VLLM_MODEL: ${VLLM_MODEL:?Load model-revisions.lock}
+      VLLM_MODEL_REVISION: ${VLLM_MODEL_REVISION:?Load model-revisions.lock}
+      EMBED_MODEL: ${EMBED_MODEL:?Load model-revisions.lock}
+      EMBED_REVISION: ${EMBED_REVISION:?Load model-revisions.lock}
+      RERANK_MODEL: ${RERANK_MODEL:?Load model-revisions.lock}
+      RERANK_REVISION: ${RERANK_REVISION:?Load model-revisions.lock}
+      P0_VLLM_API_KEY: ${P0_VLLM_API_KEY:-p0-vllm-internal}
+      P0_TEI_API_KEY: ${P0_TEI_API_KEY:-p0-tei-internal}
+      P0_STARTUP_TIMEOUT_SECONDS: ${P0_STARTUP_TIMEOUT_SECONDS:-360}
+      P0_REQUEST_TIMEOUT_SECONDS: ${P0_REQUEST_TIMEOUT_SECONDS:-180}
+      P0_CONTEXT_STEPS: ${P0_CONTEXT_STEPS:-2048,4096,6144,8000}
+      P0_CONCURRENCY_LEVELS: ${P0_CONCURRENCY_LEVELS:-1,2}
+      P0_CONCURRENCY_OUTPUT_TOKENS: ${P0_CONCURRENCY_OUTPUT_TOKENS:-128}
+      P0_EMBED_BATCH_SIZE: ${P0_EMBED_BATCH_SIZE:-32}
+      P0_RERANK_REPETITIONS: ${P0_RERANK_REPETITIONS:-5}
+    volumes:
+      - type: bind
+        source: ${P0_PROJECT_ROOT:?Set P0_PROJECT_ROOT to the repository path}
+        target: /workspace
+        read_only: true
+      - type: bind
+        source: ${P0_ARTIFACTS_DIR:?Set P0_ARTIFACTS_DIR}
+        target: /artifacts
+    networks:
+      - model
+    read_only: true
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 512m
+
+networks:
+  model:
+    internal: true
+    attachable: false

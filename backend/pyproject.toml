@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "rag-chatbot-backend"
+version = "0.1.0"
+description = "FastAPI backend for the public multi-tenant RAG chatbot"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "alembic==1.16.5",
+  "anyio==4.10.0",
+  "argon2-cffi==25.1.0",
+  "arq==0.26.3",
+  "asyncpg==0.30.0",
+  "fastapi==0.116.1",
+  "httpx==0.28.1",
+  "orjson==3.11.3",
+  "prometheus-client==0.22.1",
+  "pydantic-settings==2.10.1",
+  "pydantic[email]==2.11.7",
+  "pyjwt==2.10.1",
+  "python-multipart==0.0.20",
+  "qdrant-client==1.15.1",
+  "redis==5.2.1",
+  "sqlalchemy[asyncio]==2.0.43",
+  "structlog==25.4.0",
+  "uvicorn[standard]==0.35.0",
+]
+
+[dependency-groups]
+dev = [
+  "mypy==1.17.1",
+  "pytest==8.4.1",
+  "pytest-asyncio==1.1.0",
+  "ruff==0.12.10",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+addopts = "-q --strict-config --strict-markers"
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC", "S", "RUF"]
+ignore = ["S101"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
+packages = ["app"]
+
+[[tool.mypy.overrides]]
+module = ["arq.*"]
+ignore_missing_imports = true

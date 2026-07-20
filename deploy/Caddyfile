@@ -1,0 +1,43 @@
+{
+	admin off
+	email {$ACME_EMAIL}
+	log default {
+		format json
+		level INFO
+	}
+}
+
+http://{$PUBLIC_DOMAIN} {
+	redir https://{$PUBLIC_DOMAIN}{uri} permanent
+}
+
+{$PUBLIC_DOMAIN} {
+	encode zstd gzip
+
+	request_body {
+		max_size 55MB
+	}
+
+	header {
+		-Server
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		Content-Security-Policy "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' https: wss:; worker-src 'self' blob:"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Frame-Options "DENY"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+	}
+
+	@private path /api/readyz /api/metrics
+	respond @private 404
+
+	handle /api/* {
+		reverse_proxy backend:8000 {
+			flush_interval -1
+		}
+	}
+
+	handle {
+		reverse_proxy streamlit:8501
+	}
+}

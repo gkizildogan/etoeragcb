@@ -1,0 +1,13 @@
+/model-cache/
+/artifacts/
+/.env
+/p0/.env
+/deploy/.env
+/deploy/secrets/*
+!/deploy/secrets/README.md
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/

@@ -1,0 +1,19 @@
+# Resolved from Hugging Face on 2026-07-20.
+# MODEL_CACHE_HOST_PATH points at the shared Hugging Face hub directory.
+# Mount it read-only at MODEL_CACHE_CONTAINER_PATH and use the pinned local
+# snapshot paths below. This works without network access in both vLLM and TEI.
+
+MODEL_CACHE_HOST_PATH=./model-cache/huggingface/hub
+MODEL_CACHE_CONTAINER_PATH=/models/hub
+
+VLLM_MODEL=cyankiwi/Qwen3.5-9B-AWQ-4bit
+VLLM_MODEL_REVISION=73536aa464f9a93c550aa5a916f0113a08b2f384
+VLLM_MODEL_SNAPSHOT=/models/hub/models--cyankiwi--Qwen3.5-9B-AWQ-4bit/snapshots/73536aa464f9a93c550aa5a916f0113a08b2f384
+
+EMBED_MODEL=BAAI/bge-m3
+EMBED_REVISION=5617a9f61b028005a4858fdac845db406aefb181
+EMBED_MODEL_SNAPSHOT=/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+
+RERANK_MODEL=BAAI/bge-reranker-v2-m3
+RERANK_REVISION=953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e
+RERANK_MODEL_SNAPSHOT=/models/hub/models--BAAI--bge-reranker-v2-m3/snapshots/953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e

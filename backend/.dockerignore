@@ -1,0 +1,9 @@
+.venv
+.pytest_cache
+.mypy_cache
+.ruff_cache
+tests
+requirements-dev.lock
+uv.lock
+**/__pycache__
+**/*.pyc
