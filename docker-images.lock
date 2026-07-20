@@ -1,0 +1,14 @@
+# Pulled and verified on 2026-07-20 for linux/amd64.
+# Keep the human-readable tag and immutable registry digest together.
+
+CADDY_IMAGE=docker.io/library/caddy:2.11.4-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
+POSTGRES_IMAGE=docker.io/library/postgres:16.14-bookworm@sha256:92620daddcd947f8d5ab5ba66e848702fe443d87fed30c4cea8e389fd78dfc55
+REDIS_IMAGE=docker.io/library/redis:7.4.9-alpine@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
+QDRANT_IMAGE=docker.io/qdrant/qdrant:v1.18.3-unprivileged@sha256:affb67e1d6f2f93d7d20b90d238a7d4b974d36351c162e73bda794e4b2e03483
+VLLM_IMAGE=docker.io/vllm/vllm-openai:v0.25.1@sha256:e4f88a835143cd22aee2397a26ec6bb80b3a4a6fe0c882bcbc63822904766089
+TEI_IMAGE=ghcr.io/huggingface/text-embeddings-inference:cpu-1.9@sha256:ad950d30878eceb72aaf32024d26fa2b1d04a75304fa0b4776b49aa1941fea07
+SEARXNG_IMAGE=docker.io/searxng/searxng:2026.7.16-f2432e33d@sha256:9aae08475a1c254c096f936ed05119568d291ad7ee5e2f805452a48acba6caea
+PYTHON_BASE_IMAGE=docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+
+# TEI_IMAGE is intentionally shared by the tei-embed and tei-rerank services.
+# backend, worker, and streamlit are future local builds from PYTHON_BASE_IMAGE.
