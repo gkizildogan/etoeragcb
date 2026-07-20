@@ -27,3 +27,9 @@ class Metrics:
             ("dependency",),
             registry=self.registry,
         )
+        self.auth_events = Counter(
+            "rag_auth_events_total",
+            "Authentication events without user-identifying labels",
+            ("event",),
+            registry=self.registry,
+        )

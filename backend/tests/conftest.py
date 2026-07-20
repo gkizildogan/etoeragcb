@@ -12,6 +12,7 @@ from app.config import Settings
 def settings_values(tmp_path: Path) -> dict[str, Any]:
     return {
         "app_env": "test",
+        "tls_mode": "public",
         "public_domain": "rag.example.com",
         "acme_email": "admin@example.com",
         "allowed_origins": ["https://rag.example.com"],

@@ -36,9 +36,10 @@ class Settings(BaseSettings):
     )
 
     app_env: Literal["development", "test", "production"] = "production"
+    tls_mode: Literal["public", "internal"] = "public"
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
     public_domain: str
-    acme_email: EmailStr
+    acme_email: EmailStr | None = None
     allowed_origins: list[str]
     internal_hosts: list[str] = Field(default_factory=lambda: ["backend", "localhost", "127.0.0.1"])
     trusted_proxy_ips: list[str]
@@ -117,6 +118,11 @@ class Settings(BaseSettings):
             raise ValueError("PUBLIC_DOMAIN must be a DNS hostname without scheme, port, or path")
         return candidate
 
+    @field_validator("acme_email", mode="before")
+    @classmethod
+    def empty_acme_email_is_none(cls, value: object) -> object:
+        return None if value == "" else value
+
     @field_validator("allowed_origins")
     @classmethod
     def validate_origins(cls, origins: list[str]) -> list[str]:
@@ -150,8 +156,21 @@ class Settings(BaseSettings):
             raise ValueError("rate limits must use count/window_seconds, for example 5/60")
         return limits
 
+    @field_validator("backup_destination")
+    @classmethod
+    def validate_backup_destination(cls, value: str) -> str:
+        parsed = urlsplit(value)
+        if parsed.scheme not in {"s3", "sftp", "gdrive"} or not parsed.netloc:
+            raise ValueError(
+                "BACKUP_DESTINATION must be an authenticated s3://, sftp://, or "
+                "gdrive:// locator, not a public sharing URL"
+            )
+        return value
+
     @model_validator(mode="after")
     def validate_cross_field_constraints(self) -> Self:
+        if self.tls_mode == "public" and self.acme_email is None:
+            raise ValueError("ACME_EMAIL is required when TLS_MODE=public")
         if self.vllm_model != EXPECTED_VLLM_MODEL:
             raise ValueError(f"VLLM_MODEL must remain {EXPECTED_VLLM_MODEL}")
         if not re.fullmatch(r"[0-9a-f]{40}", self.vllm_model_revision):

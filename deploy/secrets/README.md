@@ -10,5 +10,8 @@ Git and mounted read-only under `/run/secrets`:
 - `signing_secret`: a different value of the same strength.
 - `backup_encryption_key`: the age or backup-tool key path reserved for P11.
 
-Use mode `0600`, store recoverable copies in the deployment secret manager,
+Use mode `0640`, owned by the deployment operator and the group configured as
+`SECRETS_GID`. Only that operator/group may contain host accounts. The
+non-root backend and PostgreSQL containers receive this GID as a supplemental
+read-only group. Store recoverable copies in the deployment secret manager,
 and never put secret values in `deploy/.env` or shell history.

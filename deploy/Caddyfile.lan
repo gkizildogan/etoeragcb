@@ -1,6 +1,5 @@
 {
 	admin off
-	email {$ACME_EMAIL}
 	log default {
 		format json
 		level INFO
@@ -12,6 +11,7 @@ http://{$PUBLIC_DOMAIN} {
 }
 
 {$PUBLIC_DOMAIN} {
+	tls internal
 	encode zstd gzip
 
 	request_body {
