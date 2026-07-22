@@ -301,8 +301,8 @@ Nightly backups include a transactionally consistent PostgreSQL dump, Qdrant sna
 
 ## P7 — Safe concurrent web retrieval
 
-- [ ] Implement internal SearXNG search, concurrent bounded fetch/extraction, unified candidate records, document fallback, and combined reranking.
-- [ ] Implement all SSRF/DNS/redirect/content/decompression defenses in §5.3 and egress isolation.
+- [x] Implement internal SearXNG search, concurrent bounded fetch/extraction, unified candidate records, document fallback, and combined reranking.
+- [x] Implement all SSRF/DNS/redirect/content/decompression defenses in §5.3 and egress isolation.
 - **Done when:** tests cover document+web merging, multiple-domain diversity, web timeout/failure fallback to documents, malicious redirects, DNS rebinding simulations, IPv4/IPv6 private/metadata targets, oversized/non-HTML responses, and prompt-injection text.
 
 ## P8 — Generation, citations, SSE, and signed files

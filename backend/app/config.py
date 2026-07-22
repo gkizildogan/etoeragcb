@@ -89,8 +89,14 @@ class Settings(BaseSettings):
     retrieval_gate_config: Path
 
     web_top_results: int = Field(ge=1, le=20)
+    searxng_url: AnyHttpUrl
+    web_fetcher_url: AnyHttpUrl
     web_fetch_timeout: float = Field(gt=0, le=60)
+    web_fetch_concurrency: int = Field(ge=1, le=10)
+    web_max_redirects: int = Field(ge=0, le=10)
     web_max_bytes: int = Field(ge=1024, le=20_000_000)
+    web_text_max_chars: int = Field(ge=256, le=50_000)
+    web_context_limit: int = Field(ge=1, le=20)
     web_allowed_ports: list[int]
 
     upload_max_mb: int = Field(ge=1, le=500)
@@ -156,7 +162,7 @@ class Settings(BaseSettings):
     @classmethod
     def validate_web_ports(cls, ports: list[int]) -> list[int]:
         if not ports or any(port not in {80, 443} for port in ports):
-            raise ValueError("WEB_ALLOWED_PORTS must contain only 80 and/or 443 in P1")
+            raise ValueError("WEB_ALLOWED_PORTS must contain only 80 and/or 443")
         return sorted(set(ports))
 
     @field_validator("login_rate_limits", "chat_rate_limits", "upload_rate_limits")
@@ -202,6 +208,15 @@ class Settings(BaseSettings):
             raise ValueError("CHUNK_OVERLAP must be smaller than CHUNK_TOKENS")
         if self.rerank_keep > self.rerank_pool_n:
             raise ValueError("RERANK_KEEP cannot exceed RERANK_POOL_N")
+        if self.web_context_limit > self.rerank_keep:
+            raise ValueError("WEB_CONTEXT_LIMIT cannot exceed RERANK_KEEP")
+        internal_web_services = (
+            ("SEARXNG_URL", self.searxng_url, "searxng", 8080),
+            ("WEB_FETCHER_URL", self.web_fetcher_url, "web-fetcher", 8081),
+        )
+        for name, url, host, port in internal_web_services:
+            if url.scheme != "http" or url.host != host or url.port != port:
+                raise ValueError(f"{name} must use the pinned internal service address")
         if self.section_chunk_limit > self.document_chunk_limit:
             raise ValueError("SECTION_CHUNK_LIMIT cannot exceed DOCUMENT_CHUNK_LIMIT")
         reserved_tokens = (

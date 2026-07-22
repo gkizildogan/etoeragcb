@@ -46,8 +46,14 @@ x-backend-environment: &backend-environment
   CONTEXT_TOKEN_BUDGET: "5000"
   RETRIEVAL_GATE_CONFIG: /app/app/rag/calibration/retrieval_gate.v1.json
   WEB_TOP_RESULTS: "5"
+  SEARXNG_URL: http://searxng:8080
+  WEB_FETCHER_URL: http://web-fetcher:8081
   WEB_FETCH_TIMEOUT: "8"
+  WEB_FETCH_CONCURRENCY: "3"
+  WEB_MAX_REDIRECTS: "3"
   WEB_MAX_BYTES: "2000000"
+  WEB_TEXT_MAX_CHARS: "3000"
+  WEB_CONTEXT_LIMIT: "4"
   WEB_ALLOWED_PORTS: '[80,443]'
   UPLOAD_MAX_MB: "50"
   TENANT_UPLOAD_QUOTA_MB: "10240"
@@ -183,6 +189,10 @@ services:
         condition: service_started
       tei-rerank:
         condition: service_started
+      searxng:
+        condition: service_started
+      web-fetcher:
+        condition: service_healthy
       storage-init:
         condition: service_completed_successfully
     healthcheck:
@@ -475,6 +485,38 @@ services:
     cpus: 2.0
     mem_limit: 2g
 
+  web-fetcher:
+    <<: *hardened
+    image: rag-chatbot-backend:0.1.0
+    build:
+      context: ../backend
+      args:
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+    command: ["python", "-m", "app.web.serve"]
+    environment:
+      WEB_FETCH_TIMEOUT: "8"
+      WEB_MAX_BYTES: "2000000"
+      WEB_ALLOWED_PORTS: '[80,443]'
+      WEB_MAX_REDIRECTS: "3"
+      WEB_TEXT_MAX_CHARS: "3000"
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    networks:
+      - search
+      - fetch_egress
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/healthz', timeout=2)"
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    cpus: 1.0
+    mem_limit: 256m
+
 networks:
   edge:
     internal: true
@@ -490,6 +532,7 @@ networks:
     internal: true
   caddy_egress: {}
   search_egress: {}
+  fetch_egress: {}
 
 volumes:
   caddy_data: {}

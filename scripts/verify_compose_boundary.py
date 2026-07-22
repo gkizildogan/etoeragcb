@@ -36,10 +36,34 @@ def main() -> int:
 
     if sorted(published) != [("caddy", 80), ("caddy", 443)]:
         violations.append(f"expected only caddy 80/443, found {sorted(published)}")
+
+    service_networks = {
+        service_name: set(service.get("networks", {}))
+        for service_name, service in config["services"].items()
+    }
+    fetch_egress_users = sorted(
+        name for name, networks in service_networks.items() if "fetch_egress" in networks
+    )
+    if fetch_egress_users != ["web-fetcher"]:
+        violations.append(
+            f"expected only web-fetcher on fetch_egress, found {fetch_egress_users}"
+        )
+    if service_networks.get("web-fetcher") != {"search", "fetch_egress"}:
+        violations.append(
+            "web-fetcher must connect only to private search and fetch_egress networks"
+        )
+    if "fetch_egress" in service_networks.get("backend", set()):
+        violations.append("backend must not have direct page-fetch egress")
+    for network_name in ("edge", "data", "model", "search"):
+        if not config["networks"].get(network_name, {}).get("internal", False):
+            violations.append(f"{network_name} must remain an internal network")
     if violations:
         print("\n".join(violations), file=sys.stderr)
         return 1
-    print("PASS: only Caddy publishes host ports 80 and 443")
+    print(
+        "PASS: only Caddy publishes ports; only web-fetcher has page egress; "
+        "application networks remain internal"
+    )
     return 0
 
 

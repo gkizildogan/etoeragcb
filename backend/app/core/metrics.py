@@ -33,3 +33,15 @@ class Metrics:
             ("event",),
             registry=self.registry,
         )
+        self.web_retrieval = Counter(
+            "rag_web_retrieval_total",
+            "Web retrieval branch outcomes",
+            ("outcome",),
+            registry=self.registry,
+        )
+        self.web_fetch = Counter(
+            "rag_web_fetch_total",
+            "Web page fetch outcomes by bounded reason",
+            ("outcome", "reason"),
+            registry=self.registry,
+        )

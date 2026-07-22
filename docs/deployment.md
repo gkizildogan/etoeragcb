@@ -210,9 +210,10 @@ state is available as Prometheus gauges and redacted structured logs.
 - `data`, `model`, and `search` are internal Docker networks with no host
   published ports.
 - `caddy_egress` exists only for ACME and normal Caddy egress.
-- `search_egress` exists only for SearXNG. The backend reaches SearXNG over the
-  private `search` network. P7 will add the separately constrained page-fetch
-  path and its SSRF enforcement.
+- `search_egress` exists only for SearXNG. `fetch_egress` exists only for the
+  SSRF-resistant `web-fetcher`. The backend reaches both services over the
+  private `search` network and has no direct internet route. The fetcher joins
+  no data, model, or edge network and receives no application secrets.
 
 All application containers use read-only root filesystems, dropped
 capabilities, `no-new-privileges`, explicit resource limits, and non-root image

@@ -67,7 +67,14 @@ class ContextSkip(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     candidate_id: str
-    reason: Literal["section_cap", "source_cap", "domain_cap", "candidate_cap", "token_budget"]
+    reason: Literal[
+        "section_cap",
+        "source_cap",
+        "domain_cap",
+        "source_type_cap",
+        "candidate_cap",
+        "token_budget",
+    ]
 
 
 class PackedSource(BaseModel):
@@ -97,24 +104,29 @@ class ContextPacker:
         section_limit: int,
         source_limit: int,
         domain_limit: int,
+        web_limit: int | None = None,
     ) -> None:
         limits = (token_budget, max_candidates, section_limit, source_limit, domain_limit)
         if any(limit < 1 for limit in limits):
             raise ValueError("all context limits must be positive")
+        if web_limit is not None and (web_limit < 1 or web_limit > max_candidates):
+            raise ValueError("web context limit must be within the candidate limit")
         self._counter = token_counter
         self._token_budget = token_budget
         self._max_candidates = max_candidates
         self._section_limit = section_limit
         self._source_limit = source_limit
         self._domain_limit = domain_limit
+        self._web_limit = web_limit
 
     async def pack(self, candidates: tuple[RerankedEvidence, ...]) -> PackedContext:
-        ordered = _exact_first_order(candidates)
+        ordered = _evidence_order(candidates)
         selected: list[RerankedEvidence] = []
         skipped: list[ContextSkip] = []
         section_counts: Counter[str] = Counter()
         source_counts: Counter[str] = Counter()
         domain_counts: Counter[str] = Counter()
+        source_type_counts: Counter[str] = Counter()
         context = ""
         token_count = 0
         for item in ordered:
@@ -142,6 +154,15 @@ class ContextPacker:
                     ContextSkip(candidate_id=candidate.candidate_id, reason="domain_cap")
                 )
                 continue
+            if (
+                candidate.source_type == "web"
+                and self._web_limit is not None
+                and source_type_counts["web"] >= self._web_limit
+            ):
+                skipped.append(
+                    ContextSkip(candidate_id=candidate.candidate_id, reason="source_type_cap")
+                )
+                continue
             tentative_items = [*selected, item]
             tentative = _format_context(tentative_items)
             tentative_count = await self._counter.count(tentative)
@@ -155,6 +176,7 @@ class ContextPacker:
             source_counts[candidate.source_key] += 1
             if candidate.domain is not None:
                 domain_counts[candidate.domain] += 1
+            source_type_counts[candidate.source_type] += 1
             context = tentative
             token_count = tentative_count
         sources = tuple(
@@ -170,7 +192,7 @@ class ContextPacker:
         )
 
 
-def _exact_first_order(candidates: tuple[RerankedEvidence, ...]) -> tuple[RerankedEvidence, ...]:
+def _evidence_order(candidates: tuple[RerankedEvidence, ...]) -> tuple[RerankedEvidence, ...]:
     ranked = sorted(candidates, key=stable_reranked_key)
     representatives: list[RerankedEvidence] = []
     represented_ids: set[str] = set()
@@ -182,6 +204,19 @@ def _exact_first_order(candidates: tuple[RerankedEvidence, ...]) -> tuple[Rerank
         representatives.append(item)
         represented_ids.add(item.candidate.candidate_id)
         represented_terms.update(item.candidate.matched_exact_terms)
+    for source_type in ("document", "web"):
+        representative = next(
+            (
+                item
+                for item in ranked
+                if item.candidate.source_type == source_type
+                and item.candidate.candidate_id not in represented_ids
+            ),
+            None,
+        )
+        if representative is not None:
+            representatives.append(representative)
+            represented_ids.add(representative.candidate.candidate_id)
     return tuple(
         [
             *representatives,
@@ -204,5 +239,13 @@ def _format_context(candidates: list[RerankedEvidence]) -> str:
             metadata.append(f"pages={candidate.page_start}-{candidate.page_end}")
         if candidate.uri is not None:
             metadata.append(f"url={candidate.uri}")
-        blocks.append(f"[S{index}] {' | '.join(metadata)}\n{candidate.text_original}")
+        if candidate.source_type == "web":
+            content = (
+                f"--- BEGIN UNTRUSTED WEB SOURCE S{index} ---\n"
+                f"{candidate.text_original}\n"
+                f"--- END UNTRUSTED WEB SOURCE S{index} ---"
+            )
+        else:
+            content = candidate.text_original
+        blocks.append(f"[S{index}] {' | '.join(metadata)}\n{content}")
     return "\n\n".join(blocks)
