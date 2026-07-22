@@ -26,6 +26,9 @@ from app.core.logging import configure_logging
 from app.core.metrics import Metrics
 from app.core.pagination import CursorCodec
 from app.core.readiness import ReadinessChecker
+from app.documents.queue import ArqIngestionQueue, IngestionQueue
+from app.documents.routes import router as documents_router
+from app.ingest.storage import LocalDocumentStorage
 from app.sessions.routes import router as sessions_router
 
 logger = structlog.get_logger(__name__)
@@ -44,6 +47,7 @@ def create_app(
     session_factory: async_sessionmaker[AsyncSession] | None = None,
     rate_limiter: RateLimiter | None = None,
     security: SecurityService | None = None,
+    ingestion_queue: IngestionQueue | None = None,
 ) -> FastAPI:
     configured = settings or get_settings()
     configure_logging(configured.log_level)
@@ -70,6 +74,8 @@ def create_app(
         app.state.cursor_codec = CursorCodec(
             configured.resolved_signing_secret().get_secret_value()
         )
+        app.state.document_storage = LocalDocumentStorage(configured.document_storage_root)
+        app.state.ingestion_queue = ingestion_queue or ArqIngestionQueue(str(configured.redis_url))
         logger.info("application_started", environment=configured.app_env)
         try:
             yield
@@ -103,6 +109,7 @@ def create_app(
     app.include_router(auth_router)
     app.include_router(sessions_router)
     app.include_router(collections_router)
+    app.include_router(documents_router)
 
     @app.middleware("http")
     async def enforce_origin(request: Request, call_next: RequestResponseEndpoint) -> Response:

@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     CheckConstraint,
     DateTime,
@@ -23,11 +24,21 @@ from app.models.base import Base, utc_now
 
 class Tenant(Base):
     __tablename__ = "tenants"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["active_index_generation_id", "id"],
+            ["index_generations.id", "index_generations.tenant_id"],
+            name="fk_tenants_active_generation",
+            use_alter=True,
+            ondelete="RESTRICT",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     slug: Mapped[str] = mapped_column(String(80), nullable=False, unique=True)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     retrieval_revision: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    active_index_generation_id: Mapped[int | None] = mapped_column(BigInteger)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=utc_now
     )

@@ -48,6 +48,7 @@ class Settings(BaseSettings):
     database_url_file: Path | None = None
     redis_url: RedisDsn
     qdrant_url: AnyHttpUrl
+    qdrant_collection: str = Field(min_length=1, max_length=120)
 
     vllm_base_url: AnyHttpUrl
     vllm_model: str
@@ -90,10 +91,16 @@ class Settings(BaseSettings):
     web_allowed_ports: list[int]
 
     upload_max_mb: int = Field(ge=1, le=500)
+    tenant_upload_quota_mb: int = Field(ge=1, le=1_000_000)
     allowed_mime: list[str]
+    document_storage_root: Path
+    ingest_batch_size: int = Field(ge=1, le=64)
+    ingestion_heartbeat_timeout: int = Field(ge=30, le=3600)
+    retained_index_generations: int = Field(ge=2, le=100)
     idempotency_ttl: int = Field(ge=60, le=604_800)
     login_rate_limits: list[str]
     chat_rate_limits: list[str]
+    upload_rate_limits: list[str]
     cache_plan_ttl: int = Field(ge=0, le=86_400)
     cache_retrieval_ttl: int = Field(ge=0, le=86_400)
     cache_rerank_ttl: int = Field(ge=0, le=86_400)
@@ -149,12 +156,19 @@ class Settings(BaseSettings):
             raise ValueError("WEB_ALLOWED_PORTS must contain only 80 and/or 443 in P1")
         return sorted(set(ports))
 
-    @field_validator("login_rate_limits", "chat_rate_limits")
+    @field_validator("login_rate_limits", "chat_rate_limits", "upload_rate_limits")
     @classmethod
     def validate_rate_limits(cls, limits: list[str]) -> list[str]:
         if not limits or any(RATE_LIMIT_RE.fullmatch(limit) is None for limit in limits):
             raise ValueError("rate limits must use count/window_seconds, for example 5/60")
         return limits
+
+    @field_validator("qdrant_collection")
+    @classmethod
+    def validate_qdrant_collection(cls, value: str) -> str:
+        if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]*", value) is None:
+            raise ValueError("QDRANT_COLLECTION contains unsupported characters")
+        return value
 
     @field_validator("backup_destination")
     @classmethod

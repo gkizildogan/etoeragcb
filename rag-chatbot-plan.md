@@ -280,16 +280,16 @@ Nightly backups include a transactionally consistent PostgreSQL dump, Qdrant sna
 
 ## P4 — Staged ingestion, hierarchy, and recovery
 
-- [ ] Implement validated upload storage; original/lexical parsing; heading hierarchy; bounded section-aware chunking; occurrence-aware IDs; dense/sparse batches.
-- [ ] Implement durable generations, staged validation, atomic activation, previous-version retention, deletion/tombstone behavior, and cache revisioning.
-- [ ] Implement heartbeat reconciliation after worker crash, Redis loss, and reboot; garbage collection must exclude active/retained generations.
+- [x] Implement validated upload storage; original/lexical parsing; heading hierarchy; bounded section-aware chunking; occurrence-aware IDs; dense/sparse batches.
+- [x] Implement durable generations, staged validation, atomic activation, previous-version retention, deletion/tombstone behavior, and cache revisioning.
+- [x] Implement heartbeat reconciliation after worker crash, Redis loss, and reboot; garbage collection must exclude active/retained generations.
 - **Done when:** repeated text on different pages has distinct stable IDs; changed uploads activate only after validation; injected failures preserve the previous version; interrupted jobs reconcile after reboot; deleted/old inactive content is not retrieved.
 
 ## P5 — Planner, metadata resolution, and hybrid retrieval
 
-- [ ] Implement bounded planner plus deterministic fallback, exact/document/collection/heading resolution, and explainable scope-versus-boost decisions.
-- [ ] Implement dense+sparse hybrid retrieval with identical authorization/generation filters and bounded section-neighbor expansion.
-- [ ] Add bilingual fixtures for exact identifiers, headings, collections, semantics, repeated page text, scoped hybrid, ambiguous hints, and no-answer queries.
+- [x] Implement bounded planner plus deterministic fallback, exact/document/collection/heading resolution, and explainable scope-versus-boost decisions.
+- [x] Implement dense+sparse hybrid retrieval with identical authorization/generation filters and bounded section-neighbor expansion.
+- [x] Add bilingual fixtures for exact identifiers, headings, collections, semantics, repeated page text, scoped hybrid, ambiguous hints, and no-answer queries.
 - **Done when:** all retrieval fixtures pass tenant isolation and expected top-k assertions, headings never pull whole chapters, and planner failure still produces safe bounded hybrid retrieval.
 
 ## P6 — Combined rerank, confidence, diversity, and budget

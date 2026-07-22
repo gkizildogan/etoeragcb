@@ -46,5 +46,5 @@ scoped by tenant, user, operation, and `Idempotency-Key`. Claim outcomes are:
 Expired or explicitly failed work can be recovered without changing its request
 hash. Completion stores the authoritative JSON response and resource ID.
 `app.chat.service.persist_user_message` demonstrates atomic exactly-once message
-persistence. The public upload and chat endpoints will consume these primitives
-in their later phases; P3 does not expose a placeholder generation endpoint.
+persistence. P4's upload/reindex endpoints now consume the same primitive; chat
+will consume it in its later phase.
