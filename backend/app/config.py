@@ -76,6 +76,8 @@ class Settings(BaseSettings):
     chunk_tokens: int = Field(ge=64, le=2048)
     chunk_overlap: int = Field(ge=0, le=512)
     section_chunk_limit: int = Field(ge=1, le=20)
+    document_chunk_limit: int = Field(ge=1, le=50)
+    domain_chunk_limit: int = Field(ge=1, le=20)
     section_neighbor_radius: int = Field(ge=0, le=5)
     retrieve_dense_n: int = Field(ge=1, le=500)
     retrieve_sparse_n: int = Field(ge=1, le=500)
@@ -84,6 +86,7 @@ class Settings(BaseSettings):
     history_turns: int = Field(ge=0, le=50)
     history_token_budget: int = Field(ge=0, le=4000)
     context_token_budget: int = Field(ge=256, le=7000)
+    retrieval_gate_config: Path
 
     web_top_results: int = Field(ge=1, le=20)
     web_fetch_timeout: float = Field(gt=0, le=60)
@@ -199,6 +202,8 @@ class Settings(BaseSettings):
             raise ValueError("CHUNK_OVERLAP must be smaller than CHUNK_TOKENS")
         if self.rerank_keep > self.rerank_pool_n:
             raise ValueError("RERANK_KEEP cannot exceed RERANK_POOL_N")
+        if self.section_chunk_limit > self.document_chunk_limit:
+            raise ValueError("SECTION_CHUNK_LIMIT cannot exceed DOCUMENT_CHUNK_LIMIT")
         reserved_tokens = (
             self.max_new_tokens + self.history_token_budget + self.context_token_budget
         )

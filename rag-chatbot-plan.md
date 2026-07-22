@@ -294,9 +294,9 @@ Nightly backups include a transactionally consistent PostgreSQL dump, Qdrant sna
 
 ## P6 — Combined rerank, confidence, diversity, and budget
 
-- [ ] Implement combined candidate reranking, exact/overlap/near-duplicate removal, per-section/document/domain caps, and token budgeting.
-- [ ] Make the gate consume versioned calibrated configuration and return auditable scores/reasons.
-- [ ] Property-test budgets and deterministic selection; unit-test source/domain diversity and no-answer outcomes.
+- [x] Implement combined candidate reranking, exact/overlap/near-duplicate removal, per-section/document/domain caps, and token budgeting.
+- [x] Make the gate consume versioned calibrated configuration and return auditable scores/reasons.
+- [x] Property-test budgets and deterministic selection; unit-test source/domain diversity and no-answer outcomes.
 - **Done when:** packed context never exceeds limits, relevant exact hits survive diversity, duplicate sources cannot dominate, and the representative golden set supports the configured gate.
 
 ## P7 — Safe concurrent web retrieval

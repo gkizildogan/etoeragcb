@@ -34,6 +34,8 @@ x-backend-environment: &backend-environment
   CHUNK_TOKENS: "600"
   CHUNK_OVERLAP: "80"
   SECTION_CHUNK_LIMIT: "4"
+  DOCUMENT_CHUNK_LIMIT: "6"
+  DOMAIN_CHUNK_LIMIT: "2"
   SECTION_NEIGHBOR_RADIUS: "1"
   RETRIEVE_DENSE_N: "40"
   RETRIEVE_SPARSE_N: "40"
@@ -42,6 +44,7 @@ x-backend-environment: &backend-environment
   HISTORY_TURNS: "6"
   HISTORY_TOKEN_BUDGET: "1200"
   CONTEXT_TOKEN_BUDGET: "5000"
+  RETRIEVAL_GATE_CONFIG: /app/app/rag/calibration/retrieval_gate.v1.json
   WEB_TOP_RESULTS: "5"
   WEB_FETCH_TIMEOUT: "8"
   WEB_MAX_BYTES: "2000000"
