@@ -337,6 +337,7 @@ async def test_activation_failure_reconciliation_and_tombstone(tmp_path: Path) -
     )
     factory = async_sessionmaker(engine, expire_on_commit=False)
     async with engine.begin() as connection:
+        await connection.exec_driver_sql("PRAGMA foreign_keys=ON")
         await connection.run_sync(Base.metadata.create_all)
     storage = LocalDocumentStorage(tmp_path / "documents")
     fake_index = FakeIndex()

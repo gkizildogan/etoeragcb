@@ -303,6 +303,10 @@ class IngestionPipeline:
                         source_metadata=section.source_metadata,
                     )
                 )
+            # SQLAlchemy cannot infer the composite Section -> Chunk dependency
+            # without ORM relationships. Persist sections first so an autoflush
+            # or commit cannot insert their chunks ahead of the referenced rows.
+            await session.flush()
             for chunk in chunks:
                 session.add(
                     Chunk(
