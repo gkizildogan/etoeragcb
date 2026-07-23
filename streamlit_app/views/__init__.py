@@ -1,1 +1,1 @@
-"""Streamlit views; full chat and document screens arrive in P9."""
+"""Thin, API-only Streamlit views."""

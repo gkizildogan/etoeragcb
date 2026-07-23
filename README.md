@@ -13,10 +13,13 @@ durable retrieval revisions, and idempotency claim/replay/recovery primitives.
 P4 adds staged, versioned ingestion and generation-safe activation. P5–P7 add
 bounded planning, tenant-scoped hybrid retrieval, reranking/confidence/context
 packing, and SSRF-resistant optional web evidence. P8 adds atomic chat
-generation, citation-safe SSE/replay, and tenant/user-scoped signed files.
+generation, citation-safe SSE/replay, and tenant/user-scoped signed files. P9
+adds the API-only Streamlit client for rotating authentication, private
+sessions, safe streaming/citations, feedback, document status, and collection
+administration.
 
 Deployment instructions are in `docs/deployment.md`; the current API contract is
-summarized by the phase documents through `docs/p8-generation.md`.
+summarized by the phase documents through `docs/p9-streamlit.md`.
 
 Local backend checks:
 
@@ -25,5 +28,14 @@ cd backend
 uv sync --frozen --all-groups
 uv run ruff check app tests
 uv run mypy app
+uv run pytest
+```
+
+Streamlit client checks:
+
+```bash
+cd streamlit_app
+uv sync --frozen --all-groups
+uv run ruff check .
 uv run pytest
 ```

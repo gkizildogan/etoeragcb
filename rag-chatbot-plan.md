@@ -313,8 +313,8 @@ Nightly backups include a transactionally consistent PostgreSQL dump, Qdrant sna
 
 ## P9 — Streamlit client
 
-- [ ] Implement auth, sessions, SSE/replacement, citations, feedback, errors/empty states, web checkbox, document/version polling, and collection management as pure API calls.
-- [ ] Add mocked `streamlit.testing.AppTest` coverage and a public-domain manual workflow.
+- [x] Implement auth, sessions, SSE/replacement, citations, feedback, errors/empty states, web checkbox, document/version polling, and collection management as pure API calls.
+- [x] Add mocked `streamlit.testing.AppTest` coverage and a public-domain manual workflow.
 - **Done when:** login → collection creation → upload/activation → scoped question → safe streamed answer → signed citation → feedback works over HTTPS, and web failure visibly falls back without losing document answers.
 
 ## P10 — Retrieval evaluation and threshold calibration
