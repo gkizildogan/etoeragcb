@@ -66,6 +66,7 @@ x-backend-environment: &backend-environment
   LOGIN_RATE_LIMITS: '["5/60","20/3600"]'
   CHAT_RATE_LIMITS: '["10/60","100/3600"]'
   UPLOAD_RATE_LIMITS: '["5/60","30/3600"]'
+  SIGNED_URL_RATE_LIMITS: '["20/60","200/3600"]'
   CACHE_PLAN_TTL: "300"
   CACHE_RETRIEVAL_TTL: "300"
   CACHE_RERANK_TTL: "300"

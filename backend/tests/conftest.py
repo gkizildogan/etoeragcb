@@ -74,6 +74,7 @@ def settings_values(tmp_path: Path) -> dict[str, Any]:
         "login_rate_limits": ["5/60", "20/3600"],
         "chat_rate_limits": ["10/60", "100/3600"],
         "upload_rate_limits": ["5/60", "30/3600"],
+        "signed_url_rate_limits": ["20/60", "200/3600"],
         "cache_plan_ttl": 300,
         "cache_retrieval_ttl": 300,
         "cache_rerank_ttl": 300,

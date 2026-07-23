@@ -307,8 +307,8 @@ Nightly backups include a transactionally consistent PostgreSQL dump, Qdrant sna
 
 ## P8 — Generation, citations, SSE, and signed files
 
-- [ ] Implement source IDs/prompts, content-only vLLM streaming, citation-safe buffering/validation, authoritative `replace`, citation objects, persistence, and replay.
-- [ ] Implement the explicit SSE contract and short-lived tenant/user-scoped signed file route through Caddy.
+- [x] Implement source IDs/prompts, content-only vLLM streaming, citation-safe buffering/validation, authoritative `replace`, citation objects, persistence, and replay.
+- [x] Implement the explicit SSE contract and short-lived tenant/user-scoped signed file route through Caddy.
 - **Done when:** fragmented and fabricated markers never remain in the final rendered answer; persisted text equals the client result; reconnect/replay creates no duplicate; signed links open valid citations and reject tampering, expiry, disabled users, and cross-tenant access.
 
 ## P9 — Streamlit client

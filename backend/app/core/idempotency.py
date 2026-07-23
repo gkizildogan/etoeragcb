@@ -145,6 +145,8 @@ async def fail_idempotency(
     now: datetime | None = None,
 ) -> None:
     record = await _locked_record(session, tenant_id, user_id, operation, key)
+    if record.status == "completed":
+        return
     record.status = "failed"
     record.updated_at = now or datetime.now(UTC)
 

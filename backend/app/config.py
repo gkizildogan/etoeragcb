@@ -110,6 +110,7 @@ class Settings(BaseSettings):
     login_rate_limits: list[str]
     chat_rate_limits: list[str]
     upload_rate_limits: list[str]
+    signed_url_rate_limits: list[str]
     cache_plan_ttl: int = Field(ge=0, le=86_400)
     cache_retrieval_ttl: int = Field(ge=0, le=86_400)
     cache_rerank_ttl: int = Field(ge=0, le=86_400)
@@ -165,7 +166,12 @@ class Settings(BaseSettings):
             raise ValueError("WEB_ALLOWED_PORTS must contain only 80 and/or 443")
         return sorted(set(ports))
 
-    @field_validator("login_rate_limits", "chat_rate_limits", "upload_rate_limits")
+    @field_validator(
+        "login_rate_limits",
+        "chat_rate_limits",
+        "upload_rate_limits",
+        "signed_url_rate_limits",
+    )
     @classmethod
     def validate_rate_limits(cls, limits: list[str]) -> list[str]:
         if not limits or any(RATE_LIMIT_RE.fullmatch(limit) is None for limit in limits):

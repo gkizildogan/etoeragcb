@@ -45,3 +45,26 @@ class Metrics:
             ("outcome", "reason"),
             registry=self.registry,
         )
+        self.chat_results = Counter(
+            "rag_chat_results_total",
+            "Persisted chat results by bounded route",
+            ("route",),
+            registry=self.registry,
+        )
+        self.chat_stage_duration = Histogram(
+            "rag_chat_stage_duration_seconds",
+            "Chat stage latency without request or user labels",
+            ("stage",),
+            registry=self.registry,
+        )
+        self.citation_repairs = Counter(
+            "rag_citation_repairs_total",
+            "Generated answers requiring citation repair",
+            registry=self.registry,
+        )
+        self.generation_tokens = Counter(
+            "rag_generation_tokens_total",
+            "Generation model token usage",
+            ("kind",),
+            registry=self.registry,
+        )

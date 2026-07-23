@@ -90,7 +90,7 @@ class QdrantHybridSearch:
         *,
         client: AsyncQdrantClient | None = None,
     ) -> None:
-        self._client = client or AsyncQdrantClient(url=url)
+        self._client = client or AsyncQdrantClient(url=url, check_compatibility=False)
         self._collection = collection
         self._owns_client = client is None
 

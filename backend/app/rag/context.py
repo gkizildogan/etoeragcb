@@ -35,14 +35,32 @@ class VllmTokenCounter:
         self._owns_client = client is None
 
     async def count(self, text: str) -> int:
+        return await self._request_count(
+            {
+                "model": self._model,
+                "prompt": text,
+                "add_special_tokens": False,
+            }
+        )
+
+    async def count_chat(self, messages: list[dict[str, str]]) -> int:
+        """Count the exact non-thinking generation chat template."""
+
+        return await self._request_count(
+            {
+                "model": self._model,
+                "messages": messages,
+                "add_generation_prompt": True,
+                "add_special_tokens": False,
+                "chat_template_kwargs": {"enable_thinking": False},
+            }
+        )
+
+    async def _request_count(self, body: dict[str, object]) -> int:
         try:
             response = await self._client.post(
                 "/tokenize",
-                json={
-                    "model": self._model,
-                    "prompt": text,
-                    "add_special_tokens": False,
-                },
+                json=body,
             )
             response.raise_for_status()
             payload = response.json()

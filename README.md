@@ -10,9 +10,13 @@ Caddy internal-CA HTTPS boundary. P2 adds closed administrator-managed accounts,
 tenant authorization, rotating refresh tokens, rate limits, and origin checks.
 P3 adds private sessions/messages, feedback, collection/document membership,
 durable retrieval revisions, and idempotency claim/replay/recovery primitives.
+P4 adds staged, versioned ingestion and generation-safe activation. P5–P7 add
+bounded planning, tenant-scoped hybrid retrieval, reranking/confidence/context
+packing, and SSRF-resistant optional web evidence. P8 adds atomic chat
+generation, citation-safe SSE/replay, and tenant/user-scoped signed files.
 
 Deployment instructions are in `docs/deployment.md`; the current API contract is
-summarized in `docs/p3-api.md`.
+summarized by the phase documents through `docs/p8-generation.md`.
 
 Local backend checks:
 

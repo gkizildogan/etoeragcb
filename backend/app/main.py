@@ -19,6 +19,9 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from app.auth.rate_limit import RateLimiter, RedisRateLimiter
 from app.auth.routes import router as auth_router
 from app.auth.security import SecurityService
+from app.chat.orchestrator import ChatCoordinator
+from app.chat.routes import router as chat_router
+from app.chat.runtime import ChatRuntime, build_chat_runtime
 from app.collections.routes import router as collections_router
 from app.config import Settings, get_settings
 from app.core.db import create_database_engine, create_session_factory
@@ -26,6 +29,8 @@ from app.core.logging import configure_logging
 from app.core.metrics import Metrics
 from app.core.pagination import CursorCodec
 from app.core.readiness import ReadinessChecker
+from app.documents.files import FileTokenSigner
+from app.documents.files import router as files_router
 from app.documents.queue import ArqIngestionQueue, IngestionQueue
 from app.documents.routes import router as documents_router
 from app.ingest.storage import LocalDocumentStorage
@@ -48,6 +53,8 @@ def create_app(
     rate_limiter: RateLimiter | None = None,
     security: SecurityService | None = None,
     ingestion_queue: IngestionQueue | None = None,
+    chat_coordinator: ChatCoordinator | None = None,
+    file_token_signer: FileTokenSigner | None = None,
 ) -> FastAPI:
     configured = settings or get_settings()
     configure_logging(configured.log_level)
@@ -56,6 +63,7 @@ def create_app(
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         owned_engine: AsyncEngine | None = None
         owned_rate_limiter: RateLimiter | None = None
+        owned_chat_runtime: ChatRuntime | None = None
         configured_factory = session_factory
         if configured_factory is None:
             owned_engine = create_database_engine(configured.resolved_database_url())
@@ -76,10 +84,25 @@ def create_app(
         )
         app.state.document_storage = LocalDocumentStorage(configured.document_storage_root)
         app.state.ingestion_queue = ingestion_queue or ArqIngestionQueue(str(configured.redis_url))
+        app.state.file_token_signer = file_token_signer or FileTokenSigner(
+            configured.resolved_signing_secret().get_secret_value(),
+            ttl_seconds=configured.signed_url_ttl,
+        )
+        configured_chat = chat_coordinator
+        if configured_chat is None:
+            owned_chat_runtime = build_chat_runtime(
+                configured,
+                configured_factory,
+                app.state.metrics,
+            )
+            configured_chat = owned_chat_runtime.coordinator
+        app.state.chat_coordinator = configured_chat
         logger.info("application_started", environment=configured.app_env)
         try:
             yield
         finally:
+            if owned_chat_runtime is not None:
+                await owned_chat_runtime.close()
             await app.state.readiness.close()
             if owned_rate_limiter is not None:
                 await owned_rate_limiter.close()
@@ -110,6 +133,8 @@ def create_app(
     app.include_router(sessions_router)
     app.include_router(collections_router)
     app.include_router(documents_router)
+    app.include_router(files_router)
+    app.include_router(chat_router)
 
     @app.middleware("http")
     async def enforce_origin(request: Request, call_next: RequestResponseEndpoint) -> Response:

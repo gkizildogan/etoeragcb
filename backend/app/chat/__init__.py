@@ -1,1 +1,1 @@
-"""Chat streaming API (implemented in P8)."""
+"""Citation-safe, replayable chat streaming."""
