@@ -1,0 +1,4205 @@
+{
+  "acceptance": {
+    "checks": {
+      "gate_precision": true,
+      "gate_recall": true,
+      "reranked_mrr": true,
+      "reranked_ndcg_at_10": true,
+      "reranked_recall_at_5": true,
+      "scoped_recall_at_5": true
+    },
+    "passed": true
+  },
+  "calibration": {
+    "combinations_evaluated": 279936,
+    "metrics": {
+      "f1": 0.9090909090909091,
+      "false_negative": 3,
+      "false_positive": 0,
+      "precision": 1.0,
+      "recall": 0.8333333333333334,
+      "true_negative": 8,
+      "true_positive": 15
+    },
+    "observations": [
+      {
+        "answerable": true,
+        "best_exact_score": 0.9979208,
+        "evidence_count": 12,
+        "expected_answer": true,
+        "query_id": "q001",
+        "relevant_in_context": true,
+        "score_margin": 0.00015180000000003524,
+        "second_score": 0.997769,
+        "top_score": 0.9979208
+      },
+      {
+        "answerable": true,
+        "best_exact_score": 0.997938,
+        "evidence_count": 12,
+        "expected_answer": true,
+        "query_id": "q002",
+        "relevant_in_context": true,
+        "score_margin": 0.040948399999999996,
+        "second_score": 0.9569896,
+        "top_score": 0.997938
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 12,
+        "expected_answer": true,
+        "query_id": "q003",
+        "relevant_in_context": true,
+        "score_margin": 0.24878408200000002,
+        "second_score": 0.021523878,
+        "top_score": 0.27030796
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 12,
+        "expected_answer": true,
+        "query_id": "q004",
+        "relevant_in_context": true,
+        "score_margin": 0.022571070000000026,
+        "second_score": 0.97220033,
+        "top_score": 0.9947714
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 1,
+        "expected_answer": true,
+        "query_id": "q005",
+        "relevant_in_context": true,
+        "score_margin": 0.9901433,
+        "second_score": null,
+        "top_score": 0.9901433
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 1,
+        "expected_answer": true,
+        "query_id": "q006",
+        "relevant_in_context": true,
+        "score_margin": 0.9975956,
+        "second_score": null,
+        "top_score": 0.9975956
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 5,
+        "expected_answer": true,
+        "query_id": "q007",
+        "relevant_in_context": true,
+        "score_margin": 0.13831313,
+        "second_score": 0.8549398,
+        "top_score": 0.99325293
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 4,
+        "expected_answer": true,
+        "query_id": "q008",
+        "relevant_in_context": true,
+        "score_margin": 0.025113739999999996,
+        "second_score": 0.9728327,
+        "top_score": 0.99794644
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 2,
+        "expected_answer": true,
+        "query_id": "q009",
+        "relevant_in_context": true,
+        "score_margin": 0.9929829259999999,
+        "second_score": 0.006733674,
+        "top_score": 0.9997166
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 11,
+        "expected_answer": true,
+        "query_id": "q010",
+        "relevant_in_context": true,
+        "score_margin": 0.99063552207,
+        "second_score": 0.00001781793,
+        "top_score": 0.99065334
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 5,
+        "expected_answer": true,
+        "query_id": "q011",
+        "relevant_in_context": true,
+        "score_margin": 0.322732119222,
+        "second_score": 0.000018030778,
+        "top_score": 0.32275015
+      },
+      {
+        "answerable": true,
+        "best_exact_score": 0.99915195,
+        "evidence_count": 4,
+        "expected_answer": true,
+        "query_id": "q012",
+        "relevant_in_context": true,
+        "score_margin": 0.0015852499999999825,
+        "second_score": 0.9975667,
+        "top_score": 0.99915195
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 12,
+        "expected_answer": true,
+        "query_id": "q013",
+        "relevant_in_context": true,
+        "score_margin": 0.01885934999999994,
+        "second_score": 0.9369391,
+        "top_score": 0.95579845
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 12,
+        "expected_answer": true,
+        "query_id": "q014",
+        "relevant_in_context": true,
+        "score_margin": 0.14788230000000002,
+        "second_score": 0.8151189,
+        "top_score": 0.9630012
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 12,
+        "expected_answer": true,
+        "query_id": "q015",
+        "relevant_in_context": true,
+        "score_margin": 0.010489239999999955,
+        "second_score": 0.9736148,
+        "top_score": 0.98410404
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 12,
+        "expected_answer": true,
+        "query_id": "q016",
+        "relevant_in_context": true,
+        "score_margin": 0.54588985,
+        "second_score": 0.14996415,
+        "top_score": 0.695854
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 5,
+        "expected_answer": true,
+        "query_id": "q017",
+        "relevant_in_context": true,
+        "score_margin": 0.99722623933,
+        "second_score": 0.00020820067,
+        "top_score": 0.99743444
+      },
+      {
+        "answerable": true,
+        "best_exact_score": null,
+        "evidence_count": 3,
+        "expected_answer": true,
+        "query_id": "q018",
+        "relevant_in_context": true,
+        "score_margin": 0.08042134000000001,
+        "second_score": 0.9145404,
+        "top_score": 0.99496174
+      },
+      {
+        "answerable": false,
+        "best_exact_score": null,
+        "evidence_count": 12,
+        "expected_answer": false,
+        "query_id": "q019",
+        "relevant_in_context": false,
+        "score_margin": 0.00014169445099999998,
+        "second_score": 0.000017193359,
+        "top_score": 0.00015888781
+      },
+      {
+        "answerable": false,
+        "best_exact_score": null,
+        "evidence_count": 12,
+        "expected_answer": false,
+        "query_id": "q020",
+        "relevant_in_context": false,
+        "score_margin": 0.00031339279,
+        "second_score": 0.00013716905,
+        "top_score": 0.00045056184
+      },
+      {
+        "answerable": false,
+        "best_exact_score": null,
+        "evidence_count": 12,
+        "expected_answer": false,
+        "query_id": "q021",
+        "relevant_in_context": false,
+        "score_margin": 0.000010262552000000001,
+        "second_score": 0.000038540144,
+        "top_score": 0.000048802696
+      },
+      {
+        "answerable": false,
+        "best_exact_score": null,
+        "evidence_count": 4,
+        "expected_answer": false,
+        "query_id": "q022",
+        "relevant_in_context": false,
+        "score_margin": 0.0043155543,
+        "second_score": 0.0000164477,
+        "top_score": 0.004332002
+      },
+      {
+        "answerable": false,
+        "best_exact_score": null,
+        "evidence_count": 12,
+        "expected_answer": false,
+        "query_id": "q023",
+        "relevant_in_context": false,
+        "score_margin": 0.00003283447,
+        "second_score": 0.00010019453,
+        "top_score": 0.000133029
+      },
+      {
+        "answerable": false,
+        "best_exact_score": null,
+        "evidence_count": 12,
+        "expected_answer": false,
+        "query_id": "q024",
+        "relevant_in_context": false,
+        "score_margin": 0.08785360000000009,
+        "second_score": 0.743474,
+        "top_score": 0.8313276
+      },
+      {
+        "answerable": false,
+        "best_exact_score": null,
+        "evidence_count": 4,
+        "expected_answer": false,
+        "query_id": "q025",
+        "relevant_in_context": false,
+        "score_margin": 0.0005266060999999998,
+        "second_score": 0.0024126216,
+        "top_score": 0.0029392277
+      },
+      {
+        "answerable": false,
+        "best_exact_score": null,
+        "evidence_count": 1,
+        "expected_answer": false,
+        "query_id": "q026",
+        "relevant_in_context": false,
+        "score_margin": 0.020805797,
+        "second_score": null,
+        "top_score": 0.020805797
+      }
+    ],
+    "precision_target": 0.95,
+    "recall_target": 0.75,
+    "targets_met": true,
+    "thresholds": {
+      "exact_score_min": 1.0,
+      "min_evidence": 1,
+      "score_margin_min": 0.000143,
+      "top_score_min": 0.955798
+    }
+  },
+  "configuration": {
+    "context_token_budget": 5000,
+    "dense_limit": 40,
+    "domain_limit": 2,
+    "report_limit": 10,
+    "rerank_keep": 12,
+    "rerank_pool": 50,
+    "section_limit": 4,
+    "source_limit": 6,
+    "sparse_limit": 40,
+    "web_limit": 4
+  },
+  "modes": [
+    {
+      "by_category": {
+        "ambiguous_hint": {
+          "evaluated_answerable_queries": 1,
+          "latency_p50_ms": 0.19933299972763052,
+          "latency_p95_ms": 0.19933299972763052,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 7.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "collection": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 0.13764199957222445,
+          "latency_p95_ms": 0.145951999911631,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 5.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 0.7871546029909718,
+          "recall_at_10": 0.5,
+          "recall_at_5": 0.5
+        },
+        "exact_id": {
+          "evaluated_answerable_queries": 3,
+          "latency_p50_ms": 0.14122199991106754,
+          "latency_p95_ms": 0.14753199957340257,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 5.666666666666667,
+          "mrr": 1.0,
+          "ndcg_at_10": 0.9627582596011144,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "heading": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 0.13790200046059908,
+          "latency_p95_ms": 0.1547619995108107,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 4.5,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "repeated_passage": {
+          "evaluated_answerable_queries": 1,
+          "latency_p50_ms": 0.14725200071552536,
+          "latency_p95_ms": 0.14725200071552536,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 7.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "scoped": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 0.14432199986913474,
+          "latency_p95_ms": 0.1472430003559566,
+          "mean_source_types_at_10": 0.5,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 4.5,
+          "mrr": 0.5,
+          "ndcg_at_10": 0.5,
+          "recall_at_10": 0.5,
+          "recall_at_5": 0.5
+        },
+        "semantic": {
+          "evaluated_answerable_queries": 4,
+          "latency_p50_ms": 0.15460200029338012,
+          "latency_p95_ms": 0.1668129998506629,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 5.25,
+          "mrr": 0.75,
+          "ndcg_at_10": 0.643577301495486,
+          "recall_at_10": 0.5,
+          "recall_at_5": 0.5
+        },
+        "web_document": {
+          "evaluated_answerable_queries": 3,
+          "latency_p50_ms": 0.16017199959605932,
+          "latency_p95_ms": 0.19420300031924853,
+          "mean_source_types_at_10": 2.0,
+          "mean_unique_domains_at_10": 2.6666666666666665,
+          "mean_unique_sources_at_10": 6.666666666666667,
+          "mrr": 0.75,
+          "ndcg_at_10": 0.7205352774264319,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        }
+      },
+      "by_language": {
+        "en": {
+          "evaluated_answerable_queries": 11,
+          "latency_p50_ms": 0.1547619995108107,
+          "latency_p95_ms": 0.19933299972763052,
+          "mean_source_types_at_10": 1.1818181818181819,
+          "mean_unique_domains_at_10": 0.5454545454545454,
+          "mean_unique_sources_at_10": 7.909090909090909,
+          "mrr": 0.9090909090909091,
+          "ndcg_at_10": 0.8551235141818379,
+          "recall_at_10": 0.8636363636363636,
+          "recall_at_5": 0.8636363636363636
+        },
+        "tr": {
+          "evaluated_answerable_queries": 7,
+          "latency_p50_ms": 0.13790200046059908,
+          "latency_p95_ms": 0.15628300025127828,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.2857142857142857,
+          "mean_unique_sources_at_10": 1.8571428571428572,
+          "mrr": 0.75,
+          "ndcg_at_10": 0.6845914810066155,
+          "recall_at_10": 0.6428571428571429,
+          "recall_at_5": 0.6428571428571429
+        }
+      },
+      "metrics": {
+        "evaluated_answerable_queries": 18,
+        "latency_p50_ms": 0.145951999911631,
+        "latency_p95_ms": 0.19420300031924853,
+        "mean_source_types_at_10": 1.1153846153846154,
+        "mean_unique_domains_at_10": 0.38461538461538464,
+        "mean_unique_sources_at_10": 5.576923076923077,
+        "mrr": 0.8472222222222222,
+        "ndcg_at_10": 0.7888055012803625,
+        "recall_at_10": 0.7777777777777778,
+        "recall_at_5": 0.7777777777777778
+      },
+      "mode": "sparse_only",
+      "queries": [
+        {
+          "latency_ms": 0.14753199957340257,
+          "query_id": "q001",
+          "ranked_ids": [
+            "c001",
+            "c003",
+            "c002",
+            "c015",
+            "c008",
+            "c022",
+            "c029",
+            "c018",
+            "c010",
+            "c012"
+          ],
+          "scores": [
+            0.47941064,
+            0.44261709,
+            0.28471931,
+            0.17861873,
+            0.12802593,
+            0.12615012,
+            0.11262587,
+            0.11021393,
+            0.10990409,
+            0.0877058
+          ]
+        },
+        {
+          "latency_ms": 0.12474200048018247,
+          "query_id": "q002",
+          "ranked_ids": [
+            "c002",
+            "c001",
+            "c003"
+          ],
+          "scores": [
+            0.41788831,
+            0.23137331,
+            0.21286726
+          ]
+        },
+        {
+          "latency_ms": 0.16165300075954292,
+          "query_id": "q003",
+          "ranked_ids": [
+            "c030",
+            "c008",
+            "c024",
+            "c022",
+            "c028",
+            "c007",
+            "c010",
+            "c001",
+            "c012",
+            "c013"
+          ],
+          "scores": [
+            0.12885493,
+            0.11782257,
+            0.11434242,
+            0.11064097,
+            0.10535609,
+            0.09820211,
+            0.09639227,
+            0.0848908,
+            0.07692308,
+            0.07692308
+          ]
+        },
+        {
+          "latency_ms": 0.136552999720152,
+          "query_id": "q004",
+          "ranked_ids": [
+            "c027",
+            "c009"
+          ],
+          "scores": [
+            0.23354968,
+            0.06741999
+          ]
+        },
+        {
+          "latency_ms": 0.1547619995108107,
+          "query_id": "q005",
+          "ranked_ids": [
+            "c018",
+            "c030",
+            "c024",
+            "c006",
+            "c008",
+            "c029",
+            "c022",
+            "c028",
+            "c007",
+            "c010"
+          ],
+          "scores": [
+            0.29127929,
+            0.20682898,
+            0.19771885,
+            0.15075567,
+            0.12808664,
+            0.1268461,
+            0.12027942,
+            0.11453415,
+            0.10675695,
+            0.10478944
+          ]
+        },
+        {
+          "latency_ms": 0.13790200046059908,
+          "query_id": "q006",
+          "ranked_ids": [
+            "c019"
+          ],
+          "scores": [
+            0.30799546
+          ]
+        },
+        {
+          "latency_ms": 0.145951999911631,
+          "query_id": "q007",
+          "ranked_ids": [
+            "c004",
+            "c006",
+            "c001",
+            "c030",
+            "c008",
+            "c024",
+            "c022",
+            "c028",
+            "c007",
+            "c010"
+          ],
+          "scores": [
+            0.53665393,
+            0.14433757,
+            0.14054229,
+            0.13411646,
+            0.12263362,
+            0.11901136,
+            0.11515877,
+            0.1096581,
+            0.102212,
+            0.10032825
+          ]
+        },
+        {
+          "latency_ms": 0.13764199957222445,
+          "query_id": "q008",
+          "ranked_ids": [
+            "c016",
+            "c009"
+          ],
+          "scores": [
+            0.34585723,
+            0.06741999
+          ]
+        },
+        {
+          "latency_ms": 0.14725200071552536,
+          "query_id": "q009",
+          "ranked_ids": [
+            "c012",
+            "c013",
+            "c015",
+            "c018",
+            "c003",
+            "c008",
+            "c001",
+            "c029",
+            "c010",
+            "c014"
+          ],
+          "scores": [
+            0.50174521,
+            0.50174521,
+            0.17030627,
+            0.16714967,
+            0.12610475,
+            0.12206794,
+            0.10901123,
+            0.10738456,
+            0.10478944,
+            0.07537784
+          ]
+        },
+        {
+          "latency_ms": 0.14432199986913474,
+          "query_id": "q010",
+          "ranked_ids": [
+            "c022",
+            "c030",
+            "c008",
+            "c020",
+            "c021",
+            "c023",
+            "c003",
+            "c024",
+            "c028",
+            "c007"
+          ],
+          "scores": [
+            0.48369935,
+            0.24252848,
+            0.22176356,
+            0.17149859,
+            0.17149859,
+            0.16222142,
+            0.14787093,
+            0.14575855,
+            0.13430319,
+            0.12518362
+          ]
+        },
+        {
+          "latency_ms": 0.1472430003559566,
+          "query_id": "q011",
+          "ranked_ids": [],
+          "scores": []
+        },
+        {
+          "latency_ms": 0.14122199991106754,
+          "query_id": "q012",
+          "ranked_ids": [
+            "c010",
+            "c029",
+            "c022",
+            "c011",
+            "c003",
+            "c001",
+            "c015",
+            "c014",
+            "c020",
+            "c021"
+          ],
+          "scores": [
+            0.43445973,
+            0.22525174,
+            0.16188833,
+            0.15811388,
+            0.13225978,
+            0.11433194,
+            0.11229531,
+            0.07905694,
+            0.0766965,
+            0.0766965
+          ]
+        },
+        {
+          "latency_ms": 0.19933299972763052,
+          "query_id": "q013",
+          "ranked_ids": [
+            "c020",
+            "c021",
+            "c024",
+            "c007",
+            "c001",
+            "c003",
+            "c008",
+            "c028",
+            "c022",
+            "c029"
+          ],
+          "scores": [
+            0.35007002,
+            0.35007002,
+            0.25959141,
+            0.22294811,
+            0.19272744,
+            0.18110416,
+            0.18106919,
+            0.17442394,
+            0.17003255,
+            0.16353583
+          ]
+        },
+        {
+          "latency_ms": 0.16017199959605932,
+          "query_id": "q014",
+          "ranked_ids": [
+            "c024",
+            "w002",
+            "w001",
+            "c007",
+            "c001",
+            "w003",
+            "c003",
+            "c008",
+            "c028",
+            "c022"
+          ],
+          "scores": [
+            0.51953725,
+            0.32962653,
+            0.31835454,
+            0.21420162,
+            0.18516654,
+            0.18187489,
+            0.17399925,
+            0.17396565,
+            0.1675811,
+            0.16336199
+          ]
+        },
+        {
+          "latency_ms": 0.15628300025127828,
+          "query_id": "q015",
+          "ranked_ids": [
+            "c024",
+            "w002",
+            "c005",
+            "w001"
+          ],
+          "scores": [
+            0.08116393,
+            0.07769992,
+            0.07647191,
+            0.06720616
+          ]
+        },
+        {
+          "latency_ms": 0.19420300031924853,
+          "query_id": "q016",
+          "ranked_ids": [
+            "w003",
+            "c025",
+            "c008",
+            "c028",
+            "w002",
+            "c007",
+            "c030",
+            "w001",
+            "c012",
+            "c013"
+          ],
+          "scores": [
+            0.41612931,
+            0.36231938,
+            0.24012505,
+            0.22601097,
+            0.21578233,
+            0.21066419,
+            0.20493424,
+            0.20310622,
+            0.19459672,
+            0.19459672
+          ]
+        },
+        {
+          "latency_ms": 0.1668129998506629,
+          "query_id": "q017",
+          "ranked_ids": [
+            "c006",
+            "c004",
+            "c017",
+            "c014",
+            "c020",
+            "c023",
+            "c030",
+            "c015",
+            "c010",
+            "c008"
+          ],
+          "scores": [
+            0.30151134,
+            0.23812675,
+            0.18694559,
+            0.07537784,
+            0.07312724,
+            0.06917145,
+            0.06674891,
+            0.0632369,
+            0.06189033,
+            0.06103397
+          ]
+        },
+        {
+          "latency_ms": 0.15460200029338012,
+          "query_id": "q018",
+          "ranked_ids": [
+            "c009",
+            "c027",
+            "c002"
+          ],
+          "scores": [
+            0.32274861,
+            0.1490712,
+            0.05925548
+          ]
+        },
+        {
+          "latency_ms": 0.14778300010220846,
+          "query_id": "q019",
+          "ranked_ids": [
+            "c010",
+            "c029",
+            "c015",
+            "c001",
+            "c030",
+            "c008",
+            "c003",
+            "c024",
+            "c022",
+            "c028"
+          ],
+          "scores": [
+            0.23169817,
+            0.18883491,
+            0.18828067,
+            0.16228426,
+            0.15486435,
+            0.1416051,
+            0.13941405,
+            0.13742248,
+            0.1329739,
+            0.12662226
+          ]
+        },
+        {
+          "latency_ms": 0.1394219998474,
+          "query_id": "q020",
+          "ranked_ids": [
+            "c009"
+          ],
+          "scores": [
+            0.0745356
+          ]
+        },
+        {
+          "latency_ms": 0.1588830000400776,
+          "query_id": "q021",
+          "ranked_ids": [
+            "c030",
+            "c022",
+            "c008",
+            "c006",
+            "c020",
+            "c021",
+            "c023",
+            "c003",
+            "c024",
+            "c028"
+          ],
+          "scores": [
+            0.28693091,
+            0.25230023,
+            0.19835136,
+            0.15811388,
+            0.153393,
+            0.153393,
+            0.14509525,
+            0.13225978,
+            0.13037041,
+            0.12012443
+          ]
+        },
+        {
+          "latency_ms": 0.12620799952856032,
+          "query_id": "q022",
+          "ranked_ids": [
+            "c019"
+          ],
+          "scores": [
+            0.09203125
+          ]
+        },
+        {
+          "latency_ms": 0.1398980002704775,
+          "query_id": "q023",
+          "ranked_ids": [
+            "c010",
+            "c017",
+            "c029",
+            "c015",
+            "c012",
+            "c013",
+            "c020",
+            "c021",
+            "c023",
+            "c030"
+          ],
+          "scores": [
+            0.19544936,
+            0.1378165,
+            0.12591955,
+            0.12554997,
+            0.09805807,
+            0.09805807,
+            0.08574929,
+            0.08574929,
+            0.08111071,
+            0.07827003
+          ]
+        },
+        {
+          "latency_ms": 0.14154800010146573,
+          "query_id": "q024",
+          "ranked_ids": [
+            "c024",
+            "w002",
+            "w001",
+            "c018",
+            "c006",
+            "c030",
+            "c022"
+          ],
+          "scores": [
+            0.24349179,
+            0.15539984,
+            0.13441231,
+            0.11617568,
+            0.08333333,
+            0.07379369,
+            0.06336278
+          ]
+        },
+        {
+          "latency_ms": 0.12490900007833261,
+          "query_id": "q025",
+          "ranked_ids": [
+            "c010",
+            "c011"
+          ],
+          "scores": [
+            0.16759981,
+            0.10206207
+          ]
+        },
+        {
+          "latency_ms": 0.10445799944136525,
+          "query_id": "q026",
+          "ranked_ids": [
+            "c018",
+            "c030",
+            "c024",
+            "c006",
+            "c008",
+            "c022",
+            "c028",
+            "c007",
+            "c010",
+            "c001"
+          ],
+          "scores": [
+            0.21016972,
+            0.20682898,
+            0.19771885,
+            0.15075567,
+            0.12808664,
+            0.12027942,
+            0.11453415,
+            0.10675695,
+            0.10478944,
+            0.09228602
+          ]
+        }
+      ]
+    },
+    {
+      "by_category": {
+        "ambiguous_hint": {
+          "evaluated_answerable_queries": 1,
+          "latency_p50_ms": 64.04884400035371,
+          "latency_p95_ms": 64.04884400035371,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 7.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "collection": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 72.63214299928222,
+          "latency_p95_ms": 83.89947999967262,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 5.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "exact_id": {
+          "evaluated_answerable_queries": 3,
+          "latency_p50_ms": 72.75457099967753,
+          "latency_p95_ms": 86.87939599985839,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 6.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "heading": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 84.72915199945419,
+          "latency_p95_ms": 91.04891700008011,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 8.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "repeated_passage": {
+          "evaluated_answerable_queries": 1,
+          "latency_p50_ms": 72.21163600024738,
+          "latency_p95_ms": 72.21163600024738,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 5.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "scoped": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 49.53075899993564,
+          "latency_p95_ms": 65.2368610008125,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 7.5,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "semantic": {
+          "evaluated_answerable_queries": 4,
+          "latency_p50_ms": 74.7188779996577,
+          "latency_p95_ms": 106.37341200072115,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 6.25,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "web_document": {
+          "evaluated_answerable_queries": 3,
+          "latency_p50_ms": 78.8392369995563,
+          "latency_p95_ms": 100.18407799998386,
+          "mean_source_types_at_10": 2.0,
+          "mean_unique_domains_at_10": 2.6666666666666665,
+          "mean_unique_sources_at_10": 9.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        }
+      },
+      "by_language": {
+        "en": {
+          "evaluated_answerable_queries": 11,
+          "latency_p50_ms": 78.8392369995563,
+          "latency_p95_ms": 106.37341200072115,
+          "mean_source_types_at_10": 1.1818181818181819,
+          "mean_unique_domains_at_10": 0.45454545454545453,
+          "mean_unique_sources_at_10": 6.7272727272727275,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "tr": {
+          "evaluated_answerable_queries": 7,
+          "latency_p50_ms": 72.63214299928222,
+          "latency_p95_ms": 100.0520690004123,
+          "mean_source_types_at_10": 1.1428571428571428,
+          "mean_unique_domains_at_10": 0.42857142857142855,
+          "mean_unique_sources_at_10": 7.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        }
+      },
+      "metrics": {
+        "evaluated_answerable_queries": 18,
+        "latency_p50_ms": 73.73739199920237,
+        "latency_p95_ms": 100.18407799998386,
+        "mean_source_types_at_10": 1.1538461538461537,
+        "mean_unique_domains_at_10": 0.4230769230769231,
+        "mean_unique_sources_at_10": 6.961538461538462,
+        "mrr": 1.0,
+        "ndcg_at_10": 1.0,
+        "recall_at_10": 1.0,
+        "recall_at_5": 1.0
+      },
+      "mode": "dense_only",
+      "queries": [
+        {
+          "latency_ms": 72.75457099967753,
+          "query_id": "q001",
+          "ranked_ids": [
+            "c001",
+            "c002",
+            "c003",
+            "c021",
+            "c020",
+            "c008",
+            "c009",
+            "c011",
+            "c007",
+            "c017"
+          ],
+          "scores": [
+            0.69432496,
+            0.66585295,
+            0.5951369,
+            0.40881509,
+            0.39358288,
+            0.38584706,
+            0.37859649,
+            0.3719163,
+            0.36678002,
+            0.35072293
+          ]
+        },
+        {
+          "latency_ms": 69.88668900066841,
+          "query_id": "q002",
+          "ranked_ids": [
+            "c002",
+            "c001",
+            "c026",
+            "c027",
+            "c003",
+            "c008",
+            "c009",
+            "c012",
+            "c013",
+            "c028"
+          ],
+          "scores": [
+            0.63262781,
+            0.60026759,
+            0.42388434,
+            0.42361744,
+            0.42152217,
+            0.40423645,
+            0.40302935,
+            0.39158374,
+            0.39158374,
+            0.38903844
+          ]
+        },
+        {
+          "latency_ms": 67.48758499998075,
+          "query_id": "q003",
+          "ranked_ids": [
+            "c026",
+            "c027",
+            "c009",
+            "c007",
+            "c002",
+            "c025",
+            "c010",
+            "c001",
+            "c020",
+            "c008"
+          ],
+          "scores": [
+            0.68275228,
+            0.65323546,
+            0.43981143,
+            0.43886355,
+            0.4135993,
+            0.40827677,
+            0.39653792,
+            0.39631088,
+            0.39577433,
+            0.39557464
+          ]
+        },
+        {
+          "latency_ms": 100.0520690004123,
+          "query_id": "q004",
+          "ranked_ids": [
+            "c027",
+            "c026",
+            "c009",
+            "c007",
+            "c025",
+            "c008",
+            "c022",
+            "c018",
+            "c014",
+            "c002"
+          ],
+          "scores": [
+            0.77940662,
+            0.7716367,
+            0.50498736,
+            0.50069118,
+            0.47673962,
+            0.4740437,
+            0.45473646,
+            0.43910844,
+            0.43710355,
+            0.43062373
+          ]
+        },
+        {
+          "latency_ms": 91.04891700008011,
+          "query_id": "q005",
+          "ranked_ids": [
+            "c018",
+            "c019",
+            "c029",
+            "c008",
+            "c004",
+            "c012",
+            "c013",
+            "c024",
+            "c001",
+            "c025"
+          ],
+          "scores": [
+            0.72639165,
+            0.59754913,
+            0.45349296,
+            0.42666971,
+            0.410501,
+            0.40699028,
+            0.40699028,
+            0.39256818,
+            0.38438124,
+            0.38234943
+          ]
+        },
+        {
+          "latency_ms": 84.72915199945419,
+          "query_id": "q006",
+          "ranked_ids": [
+            "c019",
+            "c018",
+            "c029",
+            "c025",
+            "c005",
+            "c024",
+            "c004",
+            "c001",
+            "c030",
+            "c027"
+          ],
+          "scores": [
+            0.72368996,
+            0.63288129,
+            0.466169,
+            0.43608783,
+            0.43373958,
+            0.43349325,
+            0.43024372,
+            0.40460976,
+            0.39734343,
+            0.39625343
+          ]
+        },
+        {
+          "latency_ms": 83.89947999967262,
+          "query_id": "q007",
+          "ranked_ids": [
+            "c004",
+            "c005",
+            "c030",
+            "c018",
+            "c006",
+            "c019",
+            "c012",
+            "c013",
+            "c025",
+            "c014"
+          ],
+          "scores": [
+            0.73639457,
+            0.65130104,
+            0.47348614,
+            0.44800309,
+            0.43442057,
+            0.40773573,
+            0.4001602,
+            0.4001602,
+            0.39776515,
+            0.39390318
+          ]
+        },
+        {
+          "latency_ms": 72.63214299928222,
+          "query_id": "q008",
+          "ranked_ids": [
+            "c016",
+            "c015",
+            "c017",
+            "c028",
+            "c025",
+            "c029",
+            "c004",
+            "c006",
+            "c005",
+            "c008"
+          ],
+          "scores": [
+            0.76059495,
+            0.71551037,
+            0.45871246,
+            0.43485368,
+            0.4276249,
+            0.40186857,
+            0.3917322,
+            0.38469164,
+            0.37838039,
+            0.35307837
+          ]
+        },
+        {
+          "latency_ms": 72.21163600024738,
+          "query_id": "q009",
+          "ranked_ids": [
+            "c012",
+            "c013",
+            "c014",
+            "c001",
+            "c006",
+            "c018",
+            "c005",
+            "c026",
+            "c027",
+            "c004"
+          ],
+          "scores": [
+            0.83686929,
+            0.83686929,
+            0.54205968,
+            0.43296396,
+            0.40305131,
+            0.39381331,
+            0.39246944,
+            0.39075841,
+            0.38637327,
+            0.38594484
+          ]
+        },
+        {
+          "latency_ms": 65.2368610008125,
+          "query_id": "q010",
+          "ranked_ids": [
+            "c022",
+            "c029",
+            "c023",
+            "c008",
+            "c030",
+            "c007",
+            "c005",
+            "c028",
+            "c024",
+            "c009"
+          ],
+          "scores": [
+            0.7943367,
+            0.47511327,
+            0.46230309,
+            0.4429298,
+            0.43243896,
+            0.40950489,
+            0.40770597,
+            0.40751467,
+            0.39557151,
+            0.38596712
+          ]
+        },
+        {
+          "latency_ms": 49.53075899993564,
+          "query_id": "q011",
+          "ranked_ids": [
+            "c023",
+            "c029",
+            "c030",
+            "c022",
+            "c024",
+            "c028",
+            "c004",
+            "c005",
+            "c001",
+            "c020"
+          ],
+          "scores": [
+            0.66640213,
+            0.54075926,
+            0.49470822,
+            0.48561487,
+            0.46068472,
+            0.45852358,
+            0.40625698,
+            0.39762327,
+            0.38943633,
+            0.38839275
+          ]
+        },
+        {
+          "latency_ms": 86.87939599985839,
+          "query_id": "q012",
+          "ranked_ids": [
+            "c010",
+            "c011",
+            "c025",
+            "c020",
+            "c018",
+            "c012",
+            "c013",
+            "c021",
+            "c019",
+            "c027"
+          ],
+          "scores": [
+            0.77440467,
+            0.73917076,
+            0.38047447,
+            0.36645783,
+            0.36323911,
+            0.35238859,
+            0.35238859,
+            0.3453477,
+            0.34163523,
+            0.33536401
+          ]
+        },
+        {
+          "latency_ms": 64.04884400035371,
+          "query_id": "q013",
+          "ranked_ids": [
+            "c020",
+            "c021",
+            "c002",
+            "c001",
+            "c011",
+            "c025",
+            "c008",
+            "c029",
+            "c010",
+            "c009"
+          ],
+          "scores": [
+            0.70064417,
+            0.69289664,
+            0.45411825,
+            0.42010688,
+            0.38166045,
+            0.37002419,
+            0.3678186,
+            0.36544539,
+            0.3609389,
+            0.36085241
+          ]
+        },
+        {
+          "latency_ms": 78.8392369995563,
+          "query_id": "q014",
+          "ranked_ids": [
+            "w001",
+            "c024",
+            "w002",
+            "c029",
+            "c023",
+            "c025",
+            "w003",
+            "c028",
+            "c022",
+            "c021"
+          ],
+          "scores": [
+            0.81257033,
+            0.80986977,
+            0.61018526,
+            0.50459705,
+            0.48972923,
+            0.46442344,
+            0.46384487,
+            0.45405265,
+            0.43185632,
+            0.41052349
+          ]
+        },
+        {
+          "latency_ms": 60.115249000773474,
+          "query_id": "q015",
+          "ranked_ids": [
+            "w001",
+            "c024",
+            "w002",
+            "c029",
+            "c022",
+            "c023",
+            "c028",
+            "w003",
+            "c007",
+            "c021"
+          ],
+          "scores": [
+            0.76098113,
+            0.75251949,
+            0.57876451,
+            0.46031207,
+            0.43819503,
+            0.43813426,
+            0.41937128,
+            0.40059961,
+            0.36780427,
+            0.3649807
+          ]
+        },
+        {
+          "latency_ms": 100.18407799998386,
+          "query_id": "q016",
+          "ranked_ids": [
+            "w003",
+            "c025",
+            "c021",
+            "c026",
+            "c028",
+            "c007",
+            "c027",
+            "c023",
+            "w001",
+            "c022"
+          ],
+          "scores": [
+            0.66968119,
+            0.57686205,
+            0.43355237,
+            0.39563579,
+            0.38752303,
+            0.3717656,
+            0.3687415,
+            0.36661331,
+            0.36488219,
+            0.36224003
+          ]
+        },
+        {
+          "latency_ms": 106.37341200072115,
+          "query_id": "q017",
+          "ranked_ids": [
+            "c006",
+            "c015",
+            "c004",
+            "c005",
+            "c016",
+            "c014",
+            "c025",
+            "c012",
+            "c013",
+            "c028"
+          ],
+          "scores": [
+            0.74884771,
+            0.48655098,
+            0.47314774,
+            0.46448803,
+            0.458167,
+            0.42274248,
+            0.42185043,
+            0.40153451,
+            0.40153451,
+            0.38168284
+          ]
+        },
+        {
+          "latency_ms": 74.7188779996577,
+          "query_id": "q018",
+          "ranked_ids": [
+            "c009",
+            "c007",
+            "c008",
+            "c026",
+            "c027",
+            "c022",
+            "c017",
+            "c029",
+            "c014",
+            "c002"
+          ],
+          "scores": [
+            0.69103056,
+            0.65257771,
+            0.48188449,
+            0.46251373,
+            0.45756649,
+            0.40884776,
+            0.39462376,
+            0.38874133,
+            0.35664955,
+            0.35366911
+          ]
+        },
+        {
+          "latency_ms": 73.73739199920237,
+          "query_id": "q019",
+          "ranked_ids": [
+            "c007",
+            "c020",
+            "c029",
+            "c021",
+            "c009",
+            "c001",
+            "c008",
+            "c022",
+            "c018",
+            "c002"
+          ],
+          "scores": [
+            0.3897899,
+            0.38396713,
+            0.37724228,
+            0.37607121,
+            0.37326915,
+            0.36532775,
+            0.35915552,
+            0.35637041,
+            0.33802227,
+            0.3368069
+          ]
+        },
+        {
+          "latency_ms": 73.9468579986351,
+          "query_id": "q020",
+          "ranked_ids": [
+            "c001",
+            "c021",
+            "c020",
+            "c010",
+            "c002",
+            "c029",
+            "c009",
+            "c008",
+            "c011",
+            "c025"
+          ],
+          "scores": [
+            0.43392607,
+            0.38818876,
+            0.38566158,
+            0.37841305,
+            0.37581631,
+            0.37575794,
+            0.37371353,
+            0.36337292,
+            0.36279173,
+            0.352111
+          ]
+        },
+        {
+          "latency_ms": 72.88913300089916,
+          "query_id": "q021",
+          "ranked_ids": [
+            "c020",
+            "c011",
+            "c010",
+            "c021",
+            "c001",
+            "c014",
+            "c024",
+            "c007",
+            "c003",
+            "c025"
+          ],
+          "scores": [
+            0.38942786,
+            0.38643005,
+            0.38169594,
+            0.37579824,
+            0.37058529,
+            0.33156856,
+            0.314399,
+            0.31075845,
+            0.30630729,
+            0.30474966
+          ]
+        },
+        {
+          "latency_ms": 50.75747600039904,
+          "query_id": "q022",
+          "ranked_ids": [
+            "c030",
+            "c029",
+            "c005",
+            "c004",
+            "c022",
+            "c001",
+            "c016",
+            "c015",
+            "c018",
+            "c028"
+          ],
+          "scores": [
+            0.59395159,
+            0.50889708,
+            0.47709436,
+            0.47554961,
+            0.45427924,
+            0.40279735,
+            0.39549757,
+            0.385506,
+            0.37452796,
+            0.37276862
+          ]
+        },
+        {
+          "latency_ms": 79.35565799925826,
+          "query_id": "q023",
+          "ranked_ids": [
+            "c020",
+            "c021",
+            "c008",
+            "c002",
+            "c029",
+            "c018",
+            "c001",
+            "c023",
+            "c030",
+            "c028"
+          ],
+          "scores": [
+            0.49101417,
+            0.47760621,
+            0.34044393,
+            0.3371074,
+            0.32220362,
+            0.32131867,
+            0.31333484,
+            0.30332498,
+            0.30230817,
+            0.29489582
+          ]
+        },
+        {
+          "latency_ms": 75.185667000369,
+          "query_id": "q024",
+          "ranked_ids": [
+            "w001",
+            "c024",
+            "w002",
+            "c029",
+            "c023",
+            "c022",
+            "c028",
+            "w003",
+            "c007",
+            "c004"
+          ],
+          "scores": [
+            0.73957104,
+            0.73940205,
+            0.59861866,
+            0.4246493,
+            0.4146418,
+            0.40789564,
+            0.39460268,
+            0.38636037,
+            0.35192309,
+            0.34200989
+          ]
+        },
+        {
+          "latency_ms": 73.3192110001255,
+          "query_id": "q025",
+          "ranked_ids": [
+            "c010",
+            "c011",
+            "c020",
+            "c021",
+            "c029",
+            "c025",
+            "c001",
+            "c028",
+            "c003",
+            "c002"
+          ],
+          "scores": [
+            0.59116633,
+            0.54219117,
+            0.35957982,
+            0.34020358,
+            0.3000604,
+            0.28397677,
+            0.27394656,
+            0.26739113,
+            0.25383832,
+            0.24944907
+          ]
+        },
+        {
+          "latency_ms": 76.64612500047951,
+          "query_id": "q026",
+          "ranked_ids": [
+            "c018",
+            "c019",
+            "c012",
+            "c013",
+            "c001",
+            "c004",
+            "c029",
+            "c014",
+            "c011",
+            "c010"
+          ],
+          "scores": [
+            0.55809807,
+            0.55392801,
+            0.48565859,
+            0.48565859,
+            0.43625288,
+            0.42050365,
+            0.41345666,
+            0.40551174,
+            0.3967217,
+            0.39198274
+          ]
+        }
+      ]
+    },
+    {
+      "by_category": {
+        "ambiguous_hint": {
+          "evaluated_answerable_queries": 1,
+          "latency_p50_ms": 67.6889989999836,
+          "latency_p95_ms": 67.6889989999836,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 7.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "collection": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 71.02527900042332,
+          "latency_p95_ms": 84.57771099983802,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 6.5,
+          "mrr": 1.0,
+          "ndcg_at_10": 0.871492596168576,
+          "recall_at_10": 0.75,
+          "recall_at_5": 0.75
+        },
+        "exact_id": {
+          "evaluated_answerable_queries": 3,
+          "latency_p50_ms": 74.34663499952876,
+          "latency_p95_ms": 87.42249500028265,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 6.666666666666667,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "heading": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 87.96457999960694,
+          "latency_p95_ms": 90.81095399960759,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 7.5,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "repeated_passage": {
+          "evaluated_answerable_queries": 1,
+          "latency_p50_ms": 68.82055599999148,
+          "latency_p95_ms": 68.82055599999148,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 7.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "scoped": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 49.607279999690945,
+          "latency_p95_ms": 67.89638100053708,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 8.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "semantic": {
+          "evaluated_answerable_queries": 4,
+          "latency_p50_ms": 75.42701899910753,
+          "latency_p95_ms": 106.72808600065764,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 7.75,
+          "mrr": 0.8125,
+          "ndcg_at_10": 0.8068209534727808,
+          "recall_at_10": 0.875,
+          "recall_at_5": 0.875
+        },
+        "web_document": {
+          "evaluated_answerable_queries": 3,
+          "latency_p50_ms": 80.43705000000045,
+          "latency_p95_ms": 100.95524900043529,
+          "mean_source_types_at_10": 2.0,
+          "mean_unique_domains_at_10": 3.0,
+          "mean_unique_sources_at_10": 9.0,
+          "mrr": 0.8333333333333334,
+          "ndcg_at_10": 0.8216403286565354,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        }
+      },
+      "by_language": {
+        "en": {
+          "evaluated_answerable_queries": 11,
+          "latency_p50_ms": 80.43705000000045,
+          "latency_p95_ms": 106.72808600065764,
+          "mean_source_types_at_10": 1.1818181818181819,
+          "mean_unique_domains_at_10": 0.5454545454545454,
+          "mean_unique_sources_at_10": 7.909090909090909,
+          "mrr": 0.9318181818181818,
+          "ndcg_at_10": 0.9054686245888092,
+          "recall_at_10": 0.9090909090909091,
+          "recall_at_5": 0.9090909090909091
+        },
+        "tr": {
+          "evaluated_answerable_queries": 7,
+          "latency_p50_ms": 71.02527900042332,
+          "latency_p95_ms": 100.50298600071983,
+          "mean_source_types_at_10": 1.1428571428571428,
+          "mean_unique_domains_at_10": 0.42857142857142855,
+          "mean_unique_sources_at_10": 7.0,
+          "mrr": 0.9285714285714286,
+          "ndcg_at_10": 0.9250050173887115,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        }
+      },
+      "metrics": {
+        "evaluated_answerable_queries": 18,
+        "latency_p50_ms": 74.35246099976212,
+        "latency_p95_ms": 100.95524900043529,
+        "mean_source_types_at_10": 1.1538461538461537,
+        "mean_unique_domains_at_10": 0.4230769230769231,
+        "mean_unique_sources_at_10": 7.576923076923077,
+        "mrr": 0.9305555555555556,
+        "ndcg_at_10": 0.9130661106776601,
+        "recall_at_10": 0.9444444444444444,
+        "recall_at_5": 0.9444444444444444
+      },
+      "mode": "hybrid",
+      "queries": [
+        {
+          "latency_ms": 74.34663499952876,
+          "query_id": "q001",
+          "ranked_ids": [
+            "c001",
+            "c002",
+            "c003",
+            "c008",
+            "c021",
+            "c010",
+            "c020",
+            "c029",
+            "c011",
+            "c027"
+          ],
+          "scores": [
+            0.04891592,
+            0.04839549,
+            0.04787506,
+            0.03053613,
+            0.02861201,
+            0.02857726,
+            0.02854251,
+            0.02843889,
+            0.02840451,
+            0.02758752
+          ]
+        },
+        {
+          "latency_ms": 70.47954800054868,
+          "query_id": "q002",
+          "ranked_ids": [
+            "c002",
+            "c001",
+            "c003",
+            "c026",
+            "c027",
+            "c008",
+            "c009",
+            "c012",
+            "c013",
+            "c028"
+          ],
+          "scores": [
+            0.04918033,
+            0.0483871,
+            0.04713065,
+            0.01587302,
+            0.015625,
+            0.01515152,
+            0.01492537,
+            0.01470588,
+            0.01449275,
+            0.01428571
+          ]
+        },
+        {
+          "latency_ms": 68.05191300009028,
+          "query_id": "q003",
+          "ranked_ids": [
+            "c007",
+            "c008",
+            "c010",
+            "c026",
+            "c022",
+            "c028",
+            "c001",
+            "c025",
+            "c024",
+            "c030"
+          ],
+          "scores": [
+            0.03077652,
+            0.03041475,
+            0.02985075,
+            0.02955134,
+            0.02951389,
+            0.02946912,
+            0.02941176,
+            0.02923602,
+            0.02920635,
+            0.02844164
+          ]
+        },
+        {
+          "latency_ms": 100.50298600071983,
+          "query_id": "q004",
+          "ranked_ids": [
+            "c027",
+            "c009",
+            "c026",
+            "c007",
+            "c025",
+            "c008",
+            "c022",
+            "c018",
+            "c014",
+            "c002"
+          ],
+          "scores": [
+            0.03278689,
+            0.03200205,
+            0.01612903,
+            0.015625,
+            0.01538462,
+            0.01515152,
+            0.01492537,
+            0.01470588,
+            0.01449275,
+            0.01428571
+          ]
+        },
+        {
+          "latency_ms": 90.81095399960759,
+          "query_id": "q005",
+          "ranked_ids": [
+            "c018",
+            "c029",
+            "c008",
+            "c024",
+            "c030",
+            "c012",
+            "c013",
+            "c028",
+            "c001",
+            "c007"
+          ],
+          "scores": [
+            0.03278689,
+            0.03102453,
+            0.03100962,
+            0.0305789,
+            0.02911605,
+            0.0290404,
+            0.028624,
+            0.02859477,
+            0.02857726,
+            0.02819138
+          ]
+        },
+        {
+          "latency_ms": 87.96457999960694,
+          "query_id": "q006",
+          "ranked_ids": [
+            "c019",
+            "c018",
+            "c029",
+            "c025",
+            "c005",
+            "c024",
+            "c004",
+            "c001",
+            "c030",
+            "c027"
+          ],
+          "scores": [
+            0.03278689,
+            0.01612903,
+            0.01587302,
+            0.015625,
+            0.01538462,
+            0.01515152,
+            0.01492537,
+            0.01470588,
+            0.01449275,
+            0.01428571
+          ]
+        },
+        {
+          "latency_ms": 84.57771099983802,
+          "query_id": "q007",
+          "ranked_ids": [
+            "c004",
+            "c006",
+            "c030",
+            "c012",
+            "c022",
+            "c013",
+            "c001",
+            "c008",
+            "c025",
+            "c024"
+          ],
+          "scores": [
+            0.03278689,
+            0.03151365,
+            0.03149802,
+            0.02900988,
+            0.02881426,
+            0.02859477,
+            0.02837302,
+            0.02820513,
+            0.02819138,
+            0.02813853
+          ]
+        },
+        {
+          "latency_ms": 71.02527900042332,
+          "query_id": "q008",
+          "ranked_ids": [
+            "c016",
+            "c009",
+            "c015",
+            "c017",
+            "c028",
+            "c025",
+            "c029",
+            "c004",
+            "c006",
+            "c005"
+          ],
+          "scores": [
+            0.03278689,
+            0.02878726,
+            0.01612903,
+            0.01587302,
+            0.015625,
+            0.01538462,
+            0.01515152,
+            0.01492537,
+            0.01470588,
+            0.01449275
+          ]
+        },
+        {
+          "latency_ms": 68.82055599999148,
+          "query_id": "q009",
+          "ranked_ids": [
+            "c012",
+            "c013",
+            "c018",
+            "c001",
+            "c014",
+            "c008",
+            "c029",
+            "c004",
+            "c015",
+            "c007"
+          ],
+          "scores": [
+            0.03278689,
+            0.03225806,
+            0.03077652,
+            0.03055037,
+            0.03015873,
+            0.02866503,
+            0.02840451,
+            0.02798434,
+            0.02777778,
+            0.02759802
+          ]
+        },
+        {
+          "latency_ms": 67.89638100053708,
+          "query_id": "q010",
+          "ranked_ids": [
+            "c022",
+            "c030",
+            "c008",
+            "c023",
+            "c007",
+            "c024",
+            "c028",
+            "c021",
+            "c001",
+            "c029"
+          ],
+          "scores": [
+            0.03278689,
+            0.03151365,
+            0.03149802,
+            0.03102453,
+            0.02943723,
+            0.02919864,
+            0.02919864,
+            0.02820513,
+            0.0279734,
+            0.02789374
+          ]
+        },
+        {
+          "latency_ms": 49.607279999690945,
+          "query_id": "q011",
+          "ranked_ids": [
+            "c023",
+            "c029",
+            "c030",
+            "c022",
+            "c024",
+            "c028",
+            "c004",
+            "c005",
+            "c001",
+            "c020"
+          ],
+          "scores": [
+            0.01639344,
+            0.01612903,
+            0.01587302,
+            0.015625,
+            0.01538462,
+            0.01515152,
+            0.01492537,
+            0.01470588,
+            0.01449275,
+            0.01428571
+          ]
+        },
+        {
+          "latency_ms": 87.42249500028265,
+          "query_id": "q012",
+          "ranked_ids": [
+            "c010",
+            "c011",
+            "c020",
+            "c029",
+            "c001",
+            "c021",
+            "c026",
+            "c022",
+            "c003",
+            "c014"
+          ],
+          "scores": [
+            0.04891592,
+            0.04814747,
+            0.03011775,
+            0.02964255,
+            0.02923602,
+            0.0289916,
+            0.0279734,
+            0.02792121,
+            0.02757974,
+            0.02736411
+          ]
+        },
+        {
+          "latency_ms": 67.6889989999836,
+          "query_id": "q013",
+          "ranked_ids": [
+            "c020",
+            "c021",
+            "c001",
+            "c024",
+            "c008",
+            "c007",
+            "c029",
+            "c028",
+            "c003",
+            "c025"
+          ],
+          "scores": [
+            0.04918033,
+            0.0483871,
+            0.03100962,
+            0.02995752,
+            0.02985075,
+            0.02932363,
+            0.0289916,
+            0.02859477,
+            0.02848485,
+            0.02797203
+          ]
+        },
+        {
+          "latency_ms": 80.43705000000045,
+          "query_id": "q014",
+          "ranked_ids": [
+            "c024",
+            "w001",
+            "w002",
+            "w003",
+            "c007",
+            "c029",
+            "c028",
+            "c022",
+            "c001",
+            "c023"
+          ],
+          "scores": [
+            0.03252247,
+            0.03226646,
+            0.03200205,
+            0.03007689,
+            0.02970951,
+            0.02970951,
+            0.02919864,
+            0.02877847,
+            0.02871795,
+            0.02804284
+          ]
+        },
+        {
+          "latency_ms": 60.153479000291554,
+          "query_id": "q015",
+          "ranked_ids": [
+            "c024",
+            "w001",
+            "w002",
+            "c005",
+            "c029",
+            "c022",
+            "c023",
+            "c028",
+            "w003",
+            "c007"
+          ],
+          "scores": [
+            0.03252247,
+            0.03201844,
+            0.03200205,
+            0.02710897,
+            0.015625,
+            0.01538462,
+            0.01515152,
+            0.01492537,
+            0.01470588,
+            0.01449275
+          ]
+        },
+        {
+          "latency_ms": 100.95524900043529,
+          "query_id": "q016",
+          "ranked_ids": [
+            "w003",
+            "c025",
+            "c028",
+            "c007",
+            "c008",
+            "c021",
+            "w001",
+            "w002",
+            "c026",
+            "c022"
+          ],
+          "scores": [
+            0.03278689,
+            0.03225806,
+            0.03100962,
+            0.03030303,
+            0.02957165,
+            0.02938653,
+            0.02919864,
+            0.02854251,
+            0.02828323,
+            0.0281746
+          ]
+        },
+        {
+          "latency_ms": 106.72808600065764,
+          "query_id": "q017",
+          "ranked_ids": [
+            "c006",
+            "c004",
+            "c015",
+            "c014",
+            "c017",
+            "c008",
+            "c030",
+            "c001",
+            "c023",
+            "c020"
+          ],
+          "scores": [
+            0.03278689,
+            0.03200205,
+            0.03083491,
+            0.03077652,
+            0.02938653,
+            0.0281746,
+            0.02808327,
+            0.02778314,
+            0.02691622,
+            0.02687887
+          ]
+        },
+        {
+          "latency_ms": 75.42701899910753,
+          "query_id": "q018",
+          "ranked_ids": [
+            "c009",
+            "c027",
+            "c002",
+            "c007",
+            "c008",
+            "c026",
+            "c022",
+            "c017",
+            "c029",
+            "c014"
+          ],
+          "scores": [
+            0.03278689,
+            0.03151365,
+            0.03015873,
+            0.01612903,
+            0.01587302,
+            0.015625,
+            0.01515152,
+            0.01492537,
+            0.01470588,
+            0.01449275
+          ]
+        },
+        {
+          "latency_ms": 74.35246099976212,
+          "query_id": "q019",
+          "ranked_ids": [
+            "c029",
+            "c001",
+            "c007",
+            "c008",
+            "c030",
+            "c015",
+            "c022",
+            "c020",
+            "c003",
+            "c021"
+          ],
+          "scores": [
+            0.03200205,
+            0.03077652,
+            0.03047795,
+            0.03007689,
+            0.02946912,
+            0.02938653,
+            0.02919864,
+            0.02911605,
+            0.02881426,
+            0.02844551
+          ]
+        },
+        {
+          "latency_ms": 74.25699199939118,
+          "query_id": "q020",
+          "ranked_ids": [
+            "c009",
+            "c001",
+            "c021",
+            "c020",
+            "c010",
+            "c002",
+            "c029",
+            "c008",
+            "c011",
+            "c025"
+          ],
+          "scores": [
+            0.03131882,
+            0.01639344,
+            0.01612903,
+            0.01587302,
+            0.015625,
+            0.01538462,
+            0.01515152,
+            0.01470588,
+            0.01449275,
+            0.01428571
+          ]
+        },
+        {
+          "latency_ms": 75.37497900011658,
+          "query_id": "q021",
+          "ranked_ids": [
+            "c020",
+            "c021",
+            "c022",
+            "c010",
+            "c024",
+            "c003",
+            "c008",
+            "c001",
+            "c007",
+            "c011"
+          ],
+          "scores": [
+            0.03177806,
+            0.03077652,
+            0.03021354,
+            0.02957165,
+            0.02941813,
+            0.02919864,
+            0.02903091,
+            0.02889813,
+            0.02879039,
+            0.02878726
+          ]
+        },
+        {
+          "latency_ms": 51.311658000486204,
+          "query_id": "q022",
+          "ranked_ids": [
+            "c019",
+            "c030",
+            "c029",
+            "c005",
+            "c004",
+            "c022",
+            "c001",
+            "c016",
+            "c015",
+            "c018"
+          ],
+          "scores": [
+            0.03047795,
+            0.01639344,
+            0.01612903,
+            0.01587302,
+            0.015625,
+            0.01538462,
+            0.01515152,
+            0.01492537,
+            0.01470588,
+            0.01449275
+          ]
+        },
+        {
+          "latency_ms": 80.07734699913271,
+          "query_id": "q023",
+          "ranked_ids": [
+            "c020",
+            "c021",
+            "c029",
+            "c023",
+            "c012",
+            "c010",
+            "c030",
+            "c013",
+            "c001",
+            "c017"
+          ],
+          "scores": [
+            0.04771226,
+            0.04696395,
+            0.03125763,
+            0.02919864,
+            0.02908325,
+            0.02889344,
+            0.02877847,
+            0.02866503,
+            0.028624,
+            0.02832415
+          ]
+        },
+        {
+          "latency_ms": 76.37435000015103,
+          "query_id": "q024",
+          "ranked_ids": [
+            "c024",
+            "w001",
+            "w002",
+            "c022",
+            "c018",
+            "c006",
+            "c030",
+            "c029",
+            "c023",
+            "c028"
+          ],
+          "scores": [
+            0.03252247,
+            0.03226646,
+            0.03200205,
+            0.03007689,
+            0.02725291,
+            0.02674825,
+            0.02664577,
+            0.015625,
+            0.01538462,
+            0.01492537
+          ]
+        },
+        {
+          "latency_ms": 73.65896699957375,
+          "query_id": "q025",
+          "ranked_ids": [
+            "c010",
+            "c011",
+            "c020",
+            "c021",
+            "c029",
+            "c025",
+            "c001",
+            "c028",
+            "c003",
+            "c002"
+          ],
+          "scores": [
+            0.03278689,
+            0.03225806,
+            0.01587302,
+            0.015625,
+            0.01538462,
+            0.01515152,
+            0.01492537,
+            0.01470588,
+            0.01449275,
+            0.01428571
+          ]
+        },
+        {
+          "latency_ms": 77.45285400051216,
+          "query_id": "q026",
+          "ranked_ids": [
+            "c018",
+            "c012",
+            "c006",
+            "c001",
+            "c013",
+            "c024",
+            "c008",
+            "c010",
+            "c030",
+            "c014"
+          ],
+          "scores": [
+            0.03278689,
+            0.02995752,
+            0.02970951,
+            0.02967033,
+            0.02951389,
+            0.02903091,
+            0.02889813,
+            0.02877847,
+            0.02862903,
+            0.0282194
+          ]
+        }
+      ]
+    },
+    {
+      "by_category": {
+        "ambiguous_hint": {
+          "evaluated_answerable_queries": 1,
+          "latency_p50_ms": 64.37028999971517,
+          "latency_p95_ms": 64.37028999971517,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 7.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "collection": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 66.94258900006389,
+          "latency_p95_ms": 80.37932800016279,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 2.5,
+          "mrr": 1.0,
+          "ndcg_at_10": 0.9588300803300535,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "exact_id": {
+          "evaluated_answerable_queries": 3,
+          "latency_p50_ms": 74.3276049997803,
+          "latency_p95_ms": 83.3754030009004,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 5.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "heading": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 80.6107209991751,
+          "latency_p95_ms": 86.33262699913757,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 1.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "repeated_passage": {
+          "evaluated_answerable_queries": 1,
+          "latency_p50_ms": 65.79706100001204,
+          "latency_p95_ms": 65.79706100001204,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 1.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "scoped": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 46.94881999967038,
+          "latency_p95_ms": 62.90225700013252,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 4.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "semantic": {
+          "evaluated_answerable_queries": 4,
+          "latency_p50_ms": 71.09562399909919,
+          "latency_p95_ms": 103.78379200028576,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 5.0,
+          "mrr": 0.8125,
+          "ndcg_at_10": 0.82370990610849,
+          "recall_at_10": 0.875,
+          "recall_at_5": 0.875
+        },
+        "web_document": {
+          "evaluated_answerable_queries": 3,
+          "latency_p50_ms": 77.94900299995788,
+          "latency_p95_ms": 100.24130900001182,
+          "mean_source_types_at_10": 2.0,
+          "mean_unique_domains_at_10": 3.0,
+          "mean_unique_sources_at_10": 9.0,
+          "mrr": 0.8333333333333334,
+          "ndcg_at_10": 0.8216403286565354,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        }
+      },
+      "by_language": {
+        "en": {
+          "evaluated_answerable_queries": 11,
+          "latency_p50_ms": 77.94900299995788,
+          "latency_p95_ms": 103.78379200028576,
+          "mean_source_types_at_10": 1.1818181818181819,
+          "mean_unique_domains_at_10": 0.5454545454545454,
+          "mean_unique_sources_at_10": 5.181818181818182,
+          "mrr": 0.9318181818181818,
+          "ndcg_at_10": 0.9173327661950942,
+          "recall_at_10": 0.9545454545454546,
+          "recall_at_5": 0.9545454545454546
+        },
+        "tr": {
+          "evaluated_answerable_queries": 7,
+          "latency_p50_ms": 71.09562399909919,
+          "latency_p95_ms": 100.70894900036365,
+          "mean_source_types_at_10": 1.1428571428571428,
+          "mean_unique_domains_at_10": 0.42857142857142855,
+          "mean_unique_sources_at_10": 4.0,
+          "mrr": 0.9285714285714286,
+          "ndcg_at_10": 0.9409657632739482,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        }
+      },
+      "metrics": {
+        "evaluated_answerable_queries": 18,
+        "latency_p50_ms": 74.02360899959604,
+        "latency_p95_ms": 100.70894900036365,
+        "mean_source_types_at_10": 1.1538461538461537,
+        "mean_unique_domains_at_10": 0.4230769230769231,
+        "mean_unique_sources_at_10": 5.038461538461538,
+        "mrr": 0.9305555555555556,
+        "ndcg_at_10": 0.9265233761702041,
+        "recall_at_10": 0.9722222222222222,
+        "recall_at_5": 0.9722222222222222
+      },
+      "mode": "scoped_hybrid",
+      "queries": [
+        {
+          "latency_ms": 71.18980799987185,
+          "query_id": "q001",
+          "ranked_ids": [
+            "c001",
+            "c002",
+            "c003",
+            "c008",
+            "c021",
+            "c010",
+            "c020",
+            "c029",
+            "c011",
+            "c027"
+          ],
+          "scores": [
+            0.04891592,
+            0.04839549,
+            0.04787506,
+            0.03053613,
+            0.02861201,
+            0.02857726,
+            0.02854251,
+            0.02843889,
+            0.02840451,
+            0.02758752
+          ]
+        },
+        {
+          "latency_ms": 74.3276049997803,
+          "query_id": "q002",
+          "ranked_ids": [
+            "c002",
+            "c001",
+            "c003",
+            "c026",
+            "c027",
+            "c008",
+            "c009",
+            "c012",
+            "c013",
+            "c028"
+          ],
+          "scores": [
+            0.04918033,
+            0.0483871,
+            0.04713065,
+            0.01587302,
+            0.015625,
+            0.01515152,
+            0.01492537,
+            0.01470588,
+            0.01449275,
+            0.01428571
+          ]
+        },
+        {
+          "latency_ms": 68.04878300044948,
+          "query_id": "q003",
+          "ranked_ids": [
+            "c007",
+            "c008",
+            "c010",
+            "c026",
+            "c022",
+            "c028",
+            "c001",
+            "c025",
+            "c024",
+            "c030"
+          ],
+          "scores": [
+            0.03077652,
+            0.03041475,
+            0.02985075,
+            0.02955134,
+            0.02951389,
+            0.02946912,
+            0.02941176,
+            0.02923602,
+            0.02920635,
+            0.02844164
+          ]
+        },
+        {
+          "latency_ms": 100.70894900036365,
+          "query_id": "q004",
+          "ranked_ids": [
+            "c027",
+            "c009",
+            "c026",
+            "c007",
+            "c025",
+            "c008",
+            "c022",
+            "c018",
+            "c014",
+            "c002"
+          ],
+          "scores": [
+            0.03278689,
+            0.03200205,
+            0.01612903,
+            0.015625,
+            0.01538462,
+            0.01515152,
+            0.01492537,
+            0.01470588,
+            0.01449275,
+            0.01428571
+          ]
+        },
+        {
+          "latency_ms": 86.33262699913757,
+          "query_id": "q005",
+          "ranked_ids": [
+            "c018"
+          ],
+          "scores": [
+            0.03278689
+          ]
+        },
+        {
+          "latency_ms": 80.6107209991751,
+          "query_id": "q006",
+          "ranked_ids": [
+            "c019"
+          ],
+          "scores": [
+            0.03278689
+          ]
+        },
+        {
+          "latency_ms": 80.37932800016279,
+          "query_id": "q007",
+          "ranked_ids": [
+            "c004",
+            "c006",
+            "c030",
+            "c023",
+            "c005"
+          ],
+          "scores": [
+            0.03278689,
+            0.03175403,
+            0.03174603,
+            0.03100962,
+            0.01612903
+          ]
+        },
+        {
+          "latency_ms": 66.94258900006389,
+          "query_id": "q008",
+          "ranked_ids": [
+            "c016",
+            "c015",
+            "c017",
+            "c030"
+          ],
+          "scores": [
+            0.03278689,
+            0.01612903,
+            0.01587302,
+            0.015625
+          ]
+        },
+        {
+          "latency_ms": 65.79706100001204,
+          "query_id": "q009",
+          "ranked_ids": [
+            "c012",
+            "c013",
+            "c014"
+          ],
+          "scores": [
+            0.03278689,
+            0.03225806,
+            0.03174603
+          ]
+        },
+        {
+          "latency_ms": 62.90225700013252,
+          "query_id": "q010",
+          "ranked_ids": [
+            "c022",
+            "c008",
+            "c007",
+            "c001",
+            "c003",
+            "c014",
+            "c012",
+            "c027",
+            "c026",
+            "c013"
+          ],
+          "scores": [
+            0.03278689,
+            0.03225806,
+            0.03149802,
+            0.03076923,
+            0.0297619,
+            0.02964427,
+            0.02943723,
+            0.02941176,
+            0.02921109,
+            0.02900988
+          ]
+        },
+        {
+          "latency_ms": 46.94881999967038,
+          "query_id": "q011",
+          "ranked_ids": [
+            "c023",
+            "c030",
+            "c004",
+            "c005",
+            "c006"
+          ],
+          "scores": [
+            0.01639344,
+            0.01612903,
+            0.01587302,
+            0.015625,
+            0.01538462
+          ]
+        },
+        {
+          "latency_ms": 83.3754030009004,
+          "query_id": "q012",
+          "ranked_ids": [
+            "c010",
+            "c011",
+            "c020",
+            "c021"
+          ],
+          "scores": [
+            0.04891592,
+            0.04865151,
+            0.03174603,
+            0.03125
+          ]
+        },
+        {
+          "latency_ms": 64.37028999971517,
+          "query_id": "q013",
+          "ranked_ids": [
+            "c020",
+            "c021",
+            "c001",
+            "c024",
+            "c008",
+            "c007",
+            "c029",
+            "c028",
+            "c003",
+            "c025"
+          ],
+          "scores": [
+            0.04918033,
+            0.0483871,
+            0.03100962,
+            0.02995752,
+            0.02985075,
+            0.02932363,
+            0.0289916,
+            0.02859477,
+            0.02848485,
+            0.02797203
+          ]
+        },
+        {
+          "latency_ms": 77.94900299995788,
+          "query_id": "q014",
+          "ranked_ids": [
+            "c024",
+            "w001",
+            "w002",
+            "w003",
+            "c007",
+            "c029",
+            "c028",
+            "c022",
+            "c001",
+            "c023"
+          ],
+          "scores": [
+            0.03252247,
+            0.03226646,
+            0.03200205,
+            0.03007689,
+            0.02970951,
+            0.02970951,
+            0.02919864,
+            0.02877847,
+            0.02871795,
+            0.02804284
+          ]
+        },
+        {
+          "latency_ms": 60.13032899954851,
+          "query_id": "q015",
+          "ranked_ids": [
+            "c024",
+            "w001",
+            "w002",
+            "c005",
+            "c029",
+            "c022",
+            "c023",
+            "c028",
+            "w003",
+            "c007"
+          ],
+          "scores": [
+            0.03252247,
+            0.03201844,
+            0.03200205,
+            0.02710897,
+            0.015625,
+            0.01538462,
+            0.01515152,
+            0.01492537,
+            0.01470588,
+            0.01449275
+          ]
+        },
+        {
+          "latency_ms": 100.24130900001182,
+          "query_id": "q016",
+          "ranked_ids": [
+            "w003",
+            "c025",
+            "c028",
+            "c007",
+            "c008",
+            "c021",
+            "w001",
+            "w002",
+            "c026",
+            "c022"
+          ],
+          "scores": [
+            0.03278689,
+            0.03225806,
+            0.03100962,
+            0.03030303,
+            0.02957165,
+            0.02938653,
+            0.02919864,
+            0.02854251,
+            0.02828323,
+            0.0281746
+          ]
+        },
+        {
+          "latency_ms": 103.78379200028576,
+          "query_id": "q017",
+          "ranked_ids": [
+            "c006",
+            "c004",
+            "c023",
+            "c030",
+            "c005"
+          ],
+          "scores": [
+            0.03278689,
+            0.03225806,
+            0.03125763,
+            0.03125,
+            0.01587302
+          ]
+        },
+        {
+          "latency_ms": 71.09562399909919,
+          "query_id": "q018",
+          "ranked_ids": [
+            "c009",
+            "c007",
+            "c008"
+          ],
+          "scores": [
+            0.03278689,
+            0.01612903,
+            0.01587302
+          ]
+        },
+        {
+          "latency_ms": 74.27871100026096,
+          "query_id": "q019",
+          "ranked_ids": [
+            "c029",
+            "c001",
+            "c007",
+            "c008",
+            "c030",
+            "c015",
+            "c022",
+            "c020",
+            "c003",
+            "c021"
+          ],
+          "scores": [
+            0.03200205,
+            0.03077652,
+            0.03047795,
+            0.03007689,
+            0.02946912,
+            0.02938653,
+            0.02919864,
+            0.02911605,
+            0.02881426,
+            0.02844551
+          ]
+        },
+        {
+          "latency_ms": 74.33176299855404,
+          "query_id": "q020",
+          "ranked_ids": [
+            "c009",
+            "c001",
+            "c021",
+            "c020",
+            "c010",
+            "c002",
+            "c029",
+            "c008",
+            "c011",
+            "c025"
+          ],
+          "scores": [
+            0.03131882,
+            0.01639344,
+            0.01612903,
+            0.01587302,
+            0.015625,
+            0.01538462,
+            0.01515152,
+            0.01470588,
+            0.01449275,
+            0.01428571
+          ]
+        },
+        {
+          "latency_ms": 74.02360899959604,
+          "query_id": "q021",
+          "ranked_ids": [
+            "c020",
+            "c021",
+            "c022",
+            "c010",
+            "c024",
+            "c003",
+            "c008",
+            "c001",
+            "c007",
+            "c011"
+          ],
+          "scores": [
+            0.03177806,
+            0.03077652,
+            0.03021354,
+            0.02957165,
+            0.02941813,
+            0.02919864,
+            0.02903091,
+            0.02889813,
+            0.02879039,
+            0.02878726
+          ]
+        },
+        {
+          "latency_ms": 47.271395001189376,
+          "query_id": "q022",
+          "ranked_ids": [
+            "c030",
+            "c016",
+            "c015",
+            "c017"
+          ],
+          "scores": [
+            0.01639344,
+            0.01612903,
+            0.01587302,
+            0.015625
+          ]
+        },
+        {
+          "latency_ms": 80.76152799912961,
+          "query_id": "q023",
+          "ranked_ids": [
+            "c020",
+            "c021",
+            "c029",
+            "c023",
+            "c012",
+            "c010",
+            "c030",
+            "c013",
+            "c001",
+            "c017"
+          ],
+          "scores": [
+            0.04771226,
+            0.04696395,
+            0.03125763,
+            0.02919864,
+            0.02908325,
+            0.02889344,
+            0.02877847,
+            0.02866503,
+            0.028624,
+            0.02832415
+          ]
+        },
+        {
+          "latency_ms": 78.13904599970556,
+          "query_id": "q024",
+          "ranked_ids": [
+            "c024",
+            "w001",
+            "w002",
+            "c022",
+            "c018",
+            "c006",
+            "c030",
+            "c029",
+            "c023",
+            "c028"
+          ],
+          "scores": [
+            0.03252247,
+            0.03226646,
+            0.03200205,
+            0.03007689,
+            0.02725291,
+            0.02674825,
+            0.02664577,
+            0.015625,
+            0.01538462,
+            0.01492537
+          ]
+        },
+        {
+          "latency_ms": 69.50722100009443,
+          "query_id": "q025",
+          "ranked_ids": [
+            "c010",
+            "c011",
+            "c020",
+            "c021"
+          ],
+          "scores": [
+            0.03278689,
+            0.03225806,
+            0.01587302,
+            0.015625
+          ]
+        },
+        {
+          "latency_ms": 73.92447100028221,
+          "query_id": "q026",
+          "ranked_ids": [
+            "c018"
+          ],
+          "scores": [
+            0.03278689
+          ]
+        }
+      ]
+    },
+    {
+      "by_category": {
+        "ambiguous_hint": {
+          "evaluated_answerable_queries": 1,
+          "latency_p50_ms": 8419.575613999768,
+          "latency_p95_ms": 8419.575613999768,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 7.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "collection": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 1167.4022120005247,
+          "latency_p95_ms": 1223.5466160000215,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 2.5,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "exact_id": {
+          "evaluated_answerable_queries": 3,
+          "latency_p50_ms": 7995.3943709997475,
+          "latency_p95_ms": 8304.247189999842,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 5.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 0.9446637441327163,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "heading": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 379.0845289995559,
+          "latency_p95_ms": 384.63013199907437,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 1.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "repeated_passage": {
+          "evaluated_answerable_queries": 1,
+          "latency_p50_ms": 898.0784579998726,
+          "latency_p95_ms": 898.0784579998726,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 1.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "scoped": {
+          "evaluated_answerable_queries": 2,
+          "latency_p50_ms": 1195.1413229999162,
+          "latency_p95_ms": 3306.198473999757,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 4.0,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "semantic": {
+          "evaluated_answerable_queries": 4,
+          "latency_p50_ms": 1287.8166560003592,
+          "latency_p95_ms": 7913.148427000124,
+          "mean_source_types_at_10": 1.0,
+          "mean_unique_domains_at_10": 0.0,
+          "mean_unique_sources_at_10": 4.25,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "web_document": {
+          "evaluated_answerable_queries": 3,
+          "latency_p50_ms": 8575.680697999815,
+          "latency_p95_ms": 9084.056550999776,
+          "mean_source_types_at_10": 2.0,
+          "mean_unique_domains_at_10": 2.0,
+          "mean_unique_sources_at_10": 7.666666666666667,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        }
+      },
+      "by_language": {
+        "en": {
+          "evaluated_answerable_queries": 11,
+          "latency_p50_ms": 3306.198473999757,
+          "latency_p95_ms": 9084.056550999776,
+          "mean_source_types_at_10": 1.1818181818181819,
+          "mean_unique_domains_at_10": 0.36363636363636365,
+          "mean_unique_sources_at_10": 4.636363636363637,
+          "mrr": 1.0,
+          "ndcg_at_10": 0.9849082938543771,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        },
+        "tr": {
+          "evaluated_answerable_queries": 7,
+          "latency_p50_ms": 1195.1413229999162,
+          "latency_p95_ms": 8575.680697999815,
+          "mean_source_types_at_10": 1.1428571428571428,
+          "mean_unique_domains_at_10": 0.2857142857142857,
+          "mean_unique_sources_at_10": 3.857142857142857,
+          "mrr": 1.0,
+          "ndcg_at_10": 1.0,
+          "recall_at_10": 1.0,
+          "recall_at_5": 1.0
+        }
+      },
+      "metrics": {
+        "evaluated_answerable_queries": 18,
+        "latency_p50_ms": 3306.198473999757,
+        "latency_p95_ms": 8575.680697999815,
+        "mean_source_types_at_10": 1.1538461538461537,
+        "mean_unique_domains_at_10": 0.3076923076923077,
+        "mean_unique_sources_at_10": 4.6923076923076925,
+        "mrr": 1.0,
+        "ndcg_at_10": 0.990777290688786,
+        "recall_at_10": 1.0,
+        "recall_at_5": 1.0
+      },
+      "mode": "reranked_hybrid",
+      "queries": [
+        {
+          "latency_ms": 8304.247189999842,
+          "query_id": "q001",
+          "ranked_ids": [
+            "c002",
+            "c001",
+            "c003",
+            "c011",
+            "c008",
+            "c021",
+            "c020",
+            "c010",
+            "c018",
+            "c007"
+          ],
+          "scores": [
+            0.9979208,
+            0.997769,
+            0.75975674,
+            0.00003085,
+            0.00002954,
+            0.00002765,
+            0.00002622,
+            0.00002279,
+            0.00002245,
+            0.0000188
+          ]
+        },
+        {
+          "latency_ms": 7995.3943709997475,
+          "query_id": "q002",
+          "ranked_ids": [
+            "c002",
+            "c001",
+            "c003",
+            "c012",
+            "c013",
+            "c014",
+            "c027",
+            "c019",
+            "c009",
+            "c006"
+          ],
+          "scores": [
+            0.997938,
+            0.9569896,
+            0.00475018,
+            0.00095471,
+            0.0009547,
+            0.00093381,
+            0.0002573,
+            0.00007084,
+            0.00006258,
+            0.00006022
+          ]
+        },
+        {
+          "latency_ms": 7740.306442000474,
+          "query_id": "q003",
+          "ranked_ids": [
+            "c026",
+            "c027",
+            "c010",
+            "c009",
+            "c007",
+            "c002",
+            "c005",
+            "c004",
+            "c030",
+            "c028"
+          ],
+          "scores": [
+            0.27030796,
+            0.02152388,
+            0.00004734,
+            0.00002962,
+            0.00002162,
+            0.00001711,
+            0.00001679,
+            0.0000167,
+            0.00001661,
+            0.0000165
+          ]
+        },
+        {
+          "latency_ms": 7913.148427000124,
+          "query_id": "q004",
+          "ranked_ids": [
+            "c027",
+            "c026",
+            "c009",
+            "c007",
+            "c008",
+            "c004",
+            "c012",
+            "c013",
+            "c030",
+            "c028"
+          ],
+          "scores": [
+            0.9947714,
+            0.97220033,
+            0.00040006,
+            0.00004794,
+            0.00002524,
+            0.00001699,
+            0.00001693,
+            0.00001693,
+            0.00001686,
+            0.00001685
+          ]
+        },
+        {
+          "latency_ms": 384.63013199907437,
+          "query_id": "q005",
+          "ranked_ids": [
+            "c018"
+          ],
+          "scores": [
+            0.9901433
+          ]
+        },
+        {
+          "latency_ms": 379.0845289995559,
+          "query_id": "q006",
+          "ranked_ids": [
+            "c019"
+          ],
+          "scores": [
+            0.9975956
+          ]
+        },
+        {
+          "latency_ms": 1223.5466160000215,
+          "query_id": "q007",
+          "ranked_ids": [
+            "c004",
+            "c005",
+            "c030",
+            "c006",
+            "c023"
+          ],
+          "scores": [
+            0.99325293,
+            0.8549398,
+            0.00048936,
+            0.00008169,
+            0.00001716
+          ]
+        },
+        {
+          "latency_ms": 1167.4022120005247,
+          "query_id": "q008",
+          "ranked_ids": [
+            "c016",
+            "c015",
+            "c017",
+            "c030"
+          ],
+          "scores": [
+            0.99794644,
+            0.9728327,
+            0.00001925,
+            0.00001613
+          ]
+        },
+        {
+          "latency_ms": 898.0784579998726,
+          "query_id": "q009",
+          "ranked_ids": [
+            "c012",
+            "c013",
+            "c014"
+          ],
+          "scores": [
+            0.9997166,
+            0.9997166,
+            0.00673367
+          ]
+        },
+        {
+          "latency_ms": 3306.198473999757,
+          "query_id": "q010",
+          "ranked_ids": [
+            "c022",
+            "c008",
+            "c014",
+            "c026",
+            "c002",
+            "c012",
+            "c013",
+            "c003",
+            "c001",
+            "c007"
+          ],
+          "scores": [
+            0.99065334,
+            0.00001782,
+            0.00001624,
+            0.00001617,
+            0.00001611,
+            0.00001611,
+            0.00001611,
+            0.0000161,
+            0.0000161,
+            0.00001608
+          ]
+        },
+        {
+          "latency_ms": 1195.1413229999162,
+          "query_id": "q011",
+          "ranked_ids": [
+            "c023",
+            "c005",
+            "c006",
+            "c030",
+            "c004"
+          ],
+          "scores": [
+            0.32275015,
+            0.00001803,
+            0.0000163,
+            0.00001626,
+            0.0000162
+          ]
+        },
+        {
+          "latency_ms": 1179.8064960012198,
+          "query_id": "q012",
+          "ranked_ids": [
+            "c010",
+            "c011",
+            "c020",
+            "c021"
+          ],
+          "scores": [
+            0.99915195,
+            0.9975667,
+            0.00002346,
+            0.00001967
+          ]
+        },
+        {
+          "latency_ms": 8419.575613999768,
+          "query_id": "q013",
+          "ranked_ids": [
+            "c020",
+            "c021",
+            "c007",
+            "c002",
+            "c009",
+            "c001",
+            "c003",
+            "c024",
+            "c010",
+            "c014"
+          ],
+          "scores": [
+            0.95579845,
+            0.9369391,
+            0.00003909,
+            0.00003743,
+            0.00003202,
+            0.00002755,
+            0.0000272,
+            0.00002373,
+            0.00002141,
+            0.00002013
+          ]
+        },
+        {
+          "latency_ms": 9084.056550999776,
+          "query_id": "q014",
+          "ranked_ids": [
+            "w001",
+            "c024",
+            "w002",
+            "c018",
+            "c025",
+            "c029",
+            "c023",
+            "c010",
+            "c028",
+            "c019"
+          ],
+          "scores": [
+            0.9630012,
+            0.8151189,
+            0.00188311,
+            0.00003619,
+            0.00002849,
+            0.0000282,
+            0.00002581,
+            0.00001902,
+            0.0000172,
+            0.00001684
+          ]
+        },
+        {
+          "latency_ms": 8575.680697999815,
+          "query_id": "q015",
+          "ranked_ids": [
+            "w001",
+            "c024",
+            "w002",
+            "c022",
+            "c029",
+            "c023",
+            "c028",
+            "c002",
+            "c019",
+            "c003"
+          ],
+          "scores": [
+            0.98410404,
+            0.9736148,
+            0.00116827,
+            0.00025284,
+            0.00011364,
+            0.00010845,
+            0.00010482,
+            0.00002012,
+            0.00001692,
+            0.00001657
+          ]
+        },
+        {
+          "latency_ms": 8465.580532999411,
+          "query_id": "q016",
+          "ranked_ids": [
+            "w003",
+            "c025",
+            "c021",
+            "c007",
+            "c008",
+            "c011",
+            "c010",
+            "c016",
+            "w001",
+            "c009"
+          ],
+          "scores": [
+            0.695854,
+            0.14996415,
+            0.00010781,
+            0.00008257,
+            0.0000702,
+            0.00002142,
+            0.00001955,
+            0.00001753,
+            0.00001724,
+            0.00001699
+          ]
+        },
+        {
+          "latency_ms": 1287.8166560003592,
+          "query_id": "q017",
+          "ranked_ids": [
+            "c006",
+            "c004",
+            "c005",
+            "c030",
+            "c023"
+          ],
+          "scores": [
+            0.99743444,
+            0.0002082,
+            0.00011569,
+            0.00001601,
+            0.00001599
+          ]
+        },
+        {
+          "latency_ms": 1006.522208998831,
+          "query_id": "q018",
+          "ranked_ids": [
+            "c009",
+            "c007",
+            "c008"
+          ],
+          "scores": [
+            0.99496174,
+            0.9145404,
+            0.00031189
+          ]
+        },
+        {
+          "latency_ms": 7487.470230000326,
+          "query_id": "q019",
+          "ranked_ids": [
+            "c010",
+            "c001",
+            "c011",
+            "c026",
+            "c018",
+            "c002",
+            "c003",
+            "c025",
+            "c023",
+            "c008"
+          ],
+          "scores": [
+            0.00015889,
+            0.00001719,
+            0.0000168,
+            0.0000165,
+            0.00001639,
+            0.00001637,
+            0.00001636,
+            0.00001634,
+            0.00001633,
+            0.00001633
+          ]
+        },
+        {
+          "latency_ms": 7616.64120399837,
+          "query_id": "q020",
+          "ranked_ids": [
+            "c010",
+            "c011",
+            "c002",
+            "c021",
+            "c020",
+            "c001",
+            "c003",
+            "c026",
+            "c004",
+            "c030"
+          ],
+          "scores": [
+            0.00045056,
+            0.00013717,
+            0.00006421,
+            0.00001961,
+            0.00001759,
+            0.00001723,
+            0.00001699,
+            0.00001628,
+            0.00001623,
+            0.00001619
+          ]
+        },
+        {
+          "latency_ms": 7277.565325999603,
+          "query_id": "q021",
+          "ranked_ids": [
+            "c020",
+            "c010",
+            "c002",
+            "c001",
+            "c021",
+            "c014",
+            "c011",
+            "c018",
+            "c003",
+            "c030"
+          ],
+          "scores": [
+            0.0000488,
+            0.00003854,
+            0.00002639,
+            0.0000219,
+            0.00002111,
+            0.00001987,
+            0.00001874,
+            0.00001801,
+            0.00001777,
+            0.00001627
+          ]
+        },
+        {
+          "latency_ms": 969.1393450011674,
+          "query_id": "q022",
+          "ranked_ids": [
+            "c030",
+            "c017",
+            "c016",
+            "c015"
+          ],
+          "scores": [
+            0.004332,
+            0.00001645,
+            0.00001614,
+            0.00001609
+          ]
+        },
+        {
+          "latency_ms": 7713.065192999238,
+          "query_id": "q023",
+          "ranked_ids": [
+            "c021",
+            "c020",
+            "c012",
+            "c013",
+            "c019",
+            "c011",
+            "c024",
+            "c023",
+            "c018",
+            "c003"
+          ],
+          "scores": [
+            0.00013303,
+            0.00010019,
+            0.00002906,
+            0.00002906,
+            0.00002248,
+            0.0000213,
+            0.00002029,
+            0.00001843,
+            0.0000178,
+            0.00001756
+          ]
+        },
+        {
+          "latency_ms": 8277.166232000127,
+          "query_id": "q024",
+          "ranked_ids": [
+            "w001",
+            "c024",
+            "w002",
+            "c028",
+            "c029",
+            "c023",
+            "c022",
+            "c018",
+            "c010",
+            "c002"
+          ],
+          "scores": [
+            0.8313276,
+            0.743474,
+            0.00242841,
+            0.00025553,
+            0.000119,
+            0.0000355,
+            0.00002876,
+            0.00001685,
+            0.0000165,
+            0.00001629
+          ]
+        },
+        {
+          "latency_ms": 1136.5125640004408,
+          "query_id": "q025",
+          "ranked_ids": [
+            "c010",
+            "c011",
+            "c021",
+            "c020"
+          ],
+          "scores": [
+            0.00293923,
+            0.00241262,
+            0.00002109,
+            0.00001874
+          ]
+        },
+        {
+          "latency_ms": 330.3713080003945,
+          "query_id": "q026",
+          "ranked_ids": [
+            "c018"
+          ],
+          "scores": [
+            0.0208058
+          ]
+        }
+      ]
+    }
+  ],
+  "provenance": {
+    "corpus_records": 33,
+    "dataset_name": "etoeragcb-retrieval-golden",
+    "dataset_sha256": "179418418952d7a1e8067ddec93673d906dacff065d7a608cf49c806a96a2ee9",
+    "dataset_version": "1.0.0",
+    "embedding_model": "BAAI/bge-m3",
+    "embedding_revision": "5617a9f61b028005a4858fdac845db406aefb181",
+    "evaluator_sha256": "0279f20d78fc59611a063aa36232dbc03440725a75c294cec960222f2afd0648",
+    "query_examples": 26,
+    "reranker_model": "BAAI/bge-reranker-v2-m3",
+    "reranker_revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e"
+  },
+  "report_id": "p10-retrieval-evaluation-v1",
+  "schema_version": 1
+}

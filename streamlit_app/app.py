@@ -63,11 +63,7 @@ except api_client.ApiError as exc:
 def _active_memberships(value: object) -> list[dict[str, Any]]:
     if not isinstance(value, list):
         return []
-    return [
-        item
-        for item in value
-        if isinstance(item, dict) and item.get("active") is True
-    ]
+    return [item for item in value if isinstance(item, dict) and item.get("active") is True]
 
 
 with st.sidebar:
@@ -87,9 +83,7 @@ with st.sidebar:
             }
             tenant_ids = list(membership_labels)
             current_index = (
-                tenant_ids.index(tokens.tenant_id)
-                if tokens.tenant_id in tenant_ids
-                else 0
+                tenant_ids.index(tokens.tenant_id) if tokens.tenant_id in tenant_ids else 0
             )
             with st.form("switch-organization", clear_on_submit=True):
                 target_tenant = st.selectbox(

@@ -38,6 +38,7 @@ class TeiReranker:
         model_revision: str,
         max_candidates: int,
         batch_size: int = 32,
+        max_retries: int = 2,
         timeout_seconds: float = 30.0,
         cache: JsonCache | None = None,
         cache_ttl: int = 0,
@@ -45,9 +46,12 @@ class TeiReranker:
     ) -> None:
         if max_candidates < 1 or batch_size < 1:
             raise ValueError("rerank candidate and batch limits must be positive")
+        if max_retries < 0:
+            raise ValueError("rerank retries cannot be negative")
         self._revision = model_revision
         self._max_candidates = max_candidates
         self._batch_size = batch_size
+        self._max_retries = max_retries
         self._cache = cache
         self._cache_ttl = cache_ttl
         self._client = client or httpx.AsyncClient(
@@ -96,26 +100,34 @@ class TeiReranker:
             candidates[offset : offset + self._batch_size]
             for offset in range(0, len(candidates), self._batch_size)
         ]
-        results = await asyncio.gather(*(self._score_batch(query, batch) for batch in batches))
-        return tuple(score for batch in results for score in batch)
+        results: list[tuple[float, ...]] = []
+        for batch in batches:
+            results.append(await self._score_batch(query, batch))
+        return tuple(score for batch_scores in results for score in batch_scores)
 
     async def _score_batch(
         self, query: str, candidates: tuple[EvidenceCandidate, ...]
     ) -> tuple[float, ...]:
-        try:
-            response = await self._client.post(
-                "/rerank",
-                json={
-                    "query": query,
-                    "texts": [candidate.text_original for candidate in candidates],
-                    "raw_scores": False,
-                    "return_text": False,
-                },
-            )
-            response.raise_for_status()
-            payload: Any = response.json()
-        except (httpx.HTTPError, ValueError) as exc:
-            raise RerankServiceError("TEI reranker request failed") from exc
+        body = {
+            "query": query,
+            "texts": [candidate.text_original for candidate in candidates],
+            "raw_scores": False,
+            "return_text": False,
+        }
+        payload: Any = None
+        for attempt in range(self._max_retries + 1):
+            try:
+                response = await self._client.post("/rerank", json=body)
+                if response.status_code == 429 and attempt < self._max_retries:
+                    await asyncio.sleep(_retry_after(response))
+                    continue
+                response.raise_for_status()
+                payload = response.json()
+                break
+            except (httpx.HTTPError, ValueError) as exc:
+                raise RerankServiceError("TEI reranker request failed") from exc
+        if payload is None:  # pragma: no cover - loop either parses or raises
+            raise RerankServiceError("TEI reranker returned no payload")
         entries = payload.get("results") if isinstance(payload, dict) else payload
         if not isinstance(entries, list) or len(entries) != len(candidates):
             raise RerankServiceError("TEI reranker returned an invalid result count")
@@ -181,3 +193,12 @@ class TeiReranker:
     async def close(self) -> None:
         if self._owns_client:
             await self._client.aclose()
+
+
+def _retry_after(response: httpx.Response) -> float:
+    raw = response.headers.get("retry-after")
+    try:
+        delay = float(raw) if raw is not None else 0.25
+    except ValueError:
+        return 0.25
+    return max(0.05, min(delay, 2.0))

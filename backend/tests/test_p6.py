@@ -256,7 +256,21 @@ async def test_context_budget_and_selection_are_deterministic_across_generated_c
 
 
 def test_gate_fails_closed_without_calibration_and_for_empty_context() -> None:
-    artifact = load_gate_artifact(Path("app/rag/calibration/retrieval_gate.v1.json"))
+    artifact = GateArtifact(
+        configuration=GateConfiguration(
+            schema_version=1,
+            artifact_id="uncalibrated-test",
+            calibrated=False,
+            dataset=DatasetProvenance(),
+            models=ModelProvenance(
+                embedding_model="BAAI/bge-m3",
+                embedding_revision=EMBEDDING_REVISION,
+                reranker_model="BAAI/bge-reranker-v2-m3",
+                reranker_revision=RERANKER_REVISION,
+            ),
+        ),
+        sha256="c" * 64,
+    )
     gate = ConfidenceGate(
         artifact,
         embedding_model="BAAI/bge-m3",
@@ -274,6 +288,28 @@ def test_gate_fails_closed_without_calibration_and_for_empty_context() -> None:
     assert unavailable.scores.top_score == 0.99
     assert empty.route == "no_answer" and empty.reasons == ("no_candidates",)
     assert unavailable.artifact_sha256 == artifact.sha256
+
+
+def test_production_gate_uses_committed_p10_calibration() -> None:
+    artifact = load_gate_artifact(Path("app/rag/calibration/retrieval_gate.v1.json"))
+    gate = ConfidenceGate(
+        artifact,
+        embedding_model="BAAI/bge-m3",
+        embedding_revision=EMBEDDING_REVISION,
+        reranker_model="BAAI/bge-reranker-v2-m3",
+        reranker_revision=RERANKER_REVISION,
+    )
+    candidate = _reranked(_evidence("candidate", "answer", rank=1), rank=1, score=0.99)
+
+    decision = gate.evaluate((candidate,))
+
+    assert artifact.configuration.calibrated is True
+    assert artifact.configuration.dataset.name == "etoeragcb-retrieval-golden"
+    assert artifact.configuration.dataset.version == "1.0.0"
+    assert artifact.configuration.dataset.examples == 26
+    assert decision.route == "answer"
+    assert decision.reasons == ("thresholds_passed",)
+    assert decision.scores.score_margin == 0.99
 
 
 def test_representative_labeled_gate_cases_are_auditable() -> None:

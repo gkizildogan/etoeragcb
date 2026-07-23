@@ -114,12 +114,10 @@ def _scope_controls(
     documents: list[dict[str, Any]],
 ) -> None:
     collection_options = {
-        str(item.get("id")): text(item.get("name"), "Untitled collection")
-        for item in collections
+        str(item.get("id")): text(item.get("name"), "Untitled collection") for item in collections
     }
     document_options = {
-        str(item.get("id")): text(item.get("title"), "Untitled document")
-        for item in documents
+        str(item.get("id")): text(item.get("title"), "Untitled document") for item in documents
     }
     valid_collections = [
         value

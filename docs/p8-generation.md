@@ -4,11 +4,10 @@ P8 turns the P5–P7 retrieval result into one durable chat transaction. The API
 streams citation-safe answer text, persists exactly what the client renders, and
 stores the completed event transcript for byte-equivalent idempotent replay.
 
-The production P6 confidence artifact is still intentionally uncalibrated.
-Knowledge requests therefore take the persisted `no_answer` route until P10
-commits calibrated thresholds. Conversation/meta intents may still use
-generation. Tests exercise the grounded generation branch with an explicit
-calibrated fixture rather than weakening the production gate.
+P10 has calibrated the production confidence artifact against the committed
+bilingual golden set. Knowledge requests may now enter grounded generation
+when packed evidence passes the bound thresholds; empty, weak, ambiguous, and
+model-revision-mismatched evidence remains on the persisted `no_answer` route.
 
 ## Chat request and transaction
 

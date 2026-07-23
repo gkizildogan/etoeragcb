@@ -84,9 +84,7 @@ class CitationStreamSanitizer:
             ):
                 cursor = opening
                 break
-            if final and (
-                suffix == "[S" or INCOMPLETE_MARKER_RE.fullmatch(suffix)
-            ):
+            if final and (suffix == "[S" or INCOMPLETE_MARKER_RE.fullmatch(suffix)):
                 self._repaired = True
                 cursor = len(value)
                 break
@@ -131,9 +129,7 @@ def citations_for_answer(
 
 def _repair_complete_answer(value: str, allowed_source_ids: set[str]) -> str:
     repaired = ANY_MARKER_RE.sub(
-        lambda match: match.group(0)
-        if f"S{match.group(1)}" in allowed_source_ids
-        else "",
+        lambda match: match.group(0) if f"S{match.group(1)}" in allowed_source_ids else "",
         value,
     )
     repaired = INCOMPLETE_MARKER_RE.sub("", repaired)

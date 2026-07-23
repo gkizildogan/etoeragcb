@@ -140,9 +140,7 @@ def validate_citations(value: object) -> dict[str, dict[str, Any]]:
         if source_type not in {"document", "web"} or not isinstance(title, str) or not title:
             continue
         if source_type == "document":
-            if not _uuid(raw.get("document_id")) or not _uuid(
-                raw.get("document_version_id")
-            ):
+            if not _uuid(raw.get("document_id")) or not _uuid(raw.get("document_version_id")):
                 continue
         else:
             uri = raw.get("uri")
@@ -151,22 +149,14 @@ def validate_citations(value: object) -> dict[str, dict[str, Any]]:
         page_start = raw.get("page_start")
         page_end = raw.get("page_end")
         if page_start is not None and (
-            not isinstance(page_start, int)
-            or isinstance(page_start, bool)
-            or page_start < 1
+            not isinstance(page_start, int) or isinstance(page_start, bool) or page_start < 1
         ):
             continue
         if page_end is not None and (
-            not isinstance(page_end, int)
-            or isinstance(page_end, bool)
-            or page_end < 1
+            not isinstance(page_end, int) or isinstance(page_end, bool) or page_end < 1
         ):
             continue
-        if (
-            isinstance(page_start, int)
-            and isinstance(page_end, int)
-            and page_end < page_start
-        ):
+        if isinstance(page_start, int) and isinstance(page_end, int) and page_end < page_start:
             continue
         validated[marker] = dict(raw)
     return validated

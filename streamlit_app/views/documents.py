@@ -43,9 +43,7 @@ def render(client: ApiClient, profile: dict[str, Any]) -> None:
     def inventory() -> None:
         try:
             latest = (
-                items(client.list_documents())
-                if st.session_state.document_polling
-                else documents
+                items(client.list_documents()) if st.session_state.document_polling else documents
             )
         except ApiError as exc:
             st.error(error_message(exc, action="refresh document status"))

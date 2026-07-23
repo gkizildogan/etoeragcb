@@ -16,10 +16,13 @@ packing, and SSRF-resistant optional web evidence. P8 adds atomic chat
 generation, citation-safe SSE/replay, and tenant/user-scoped signed files. P9
 adds the API-only Streamlit client for rotating authentication, private
 sessions, safe streaming/citations, feedback, document status, and collection
-administration.
+administration. P10 adds the versioned bilingual golden set, independent
+retrieval ablations, reproducible metrics/reporting, feedback export, and the
+model-bound calibrated confidence gate.
 
 Deployment instructions are in `docs/deployment.md`; the current API contract is
-summarized by the phase documents through `docs/p9-streamlit.md`.
+summarized by the phase documents through
+`docs/p10-retrieval-evaluation.md`.
 
 Local backend checks:
 

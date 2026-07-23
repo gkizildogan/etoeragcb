@@ -38,6 +38,9 @@ jobs:
         run: mypy app
       - name: Test
         run: pytest
+      - name: Verify committed retrieval calibration
+        if: matrix.component == 'backend'
+        run: python -m app.evaluation.cli verify
 
   deployment:
     runs-on: ubuntu-24.04

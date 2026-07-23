@@ -120,10 +120,9 @@ public-domain or external-port gate.
    non-zero sections/chunks. A failed version must show its safe error code.
 4. Open Chat, create a private conversation, select only `P9 toy retrieval`,
    and ask: `Which song was the signal for the massacre to begin?`
-5. After P10 calibration permits the supplied fixture, confirm provisional
-   streaming is replaced by the safe final answer, the answer cites only
-   displayed source markers, `Prepare` becomes an `Open` control, and the file
-   opens at the cited page when a paged source is used.
+5. Confirm provisional streaming is replaced by the safe final answer, the
+   answer cites only displayed source markers, `Prepare` becomes an `Open`
+   control, and the file opens at the cited page when a paged source is used.
 6. Submit Helpful or Not helpful with an optional comment, refresh the page,
    and confirm the conversation remains private and unchanged.
 7. Ask the same document-answerable question with `Search the web too`
@@ -133,11 +132,10 @@ public-domain or external-port gate.
    statuses but cannot see upload, reindex, delete, collection mutation, or
    membership controls.
 
-The committed P5 retrieval gate is deliberately marked uncalibrated and
-fail-closed until P10. Consequently, steps 5 and 7 cannot yet produce a live
-grounded citation through the normal production route. P8 backend tests and P9
-mocks cover the client behavior in the meantime, but they are not recorded as
-a successful credentialed end-to-end run.
+P10 has calibrated and activated the retrieval gate. Steps 5 and 7 are now
+available through the normal production route, subject to the uploaded
+fixture meeting the calibrated confidence thresholds. A credentialed browser
+run is still user-operated and is not claimed by the automated suite.
 
 ## Deployment evidence
 

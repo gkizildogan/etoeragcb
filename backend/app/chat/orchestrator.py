@@ -215,9 +215,7 @@ class ChatCoordinator:
                     "user_message_id": str(accepted.user_message_id),
                     "session_id": str(accepted.request.session_id),
                     "options": {
-                        "collection_ids": [
-                            str(item) for item in accepted.request.collection_ids
-                        ],
+                        "collection_ids": [str(item) for item in accepted.request.collection_ids],
                         "document_ids": [str(item) for item in accepted.request.document_ids],
                         "web_search": accepted.request.web_search,
                     },
@@ -389,9 +387,7 @@ class ChatCoordinator:
         selected: list[dict[str, str]] = []
         for message in rows:
             candidate = [{"role": message.role, "content": message.content}, *selected]
-            serialized = "\n".join(
-                f"{item['role']}: {item['content']}" for item in candidate
-            )
+            serialized = "\n".join(f"{item['role']}: {item['content']}" for item in candidate)
             if await self._token_counter.count(serialized) > self._history_token_budget:
                 continue
             selected = candidate
@@ -413,10 +409,7 @@ class ChatCoordinator:
                 history=bounded_history,
                 grounded=grounded,
             )
-            if (
-                await self._token_counter.count_chat(messages)
-                <= self._prompt_token_budget
-            ):
+            if await self._token_counter.count_chat(messages) <= self._prompt_token_budget:
                 return messages
             if not bounded_history:
                 raise GenerationError("prompt_too_large", retryable=False)
@@ -486,9 +479,7 @@ class ChatCoordinator:
         if self._metrics is not None:
             self._metrics.chat_results.labels(route).inc()
             self._metrics.generation_tokens.labels("prompt").inc(usage.prompt_tokens)
-            self._metrics.generation_tokens.labels("completion").inc(
-                usage.completion_tokens
-            )
+            self._metrics.generation_tokens.labels("completion").inc(usage.completion_tokens)
 
     async def _fail(self, accepted: AcceptedChat) -> None:
         try:

@@ -288,9 +288,8 @@ async def read_signed_file(
     except UploadValidationError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found") from exc
     actual_size, actual_hash = await anyio.to_thread.run_sync(_file_identity, path)
-    if (
-        actual_size != version.file_size_bytes
-        or not hmac.compare_digest(actual_hash, version.file_sha256)
+    if actual_size != version.file_size_bytes or not hmac.compare_digest(
+        actual_hash, version.file_sha256
     ):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
     return FileResponse(

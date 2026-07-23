@@ -97,8 +97,7 @@ def test_stream_reconnect_reuses_exact_request_and_replay_resets_partial_text() 
         chat_requests.append((body, request.headers["idempotency-key"]))
         if len(chat_requests) == 1:
             stream = (
-                "event: start\ndata: {}\n\n"
-                'event: delta\ndata: {"text":"partial duplicate"}\n\n'
+                'event: start\ndata: {}\n\nevent: delta\ndata: {"text":"partial duplicate"}\n\n'
             )
         else:
             citations = {
@@ -118,7 +117,7 @@ def test_stream_reconnect_reuses_exact_request_and_replay_resets_partial_text() 
                 'event: replace\ndata: {"text":"safe answer [S1]"}\n\n'
                 f"event: citations\ndata: {json.dumps({'items': citations})}\n\n"
                 "event: done\n"
-                f'data: {json.dumps({"message_id": assistant_id, "route": "rag"})}\n\n'
+                f"data: {json.dumps({'message_id': assistant_id, 'route': 'rag'})}\n\n"
             )
         return httpx.Response(200, text=stream)
 

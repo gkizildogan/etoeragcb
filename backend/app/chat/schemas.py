@@ -26,9 +26,7 @@ class ChatRequest(BaseModel):
 
     @field_validator("collection_ids", "document_ids")
     @classmethod
-    def reject_duplicate_scope_ids(
-        cls, values: tuple[uuid.UUID, ...]
-    ) -> tuple[uuid.UUID, ...]:
+    def reject_duplicate_scope_ids(cls, values: tuple[uuid.UUID, ...]) -> tuple[uuid.UUID, ...]:
         if len(values) != len(set(values)):
             raise ValueError("scope identifiers cannot contain duplicates")
         return values

@@ -46,9 +46,7 @@ class VllmGenerator:
         self._client = client or httpx.AsyncClient(base_url=base_url.rstrip("/"))
         self._owns_client = client is None
 
-    async def stream(
-        self, messages: list[dict[str, str]]
-    ) -> AsyncIterator[GenerationChunk]:
+    async def stream(self, messages: list[dict[str, str]]) -> AsyncIterator[GenerationChunk]:
         try:
             await asyncio.wait_for(self._semaphore.acquire(), timeout=self._queue_timeout)
         except TimeoutError as exc:

@@ -19,6 +19,7 @@ COPY alembic.ini ./alembic.ini
 COPY alembic ./alembic
 COPY logging.json ./logging.json
 COPY app ./app
+COPY evaluation ./evaluation
 
 USER 10001:10001
 EXPOSE 8000

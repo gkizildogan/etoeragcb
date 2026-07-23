@@ -67,8 +67,7 @@ def _collection(
             members = [
                 text(document.get("title"), "Untitled document")
                 for document in documents
-                if collection_id
-                in {str(value) for value in document.get("collection_ids", [])}
+                if collection_id in {str(value) for value in document.get("collection_ids", [])}
             ]
             st.write(", ".join(members) if members else "No documents in this collection.")
             return

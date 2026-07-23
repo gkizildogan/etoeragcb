@@ -147,7 +147,9 @@ class ConfidenceGate:
         top_score = ranked[0].rerank_score if ranked else None
         second_score = ranked[1].rerank_score if len(ranked) > 1 else None
         margin = (
-            top_score - second_score if top_score is not None and second_score is not None else None
+            top_score - second_score
+            if top_score is not None and second_score is not None
+            else top_score
         )
         exact_scores = [item.rerank_score for item in ranked if item.candidate.matched_exact_terms]
         scores = GateScores(

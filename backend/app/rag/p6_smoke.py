@@ -70,8 +70,10 @@ async def run() -> dict[str, int | str]:
             raise RuntimeError("live reranker did not rank bilingual relevant evidence first")
         if result.context.token_count > settings.context_token_budget:
             raise RuntimeError("live context exceeded the serving-tokenizer budget")
-        if result.gate.reasons != ("calibration_unavailable",):
-            raise RuntimeError("uncalibrated production gate did not fail closed")
+        if not result.gate.calibrated:
+            raise RuntimeError("production gate does not contain P10 calibration")
+        if result.gate.dataset_name != "etoeragcb-retrieval-golden":
+            raise RuntimeError("production gate has unexpected dataset provenance")
         return {
             "status": "ok",
             "top_candidate": result.reranked[0].candidate.candidate_id,

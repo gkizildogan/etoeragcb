@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "name": "etoeragcb-retrieval-golden",
+  "version": "1.0.0",
+  "license": "CC0-1.0",
+  "description": "Synthetic bilingual retrieval, scope, ambiguity, web/document, repetition, and answerability regression set.",
+  "dataset_sha256": "179418418952d7a1e8067ddec93673d906dacff065d7a608cf49c806a96a2ee9",
+  "corpus": {
+    "path": "corpus.jsonl",
+    "sha256": "bca19b65bb0a145f31bb0a53918aa9696e2bacf5b27e5e408ebe84b701dba9bb",
+    "records": 33
+  },
+  "queries": {
+    "path": "queries.jsonl",
+    "sha256": "ca5e7d832e8b6529d0b1398455538fcab7d5258025eac2123f902ce2cc638bcd",
+    "records": 26
+  },
+  "ranking_targets": {
+    "reranked_recall_at_5_min": 0.8,
+    "reranked_mrr_min": 0.75,
+    "reranked_ndcg_at_10_min": 0.75,
+    "scoped_recall_at_5_min": 0.8
+  },
+  "gate_targets": {
+    "precision_min": 0.95,
+    "recall_min": 0.75
+  }
+}

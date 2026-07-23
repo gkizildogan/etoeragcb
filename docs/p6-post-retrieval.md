@@ -41,30 +41,38 @@ Existing `SECTION_CHUNK_LIMIT`, `RERANK_POOL_N`, `RERANK_KEEP`,
 `CONTEXT_TOKEN_BUDGET`, and `CACHE_RERANK_TTL` remain authoritative. Configuration rejects
 a section limit larger than the document/source limit.
 
-## Confidence artifact and P10 hand-off
+## Confidence artifact and P10 calibration
 
 The production artifact is
-`backend/app/rag/calibration/retrieval_gate.v1.json`. It intentionally contains:
+`backend/app/rag/calibration/retrieval_gate.v1.json`. P6 initially committed a
+fail-closed placeholder. P10 has now replaced it with:
 
 ```json
 {
   "schema_version": 1,
-  "calibrated": false,
-  "dataset": {"name": null, "version": null, "sha256": null, "examples": 0},
-  "thresholds": null
+  "calibrated": true,
+  "dataset": {
+    "name": "etoeragcb-retrieval-golden",
+    "version": "1.0.0",
+    "examples": 26
+  },
+  "thresholds": {
+    "top_score_min": 0.955798,
+    "score_margin_min": 0.000143,
+    "exact_score_min": 1.0,
+    "min_evidence": 1
+  }
 }
 ```
 
-No provisional production score is committed. Until P10 writes thresholds and complete
-golden-set provenance, non-empty evidence returns `no_answer` with
-`calibration_unavailable`. An empty context returns `no_candidates`. A calibrated artifact
-whose embedding or reranker model/revision differs from the running settings returns
-`model_revision_mismatch`.
+The artifact contains the complete dataset SHA-256 and exact embedding/reranker
+revisions. An empty context returns `no_candidates`; a model mismatch returns
+`model_revision_mismatch`. Both remain fail-closed.
 
-For a calibrated artifact, the gate supports a labeled exact-identifier threshold and the
-combination of a minimum top score, minimum top-two margin, and minimum evidence count.
-P10 owns the threshold sweep and replaces the artifact values; it does not need to alter
-the gate implementation.
+The gate supports a labeled exact-identifier threshold and the combination of
+a minimum top score, minimum top-two margin, and minimum evidence count. For a
+singleton context, its margin is measured against zero so `min_evidence=1` is
+usable. See `docs/p10-retrieval-evaluation.md` for the sweep and evidence.
 
 ## Verification
 
@@ -79,8 +87,8 @@ UV_CACHE_DIR=/tmp/etoeragcb-uv-cache uv run pytest -q
 
 `tests/test_p6.py` covers TEI batching and cache behavior, serving-tokenizer requests,
 every duplicate class, exact-hit preservation, section/source/domain caps, generated
-budget properties, input-order determinism, labeled calibrated gate outcomes, empty
-contexts, and the production uncalibrated state.
+budget properties, input-order determinism, labeled calibrated gate outcomes,
+empty contexts, and committed P10 provenance.
 
 Run the live model smoke from `deploy/`:
 
@@ -89,6 +97,6 @@ docker compose --env-file .env -f compose.yml run --rm --no-deps \
   backend python -m app.rag.p6_smoke
 ```
 
-The smoke calls the actual pinned TEI reranker and vLLM tokenizer, checks a bilingual
-ZX-42 query, verifies the context budget, and confirms that the pre-P10 production gate
-fails closed.
+The smoke calls the actual pinned TEI reranker and vLLM tokenizer, checks a
+bilingual ZX-42 query, verifies the context budget, and confirms P10 dataset
+provenance is active.

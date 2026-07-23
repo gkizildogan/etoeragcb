@@ -319,9 +319,9 @@ Nightly backups include a transactionally consistent PostgreSQL dump, Qdrant sna
 
 ## P10 — Retrieval evaluation and threshold calibration
 
-- [ ] Build a representative bilingual golden set including exact IDs, headings, collections, semantic questions, repeated passages/pages, scoped queries, web+document cases, ambiguous hints, and answerable/unanswerable cases.
-- [ ] Evaluate sparse-only, dense-only, hybrid, scoped hybrid, and reranked hybrid independently; report recall@k, MRR, nDCG, latency, source diversity, and gate precision/recall.
-- [ ] Sweep and commit confidence thresholds with dataset/version/model provenance. Export feedback and produce a reproducible Markdown/JSON report; optional LLM judging supplements but does not replace retrieval labels.
+- [x] Build a representative bilingual golden set including exact IDs, headings, collections, semantic questions, repeated passages/pages, scoped queries, web+document cases, ambiguous hints, and answerable/unanswerable cases.
+- [x] Evaluate sparse-only, dense-only, hybrid, scoped hybrid, and reranked hybrid independently; report recall@k, MRR, nDCG, latency, source diversity, and gate precision/recall.
+- [x] Sweep and commit confidence thresholds with dataset/version/model provenance. Export feedback and produce a reproducible Markdown/JSON report; optional LLM judging supplements but does not replace retrieval labels.
 - **Done when:** one command reproduces the report, reranked/scoped hybrid meets documented acceptance targets, regressions are enforced in CI where practical, and calibrated thresholds replace all provisional values.
 
 ## P11 — Operations, backup, restore, and delivery

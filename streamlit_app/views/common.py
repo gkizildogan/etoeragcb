@@ -13,10 +13,7 @@ def active_role(profile: dict[str, Any]) -> str:
     if not isinstance(memberships, list):
         return "member"
     for membership in memberships:
-        if (
-            isinstance(membership, dict)
-            and str(membership.get("tenant_id", "")) == active_tenant
-        ):
+        if isinstance(membership, dict) and str(membership.get("tenant_id", "")) == active_tenant:
             role = membership.get("role")
             return role if isinstance(role, str) else "member"
     return "member"

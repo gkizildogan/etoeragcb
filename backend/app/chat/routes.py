@@ -96,8 +96,4 @@ def _stream_response(
 
 def _encode_event(event: StreamEvent, event_id: int) -> bytes:
     data = orjson.dumps(event.data)
-    return (
-        f"id: {event_id}\nevent: {event.event}\ndata: ".encode()
-        + data
-        + b"\n\n"
-    )
+    return f"id: {event_id}\nevent: {event.event}\ndata: ".encode() + data + b"\n\n"

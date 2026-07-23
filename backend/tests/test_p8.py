@@ -106,9 +106,7 @@ class FixtureGenerator:
     def __init__(self) -> None:
         self.calls = 0
 
-    async def stream(
-        self, messages: list[dict[str, str]]
-    ) -> AsyncIterator[GenerationChunk]:
+    async def stream(self, messages: list[dict[str, str]]) -> AsyncIterator[GenerationChunk]:
         assert messages[0]["role"] == "system"
         self.calls += 1
         yield GenerationChunk(content="ZX-42 is enabled [")
@@ -246,10 +244,7 @@ async def test_vllm_stream_uses_content_only_and_explicitly_disables_reasoning()
         max_concurrency=1,
         client=client,
     )
-    chunks = [
-        chunk
-        async for chunk in generator.stream([{"role": "user", "content": "question"}])
-    ]
+    chunks = [chunk async for chunk in generator.stream([{"role": "user", "content": "question"}])]
     await client.aclose()
 
     assert [chunk.content for chunk in chunks if chunk.content] == ["visible"]
@@ -425,9 +420,9 @@ async def test_chat_gate_fails_closed_without_calling_generation(settings: Setti
             event["event"] == "status" and event["data"]["stage"] == "generating"
             for event in events
         )
-        assert next(
-            event["data"]["items"] for event in events if event["event"] == "citations"
-        ) == {}
+        assert (
+            next(event["data"]["items"] for event in events if event["event"] == "citations") == {}
+        )
         assert events[-1]["event"] == "done"
         assert events[-1]["data"]["route"] == "no_answer"
         assert context.generator.calls == 0
@@ -537,9 +532,7 @@ async def _seed(
         await session.flush()
         content = b"tenant file contents"
         version_id = uuid.uuid4()
-        storage_key = (
-            f"{tenant.id}/{document.id}/{version_id}/original.txt"
-        )
+        storage_key = f"{tenant.id}/{document.id}/{version_id}/original.txt"
         version = DocumentVersion(
             id=version_id,
             tenant_id=tenant.id,

@@ -269,18 +269,12 @@ def test_authenticated_chat_shows_web_fallback_citation_feedback_and_stream() ->
 
     assert not app.exception
     assert app.header[0].value == "Chat"
-    assert any(
-        "Web search failed" in warning.value
-        for warning in app.warning
-    )
+    assert any("Web search failed" in warning.value for warning in app.warning)
     prepare = _element(app.button, "Prepare [S1] Public handbook, page 2")
     with patch("api_client.ApiClient", FakeApiClient):
         prepare.click().run(timeout=10)
     assert not app.exception
-    assert any(
-        link.label.startswith("Open [S1]")
-        for link in app.get("link_button")
-    )
+    assert any(link.label.startswith("Open [S1]") for link in app.get("link_button"))
 
     feedback = _element(app.button, "Helpful")
     with patch("api_client.ApiClient", FakeApiClient):

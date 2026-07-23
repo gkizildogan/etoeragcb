@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
   "artifact_id": "retrieval-gate-v1",
-  "calibrated": false,
+  "calibrated": true,
   "dataset": {
-    "name": null,
-    "version": null,
-    "sha256": null,
-    "examples": 0
+    "name": "etoeragcb-retrieval-golden",
+    "version": "1.0.0",
+    "sha256": "179418418952d7a1e8067ddec93673d906dacff065d7a608cf49c806a96a2ee9",
+    "examples": 26
   },
   "models": {
     "embedding_model": "BAAI/bge-m3",
@@ -14,5 +14,10 @@
     "reranker_model": "BAAI/bge-reranker-v2-m3",
     "reranker_revision": "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e"
   },
-  "thresholds": null
+  "thresholds": {
+    "top_score_min": 0.955798,
+    "score_margin_min": 0.000143,
+    "exact_score_min": 1.0,
+    "min_evidence": 1
+  }
 }
