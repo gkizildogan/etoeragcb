@@ -43,7 +43,7 @@ def build_chat_runtime(
     session_factory: async_sessionmaker[AsyncSession],
     metrics: Metrics,
 ) -> ChatRuntime:
-    cache = RedisJsonCache(str(settings.redis_url))
+    cache = RedisJsonCache(str(settings.redis_url), metrics)
     qdrant = QdrantHybridSearch(str(settings.qdrant_url), settings.qdrant_collection)
     document_retrieval = RetrievalService(
         VllmPlanner(str(settings.vllm_base_url), settings.vllm_model),

@@ -4,7 +4,7 @@ from functools import lru_cache
 
 import uvicorn
 from fastapi import FastAPI, status
-from fastapi.responses import ORJSONResponse
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -57,7 +57,6 @@ def create_fetch_app(settings: FetchSettings | None = None) -> FastAPI:
         docs_url=None,
         redoc_url=None,
         openapi_url=None,
-        default_response_class=ORJSONResponse,
     )
 
     @app.get("/healthz")
@@ -65,13 +64,13 @@ def create_fetch_app(settings: FetchSettings | None = None) -> FastAPI:
         return {"status": "ok"}
 
     @app.post("/fetch", response_model=FetchedPage)
-    async def fetch(request: FetchRequest) -> FetchedPage | ORJSONResponse:
+    async def fetch(request: FetchRequest) -> FetchedPage | JSONResponse:
         try:
             return await fetcher.fetch(request.url)
         except WebFetchError as exc:
-            return ORJSONResponse(
+            return JSONResponse(
                 {"detail": "page rejected", "code": exc.code},
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             )
 
     return app

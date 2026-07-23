@@ -65,7 +65,7 @@ async def upload_document(
     normalized_title = title.strip()
     if not normalized_title:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Document title cannot be blank",
         )
     limiter: RateLimiter = request.app.state.rate_limiter
@@ -90,7 +90,7 @@ async def upload_document(
         )
     except UploadValidationError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
         ) from exc
     request_hash = canonical_request_hash(
         {
@@ -482,7 +482,7 @@ async def _load_or_create_document(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
     if existing_document.mime != staged.mime:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="A new version must use the original document MIME type",
         )
     if existing_document.title != title:
@@ -614,12 +614,12 @@ def _parse_collection_ids(raw: str) -> list[uuid.UUID]:
         result = [uuid.UUID(value) for value in values]
     except (AttributeError, ValueError, TypeError, json.JSONDecodeError) as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="collection_ids_json must be a JSON array of UUID strings",
         ) from exc
     if len(result) != len(set(result)):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="collection IDs must be unique",
         )
     return result

@@ -1,4 +1,4 @@
-# Pulled and verified on 2026-07-20 for linux/amd64.
+# Pulled and verified for linux/amd64; latest refresh 2026-07-23.
 # Keep the human-readable tag and immutable registry digest together.
 
 CADDY_IMAGE=docker.io/library/caddy:2.11.4-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
@@ -8,7 +8,12 @@ QDRANT_IMAGE=docker.io/qdrant/qdrant:v1.18.3-unprivileged@sha256:affb67e1d6f2f93
 VLLM_IMAGE=docker.io/vllm/vllm-openai:v0.25.1@sha256:e4f88a835143cd22aee2397a26ec6bb80b3a4a6fe0c882bcbc63822904766089
 TEI_IMAGE=ghcr.io/huggingface/text-embeddings-inference:cpu-1.9@sha256:ad950d30878eceb72aaf32024d26fa2b1d04a75304fa0b4776b49aa1941fea07
 SEARXNG_IMAGE=docker.io/searxng/searxng:2026.7.16-f2432e33d@sha256:9aae08475a1c254c096f936ed05119568d291ad7ee5e2f805452a48acba6caea
-PYTHON_BASE_IMAGE=docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+RESTIC_IMAGE=docker.io/restic/restic:0.18.1@sha256:39d9072fb5651c80d75c7a811612eb60b4c06b32ffe87c2e9f3c7222e1797e76
+RCLONE_IMAGE=docker.io/rclone/rclone:1.74.2@sha256:9ce0d49b611d3781233e25334e9e23d7af01e5546da7087f90d55f034ef13637
+PROMETHEUS_IMAGE=docker.io/prom/prometheus:v3.11.3-distroless@sha256:cff72a3f49918f41c4b5c8a6174dd8433036bebf7878120da538b3720ba3fa0d
+ALERTMANAGER_IMAGE=docker.io/prom/alertmanager:v0.32.1@sha256:51a825c2a40acc3e338fdd00d622e01ec090f72be2b3ea46be0839cd47a4d286
+GRYPE_IMAGE=docker.io/anchore/grype:v0.112.0@sha256:391bfda62888fb4e98ff5c4c81598f7431a3c1eac3f8519d69d1ff00df247c1d
+PYTHON_BASE_IMAGE=docker.io/library/python:3.13.14-slim-trixie@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
 DOCKERFILE_FRONTEND_IMAGE=docker.io/docker/dockerfile:1.10@sha256:865e5dd094beca432e8c0a1d5e1c465db5f998dca4e439981029b3b81fb39ed5
 
 # TEI_IMAGE is intentionally shared by the tei-embed and tei-rerank services.

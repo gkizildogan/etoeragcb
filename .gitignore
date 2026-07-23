@@ -5,6 +5,10 @@
 /deploy/.env
 /deploy/secrets/*
 !/deploy/secrets/README.md
+/deploy/state/*
+!/deploy/state/backup/
+/deploy/state/backup/*
+!/deploy/state/backup/.gitkeep
 .venv/
 __pycache__/
 *.py[cod]

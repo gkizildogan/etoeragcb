@@ -18,11 +18,23 @@ adds the API-only Streamlit client for rotating authentication, private
 sessions, safe streaming/citations, feedback, document status, and collection
 administration. P10 adds the versioned bilingual golden set, independent
 retrieval ablations, reproducible metrics/reporting, feedback export, and the
-model-bound calibrated confidence gate.
+model-bound calibrated confidence gate. P11 adds bounded cache/backup metrics,
+backup-gated data retention, local Prometheus alert rules, pinned
+dependency/image audits, resource/load and failure drills, encrypted
+Restic+rclone backups, and a clean-volume restore verifier. The local encrypted
+restore mechanics and authenticated encrypted Google Drive transfer pass, but
+v1 is not declared until a populated document/chat backup passes the strict
+off-machine restore drill. Gmail alert delivery and the Python 3.13 runtime
+upgrade pass. Public ACME/external isolation and the application host-reboot
+drill stay deferred for the selected LAN-only development phase.
 
 Deployment instructions are in `docs/deployment.md`; the current API contract is
 summarized by the phase documents through
-`docs/p10-retrieval-evaluation.md`.
+`docs/p11-operations.md`.
+
+P11 operational checks are available as `deploy/dependency-audit.sh`,
+`deploy/security-scan.sh`, `deploy/load-smoke.sh`, and
+`deploy/failure-drills.sh`.
 
 Local backend checks:
 

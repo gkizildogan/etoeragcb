@@ -37,7 +37,7 @@ query bound, a 1 MB response bound, and `WEB_TOP_RESULTS=5`. See the official
 - Connect to the selected validated literal address, which pins the DNS decision. For
   HTTPS, pass the original normalized hostname as SNI so certificate hostname validation
   remains enabled. Python documents that `server_hostname` controls the hostname matched
-  against the certificate in its [asyncio connection API](https://docs.python.org/3.11/library/asyncio-eventloop.html#opening-network-connections).
+  against the certificate in its [asyncio connection API](https://docs.python.org/3.13/library/asyncio-eventloop.html#opening-network-connections).
 - Re-resolve and revalidate every redirect, detect loops, and allow at most three redirects.
   A same-host DNS rebinding from a public to a private answer is rejected before the second
   socket opens.

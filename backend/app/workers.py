@@ -14,6 +14,7 @@ from app.ingest.indexer import QdrantChunkIndex
 from app.ingest.jobs import IngestionPipeline
 from app.ingest.reconcile import reconcile_ingestion_jobs
 from app.ingest.storage import LocalDocumentStorage
+from app.operations.maintenance import run_maintenance
 
 
 async def worker_health(_ctx: dict[str, Any]) -> str:
@@ -65,6 +66,30 @@ async def reconcile_jobs(ctx: dict[str, Any]) -> list[str]:
     return [str(job_id) for job_id in reconciled]
 
 
+async def maintain_data(ctx: dict[str, Any]) -> dict[str, int | bool]:
+    if not settings.maintenance_enabled:
+        return {"enabled": False}
+    result = await run_maintenance(
+        ctx["factory"],
+        ctx["index"],
+        LocalDocumentStorage(settings.document_storage_root),
+        retained_generations=settings.retained_index_generations,
+        inactive_version_retention_days=settings.inactive_version_retention_days,
+        ephemeral_record_retention_days=settings.ephemeral_record_retention_days,
+        backup_status_file=settings.backup_status_file,
+        gc_backup_max_age_hours=settings.gc_backup_max_age_hours,
+    )
+    return {
+        "enabled": True,
+        "garbage_collection_permitted": result.garbage_collection_permitted,
+        "refresh_tokens": result.ephemeral.refresh_tokens,
+        "idempotency_requests": result.ephemeral.idempotency_requests,
+        "versions": result.versions,
+        "chunks": result.chunks,
+        "files": result.files,
+    }
+
+
 settings = get_settings()
 configure_logging(settings.log_level)
 
@@ -72,7 +97,8 @@ configure_logging(settings.log_level)
 class WorkerSettings:
     functions: ClassVar[list[Any]] = [worker_health, ingest_document]
     cron_jobs: ClassVar[list[Any]] = [
-        cron(reconcile_jobs, minute=None, second=0, run_at_startup=True)
+        cron(reconcile_jobs, minute=None, second=0, run_at_startup=True),
+        cron(maintain_data, hour=3, minute=15, second=0),
     ]
     on_startup = startup
     on_shutdown = shutdown

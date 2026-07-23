@@ -71,9 +71,14 @@ x-backend-environment: &backend-environment
   CACHE_RETRIEVAL_TTL: "300"
   CACHE_RERANK_TTL: "300"
   CACHE_ANSWER_TTL: "0"
+  INACTIVE_VERSION_RETENTION_DAYS: ${INACTIVE_VERSION_RETENTION_DAYS:-35}
+  EPHEMERAL_RECORD_RETENTION_DAYS: ${EPHEMERAL_RECORD_RETENTION_DAYS:-7}
+  GC_BACKUP_MAX_AGE_HOURS: ${GC_BACKUP_MAX_AGE_HOURS:-36}
+  MAINTENANCE_ENABLED: ${MAINTENANCE_ENABLED:-true}
   BACKUP_DESTINATION: ${BACKUP_DESTINATION:?Set BACKUP_DESTINATION in deploy/.env}
   BACKUP_ENCRYPTION_KEY_FILE: /run/secrets/backup_encryption_key
   BACKUP_RETENTION: ${BACKUP_RETENTION:-30}
+  BACKUP_STATUS_FILE: /backup-status/last-success.json
   READINESS_TIMEOUT_SECONDS: "3"
 
 x-backend-secrets: &backend-secrets
@@ -133,7 +138,7 @@ services:
     build:
       context: ../streamlit_app
       args:
-        PYTHON_BASE_IMAGE: docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.13.14-slim-trixie@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
     environment:
       API_INTERNAL_URL: http://backend:8000/api
       PUBLIC_BASE_URL: https://${PUBLIC_DOMAIN}
@@ -162,7 +167,7 @@ services:
     build:
       context: ../backend
       args:
-        PYTHON_BASE_IMAGE: docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.13.14-slim-trixie@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
     environment: *backend-environment
     secrets: *backend-secrets
     group_add:
@@ -171,6 +176,7 @@ services:
       - "8000"
     volumes:
       - document_files:/data/documents
+      - ./state/backup:/backup-status:ro
     tmpfs:
       - /tmp:size=512m,mode=1777
     networks:
@@ -217,7 +223,7 @@ services:
     build:
       context: ../backend
       args:
-        PYTHON_BASE_IMAGE: docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.13.14-slim-trixie@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
     command: ["alembic", "upgrade", "head"]
     environment: *backend-environment
     secrets: *backend-secrets
@@ -239,7 +245,7 @@ services:
     build:
       context: ../backend
       args:
-        PYTHON_BASE_IMAGE: docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.13.14-slim-trixie@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
     command: ["arq", "app.workers.WorkerSettings"]
     environment: *backend-environment
     secrets: *backend-secrets
@@ -247,6 +253,7 @@ services:
       - ${SECRETS_GID:-1000}
     volumes:
       - document_files:/data/documents
+      - ./state/backup:/backup-status:ro
     tmpfs:
       - /tmp:size=1g,mode=1777
     networks:
@@ -274,7 +281,7 @@ services:
     build:
       context: ../backend
       args:
-        PYTHON_BASE_IMAGE: docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.13.14-slim-trixie@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
     user: "0:0"
     command: ["chown", "10001:10001", "/data/documents"]
     cap_add:
@@ -493,7 +500,7 @@ services:
     build:
       context: ../backend
       args:
-        PYTHON_BASE_IMAGE: docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.13.14-slim-trixie@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
     command: ["python", "-m", "app.web.serve"]
     environment:
       WEB_FETCH_TIMEOUT: "8"
@@ -519,6 +526,205 @@ services:
     cpus: 1.0
     mem_limit: 256m
 
+  backup-postgres:
+    <<: *hardened
+    profiles: ["operations"]
+    restart: "no"
+    image: docker.io/library/postgres:16.14-bookworm@sha256:92620daddcd947f8d5ab5ba66e848702fe443d87fed30c4cea8e389fd78dfc55
+    user: "999:999"
+    group_add:
+      - ${SECRETS_GID:-1000}
+    entrypoint: ["/bin/sh", "-eu", "-c"]
+    command:
+      - >-
+        export PGPASSWORD="$$(cat /run/secrets/postgres_password)";
+        exec pg_dump --host=postgres --username=rag --dbname=rag
+        --format=custom --compress=9 --no-owner --no-privileges
+        --file=/backup-stage/postgres.dump
+    secrets:
+      - postgres_password
+    volumes:
+      - ${BACKUP_STAGING_PATH:-./state/staging-placeholder}:/backup-stage
+    networks:
+      - data
+    cpus: 1.0
+    mem_limit: 1g
+
+  backup-prepare:
+    <<: *hardened
+    profiles: ["operations"]
+    restart: "no"
+    image: rag-chatbot-backend:0.1.0
+    user: "10001:10001"
+    group_add:
+      - ${SECRETS_GID:-1000}
+    command: ["python", "-m", "app.operations.backup", "prepare", "--stage", "/backup-stage"]
+    environment: *backend-environment
+    secrets: *backend-secrets
+    volumes:
+      - document_files:/data/documents:ro
+      - ${BACKUP_STAGING_PATH:-./state/staging-placeholder}:/backup-stage
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    networks:
+      - data
+    cpus: 2.0
+    mem_limit: 2g
+
+  backup-restic:
+    <<: *hardened
+    profiles: ["operations"]
+    restart: "no"
+    image: docker.io/restic/restic:0.18.1@sha256:39d9072fb5651c80d75c7a811612eb60b4c06b32ffe87c2e9f3c7222e1797e76
+    user: "${BACKUP_UID:-1000}:${BACKUP_GID:-1000}"
+    environment:
+      RESTIC_REPOSITORY: /repository
+      RESTIC_PASSWORD_FILE: /run/secrets/backup_encryption_key
+      RESTIC_CACHE_DIR: /tmp/restic-cache
+    secrets:
+      - backup_encryption_key
+    volumes:
+      - ${BACKUP_REPOSITORY_PATH:-./state/restic}:/repository
+      - ${BACKUP_STAGING_PATH:-./state/staging-placeholder}:/backup-stage:ro
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    network_mode: none
+    cpus: 2.0
+    mem_limit: 2g
+
+  backup-restic-restore:
+    <<: *hardened
+    profiles: ["operations"]
+    restart: "no"
+    image: docker.io/restic/restic:0.18.1@sha256:39d9072fb5651c80d75c7a811612eb60b4c06b32ffe87c2e9f3c7222e1797e76
+    user: "${BACKUP_UID:-1000}:${BACKUP_GID:-1000}"
+    environment:
+      RESTIC_REPOSITORY: /repository
+      RESTIC_PASSWORD_FILE: /run/secrets/backup_encryption_key
+      RESTIC_CACHE_DIR: /tmp/restic-cache
+    secrets:
+      - backup_encryption_key
+    volumes:
+      - ${BACKUP_REPOSITORY_PATH:-./state/restic}:/repository
+      - ${BACKUP_STAGING_PATH:-./state/staging-placeholder}:/restore-output
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    network_mode: none
+    cpus: 2.0
+    mem_limit: 2g
+
+  backup-rclone:
+    <<: *hardened
+    profiles: ["operations"]
+    restart: "no"
+    image: docker.io/rclone/rclone:1.74.2@sha256:9ce0d49b611d3781233e25334e9e23d7af01e5546da7087f90d55f034ef13637
+    user: "${BACKUP_UID:-1000}:${BACKUP_GID:-1000}"
+    environment:
+      RCLONE_CONFIG: /config/rclone/rclone.conf
+    volumes:
+      - ${BACKUP_REPOSITORY_PATH:-./state/restic}:/repository:ro
+      - ./state/rclone:/config/rclone:ro
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    networks:
+      - backup_egress
+    cpus: 1.0
+    mem_limit: 512m
+
+  backup-rclone-restore:
+    <<: *hardened
+    profiles: ["operations"]
+    restart: "no"
+    image: docker.io/rclone/rclone:1.74.2@sha256:9ce0d49b611d3781233e25334e9e23d7af01e5546da7087f90d55f034ef13637
+    user: "${BACKUP_UID:-1000}:${BACKUP_GID:-1000}"
+    environment:
+      RCLONE_CONFIG: /config/rclone/rclone.conf
+    volumes:
+      - ${BACKUP_REPOSITORY_PATH:-./state/restic}:/repository
+      - ./state/rclone:/config/rclone:ro
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    networks:
+      - backup_egress
+    cpus: 1.0
+    mem_limit: 512m
+
+  backup-rclone-configure:
+    <<: *hardened
+    profiles: ["operations"]
+    restart: "no"
+    image: docker.io/rclone/rclone:1.74.2@sha256:9ce0d49b611d3781233e25334e9e23d7af01e5546da7087f90d55f034ef13637
+    user: "${BACKUP_UID:-1000}:${BACKUP_GID:-1000}"
+    environment:
+      RCLONE_CONFIG: /config/rclone/rclone.conf
+    volumes:
+      - ./state/rclone:/config/rclone
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    networks:
+      - backup_egress
+    cpus: 1.0
+    mem_limit: 512m
+
+  prometheus:
+    <<: *hardened
+    profiles: ["monitoring"]
+    image: docker.io/prom/prometheus:v3.11.3-distroless@sha256:cff72a3f49918f41c4b5c8a6174dd8433036bebf7878120da538b3720ba3fa0d
+    user: "65532:65532"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=30d
+      - --web.enable-lifecycle
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - edge
+    depends_on:
+      backend:
+        condition: service_healthy
+      alertmanager:
+        condition: service_healthy
+    cpus: 1.0
+    mem_limit: 1g
+
+  alertmanager:
+    <<: *hardened
+    profiles: ["monitoring"]
+    image: docker.io/prom/alertmanager:v0.32.1@sha256:51a825c2a40acc3e338fdd00d622e01ec090f72be2b3ea46be0839cd47a4d286
+    user: "65532:65532"
+    group_add:
+      - ${SECRETS_GID:-1000}
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+      - --data.retention=120h
+    secrets:
+      - smtp_password
+    volumes:
+      - ./state/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    networks:
+      - edge
+      - alert_egress
+    healthcheck:
+      test:
+        - CMD
+        - /bin/amtool
+        - --alertmanager.url=http://127.0.0.1:9093
+        - alert
+        - query
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    cpus: 0.5
+    mem_limit: 256m
+
 networks:
   edge:
     internal: true
@@ -535,6 +741,8 @@ networks:
   caddy_egress: {}
   search_egress: {}
   fetch_egress: {}
+  backup_egress: {}
+  alert_egress: {}
 
 volumes:
   caddy_data: {}
@@ -543,6 +751,8 @@ volumes:
   redis_data: {}
   qdrant_data: {}
   document_files: {}
+  prometheus_data: {}
+  alertmanager_data: {}
 
 secrets:
   postgres_password:
@@ -555,3 +765,5 @@ secrets:
     file: ${SIGNING_SECRET_FILE:-./secrets/signing_secret}
   backup_encryption_key:
     file: ${BACKUP_ENCRYPTION_KEY_FILE:-./secrets/backup_encryption_key}
+  smtp_password:
+    file: ${SMTP_PASSWORD_FILE:-./secrets/smtp_password}

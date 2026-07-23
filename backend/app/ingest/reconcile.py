@@ -189,6 +189,8 @@ async def garbage_collect_inactive_versions(
     *,
     tenant_id: uuid.UUID,
     retained_generations: int,
+    older_than: datetime | None = None,
+    now: datetime | None = None,
 ) -> GarbageCollectionResult:
     async with session_factory() as session:
         generation_ids = list(
@@ -221,7 +223,10 @@ async def garbage_collect_inactive_versions(
         statement = select(DocumentVersion).where(
             DocumentVersion.tenant_id == tenant_id,
             DocumentVersion.status.in_(("failed", "superseded")),
+            DocumentVersion.garbage_collected_at.is_(None),
         )
+        if older_than is not None:
+            statement = statement.where(DocumentVersion.created_at < older_than)
         if protected_versions:
             statement = statement.where(DocumentVersion.id.not_in(protected_versions))
         candidates = list(await session.scalars(statement))
@@ -246,6 +251,11 @@ async def garbage_collect_inactive_versions(
     async with session_factory() as session:
         await session.execute(delete(Chunk).where(Chunk.document_version_id.in_(version_ids)))
         await session.execute(delete(Section).where(Section.document_version_id.in_(version_ids)))
+        await session.execute(
+            update(DocumentVersion)
+            .where(DocumentVersion.id.in_(version_ids))
+            .values(garbage_collected_at=now or datetime.now(UTC))
+        )
         await session.commit()
     return GarbageCollectionResult(
         versions=len(version_ids), chunks=chunk_count, files=deleted_files

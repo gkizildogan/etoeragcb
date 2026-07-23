@@ -326,7 +326,7 @@ Nightly backups include a transactionally consistent PostgreSQL dump, Qdrant sna
 
 ## P11 — Operations, backup, restore, and delivery
 
-- [ ] Add cache metrics, retention/GC jobs, account/runbook procedures, alerts, dependency/image scans, resource/load tests at configured concurrency, and failure playbooks.
+- [x] Add cache metrics, retention/GC jobs, account/runbook procedures, alerts, dependency/image scans, resource/load tests at configured concurrency, and failure playbooks.
 - [ ] Automate encrypted off-machine backups and monitoring; execute the full clean-environment restore in §9.
 - [ ] Test HTTPS renewal assumptions, host reboot recovery, ingestion interruption, Qdrant/PostgreSQL consistency, cache invalidation, account disablement, cross-tenant access, and signed-link expiry in the release checklist.
 - **Done when:** the pinned hardware/model smoke test, public HTTPS/isolation test, retrieval evaluation, and documented full restore drill all pass. Only then is v1 considered delivered.

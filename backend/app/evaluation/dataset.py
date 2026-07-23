@@ -2,13 +2,10 @@ from __future__ import annotations
 
 import hashlib
 from pathlib import Path
-from typing import TypeVar
 
 from pydantic import BaseModel, ValidationError
 
 from app.evaluation.schemas import CorpusRecord, DatasetBundle, GoldenManifest, GoldenQuery
-
-ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
 class DatasetError(RuntimeError):
@@ -68,7 +65,11 @@ def _read(path: Path) -> bytes:
         raise DatasetError(f"cannot read golden-set file {path.name}") from exc
 
 
-def _parse_jsonl(raw: bytes, model: type[ModelT], label: str) -> tuple[ModelT, ...]:
+def _parse_jsonl[ModelT: BaseModel](
+    raw: bytes,
+    model: type[ModelT],
+    label: str,
+) -> tuple[ModelT, ...]:
     records: list[ModelT] = []
     try:
         lines = raw.decode("utf-8").splitlines()

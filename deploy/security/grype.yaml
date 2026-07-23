@@ -1,0 +1,13 @@
+# Grype's NVD CPE matcher currently reports CVE-2026-15308 against CPython
+# 3.13.14 with a "< 3.15.0" range. CPython's 3.13.14 security changelog
+# explicitly records gh-153030 as fixed in this release:
+# https://docs.python.org/3.13/whatsnew/changelog.html#python-3-13-14-final
+#
+# Keep this suppression exact to the affected scanner artifact and version.
+# Remove it when Grype's advisory data recognizes the maintenance-branch fix.
+ignore:
+  - vulnerability: CVE-2026-15308
+    package:
+      name: python
+      version: 3.13.14
+      type: binary

@@ -19,6 +19,8 @@ def main() -> int:
         str(ROOT / "deploy" / ".env.example"),
         "-f",
         str(COMPOSE_FILE),
+        "--profile",
+        "*",
         "config",
         "--format",
         "json",
@@ -54,6 +56,31 @@ def main() -> int:
         )
     if "fetch_egress" in service_networks.get("backend", set()):
         violations.append("backend must not have direct page-fetch egress")
+    backup_egress_users = sorted(
+        name for name, networks in service_networks.items() if "backup_egress" in networks
+    )
+    expected_backup_egress = [
+        "backup-rclone",
+        "backup-rclone-configure",
+        "backup-rclone-restore",
+    ]
+    if backup_egress_users != expected_backup_egress:
+        violations.append(
+            "backup_egress must be limited to the rclone transfer/configuration services; "
+            f"found {backup_egress_users}"
+        )
+    for service_name in expected_backup_egress:
+        if service_networks.get(service_name) != {"backup_egress"}:
+            violations.append(f"{service_name} must connect only to backup_egress")
+    alert_egress_users = sorted(
+        name for name, networks in service_networks.items() if "alert_egress" in networks
+    )
+    if alert_egress_users != ["alertmanager"]:
+        violations.append(
+            f"expected only alertmanager on alert_egress, found {alert_egress_users}"
+        )
+    if service_networks.get("alertmanager") != {"edge", "alert_egress"}:
+        violations.append("alertmanager must connect only to edge and alert_egress")
     for network_name in ("edge", "data", "model", "search"):
         if not config["networks"].get(network_name, {}).get("internal", False):
             violations.append(f"{network_name} must remain an internal network")
@@ -62,6 +89,7 @@ def main() -> int:
         return 1
     print(
         "PASS: only Caddy publishes ports; only web-fetcher has page egress; "
+        "only rclone has backup egress; only Alertmanager has SMTP egress; "
         "application networks remain internal"
     )
     return 0

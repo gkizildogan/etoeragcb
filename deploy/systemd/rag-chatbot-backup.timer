@@ -1,0 +1,11 @@
+[Unit]
+Description=Nightly encrypted RAG chatbot backup
+
+[Timer]
+OnCalendar=*-*-* 02:15:00
+Persistent=true
+RandomizedDelaySec=15m
+Unit=rag-chatbot-backup.service
+
+[Install]
+WantedBy=timers.target

@@ -200,7 +200,7 @@ async def create_signed_url(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
     if body.page is not None and (version.page_count < body.page or version.page_count == 0):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Page is outside the document",
         )
     signer: FileTokenSigner = request.app.state.file_token_signer

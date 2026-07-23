@@ -115,10 +115,15 @@ class Settings(BaseSettings):
     cache_retrieval_ttl: int = Field(ge=0, le=86_400)
     cache_rerank_ttl: int = Field(ge=0, le=86_400)
     cache_answer_ttl: int = Field(ge=0, le=86_400)
+    inactive_version_retention_days: int = Field(default=35, ge=7, le=3650)
+    ephemeral_record_retention_days: int = Field(default=7, ge=1, le=365)
+    gc_backup_max_age_hours: int = Field(default=36, ge=1, le=720)
+    maintenance_enabled: bool = True
 
     backup_destination: str
     backup_encryption_key_file: Path
     backup_retention: int = Field(ge=2, le=3650)
+    backup_status_file: Path = Path("/backup-status/last-success.json")
     readiness_timeout_seconds: float = Field(default=3.0, gt=0, le=30)
 
     @field_validator("public_domain")

@@ -9,7 +9,7 @@ from typing import Protocol
 import structlog
 from fastapi import FastAPI, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import ORJSONResponse
+from fastapi.responses import JSONResponse
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
@@ -116,7 +116,6 @@ def create_app(
         docs_url=None if configured.app_env == "production" else "/api/docs",
         redoc_url=None,
         openapi_url=None if configured.app_env == "production" else "/api/openapi.json",
-        default_response_class=ORJSONResponse,
         lifespan=lifespan,
     )
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=configured.allowed_hosts)
@@ -146,7 +145,7 @@ def create_app(
             and state_changing
             and origin.rstrip("/") not in configured.allowed_origins
         ):
-            return ORJSONResponse(
+            return JSONResponse(
                 {"detail": "Origin not allowed"}, status_code=status.HTTP_403_FORBIDDEN
             )
         return await call_next(request)
@@ -201,18 +200,22 @@ def create_app(
         return {"status": "ok"}
 
     @app.get("/api/readyz", include_in_schema=False)
-    async def readyz(request: Request) -> ORJSONResponse:
+    async def readyz(request: Request) -> JSONResponse:
         results = await request.app.state.readiness.check()
         for dependency, ready in results.items():
             request.app.state.metrics.dependency_ready.labels(dependency).set(int(ready))
         ready = all(results.values())
-        return ORJSONResponse(
+        return JSONResponse(
             {"status": "ready" if ready else "not_ready"},
             status_code=status.HTTP_200_OK if ready else status.HTTP_503_SERVICE_UNAVAILABLE,
         )
 
     @app.get("/api/metrics", include_in_schema=False)
     async def metrics(request: Request) -> Response:
+        results = await request.app.state.readiness.check()
+        for dependency, ready in results.items():
+            request.app.state.metrics.dependency_ready.labels(dependency).set(int(ready))
+        request.app.state.metrics.refresh_backup_status(configured.backup_status_file)
         return Response(
             generate_latest(request.app.state.metrics.registry),
             media_type=CONTENT_TYPE_LATEST,

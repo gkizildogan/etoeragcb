@@ -1,0 +1,11 @@
+[Unit]
+Description=Encrypted RAG chatbot backup
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/projects/etoeragcb
+ExecStart=%h/projects/etoeragcb/deploy/backup.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

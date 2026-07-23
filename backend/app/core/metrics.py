@@ -1,4 +1,9 @@
+from datetime import UTC, datetime
+from pathlib import Path
+
 from prometheus_client import CollectorRegistry, Counter, Gauge, Histogram
+
+from app.operations.status import read_backup_status
 
 
 class Metrics:
@@ -68,3 +73,43 @@ class Metrics:
             ("kind",),
             registry=self.registry,
         )
+        self.cache_operations = Counter(
+            "rag_cache_operations_total",
+            "Cache operations by bounded namespace and outcome",
+            ("namespace", "operation", "outcome"),
+            registry=self.registry,
+        )
+        self.cache_operation_duration = Histogram(
+            "rag_cache_operation_duration_seconds",
+            "Cache operation latency by bounded namespace and operation",
+            ("namespace", "operation"),
+            registry=self.registry,
+        )
+        self.backup_last_success = Gauge(
+            "rag_backup_last_success_timestamp_seconds",
+            "Unix timestamp of the latest verified off-machine backup",
+            registry=self.registry,
+        )
+        self.backup_age = Gauge(
+            "rag_backup_age_seconds",
+            "Age of the latest verified off-machine backup, or -1 when unavailable",
+            registry=self.registry,
+        )
+        self.backup_status = Gauge(
+            "rag_backup_status",
+            "Whether the latest backup marker records successful encryption, check, and upload",
+            registry=self.registry,
+        )
+
+    def refresh_backup_status(self, status_file: Path, *, now: datetime | None = None) -> None:
+        checked_at = now or datetime.now(UTC)
+        status = read_backup_status(status_file)
+        if status is None or not status.is_verified_off_machine:
+            self.backup_last_success.set(0)
+            self.backup_age.set(-1)
+            self.backup_status.set(0)
+            return
+        completed_at = status.completed_at
+        self.backup_last_success.set(completed_at.timestamp())
+        self.backup_age.set(max(0.0, (checked_at - completed_at).total_seconds()))
+        self.backup_status.set(1)

@@ -85,13 +85,13 @@ async def update_collection(
     collection = await _active_collection(session, principal.tenant_id, collection_id)
     if not body.model_fields_set:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="At least one field is required",
         )
     if "name" in body.model_fields_set:
         if body.name is None:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail="Collection name cannot be null",
             )
         collection.name = body.name

@@ -1,0 +1,53 @@
+groups:
+  - name: rag-chatbot
+    rules:
+      - alert: RagDependencyUnavailable
+        expr: min by (dependency) (rag_dependency_ready) == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: A required RAG dependency is unavailable
+
+      - alert: RagBackupMissingOrFailed
+        expr: rag_backup_status != 1
+        for: 30m
+        labels:
+          severity: critical
+        annotations:
+          summary: No verified encrypted off-machine backup is recorded
+
+      - alert: RagBackupStale
+        expr: rag_backup_age_seconds > 129600
+        for: 15m
+        labels:
+          severity: critical
+        annotations:
+          summary: The latest verified off-machine backup is older than 36 hours
+
+      - alert: RagElevatedServerErrors
+        expr: >-
+          sum(rate(rag_http_requests_total{status=~"5.."}[10m]))
+          / clamp_min(sum(rate(rag_http_requests_total[10m])), 0.001) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: More than 5 percent of API requests are failing
+
+      - alert: RagCacheErrors
+        expr: sum(increase(rag_cache_operations_total{outcome="error"}[15m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Redis cache operations are failing
+
+      - alert: RagSustainedAuthThrottling
+        expr: >-
+          sum(increase(rag_auth_events_total{event=~".*_throttled"}[15m])) > 20
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Authentication throttling is sustained

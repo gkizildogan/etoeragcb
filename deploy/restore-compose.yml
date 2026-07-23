@@ -1,0 +1,116 @@
+name: rag-chatbot-restore
+
+x-hardened: &hardened
+  read_only: true
+  cap_drop:
+    - ALL
+  security_opt:
+    - no-new-privileges:true
+  restart: "no"
+
+services:
+  postgres:
+    <<: *hardened
+    image: docker.io/library/postgres:16.14-bookworm@sha256:92620daddcd947f8d5ab5ba66e848702fe443d87fed30c4cea8e389fd78dfc55
+    user: "999:999"
+    group_add:
+      - ${SECRETS_GID:-1000}
+    environment:
+      POSTGRES_DB: rag
+      POSTGRES_USER: rag
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_INITDB_ARGS: --auth-local=scram-sha-256 --auth-host=scram-sha-256
+      PGDATA: /var/lib/postgresql/data/pgdata
+    secrets:
+      - postgres_password
+    volumes:
+      - postgres_restore_data:/var/lib/postgresql/data
+      - ${RESTORE_STAGING_PATH:-./state/restore-placeholder}:/restore-stage:ro
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+      - /var/run/postgresql:size=16m,mode=0770,uid=999,gid=999
+    networks:
+      - restore
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rag -d rag"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 5s
+    cpus: 2.0
+    mem_limit: 4g
+
+  qdrant:
+    <<: *hardened
+    image: docker.io/qdrant/qdrant:v1.18.3-unprivileged@sha256:affb67e1d6f2f93d7d20b90d238a7d4b974d36351c162e73bda794e4b2e03483
+    user: "1000:1000"
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: "6333"
+      QDRANT__SERVICE__GRPC_PORT: "6334"
+      QDRANT__STORAGE__SNAPSHOTS_PATH: /qdrant/storage/snapshots
+      QDRANT__TELEMETRY_DISABLED: "true"
+    volumes:
+      - qdrant_restore_data:/qdrant/storage
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    networks:
+      - restore
+    cpus: 4.0
+    mem_limit: 6g
+
+  storage-init:
+    <<: *hardened
+    image: rag-chatbot-backend:0.1.0
+    build:
+      context: ../backend
+      args:
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.13.14-slim-trixie@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
+    user: "0:0"
+    command: ["chown", "10001:10001", "/restore-documents"]
+    cap_add:
+      - CHOWN
+    network_mode: none
+    volumes:
+      - document_restore_files:/restore-documents
+    cpus: 0.25
+    mem_limit: 128m
+
+  restore-tool:
+    <<: *hardened
+    image: rag-chatbot-backend:0.1.0
+    build:
+      context: ../backend
+      args:
+        PYTHON_BASE_IMAGE: docker.io/library/python:3.13.14-slim-trixie@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
+    user: "10001:10001"
+    group_add:
+      - ${SECRETS_GID:-1000}
+    secrets:
+      - database_url
+      - signing_secret
+    volumes:
+      - document_restore_files:/restore-documents
+      - ${RESTORE_STAGING_PATH:-./state/restore-placeholder}:/restore-stage
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    networks:
+      - restore
+    cpus: 2.0
+    mem_limit: 2g
+
+networks:
+  restore:
+    internal: true
+
+volumes:
+  postgres_restore_data: {}
+  qdrant_restore_data: {}
+  document_restore_files: {}
+
+secrets:
+  postgres_password:
+    file: ${POSTGRES_PASSWORD_FILE:-./secrets/postgres_password}
+  database_url:
+    file: ${DATABASE_URL_FILE:-./secrets/database_url}
+  signing_secret:
+    file: ${SIGNING_SECRET_FILE:-./secrets/signing_secret}

@@ -146,14 +146,13 @@ revocation invalidate access-token versions and revoke stored refresh tokens.
 
 ## Google Drive backup destination
 
-`gdrive://folder/<folder-id>` is recorded as a destination locator only. A
-normal browser sharing URL is not an upload API and is rejected by startup
-configuration. P11 must add authenticated Google Drive transfer (for example,
-an OAuth-authorized restricted rclone remote), encryption before upload,
-retention, monitoring, and a restore drill.
+`gdrive://folder/<folder-id>` is a destination locator. A normal browser
+sharing URL is not an upload API and is rejected by startup configuration.
+P11 maps the locator to an OAuth-authorized rclone remote after Restic has
+encrypted the backup; see `docs/p11-operations.md`.
 
-Before P11, change the target folder's General access from "Anyone with the
-link" to **Restricted**. Google states that files placed in a shared folder
+Before authorizing rclone, change the target folder's General access from
+"Anyone with the link" to **Restricted**. Files placed in a shared folder
 inherit its sharing permissions; a public parent therefore makes backup
 objects publicly readable. Encryption is still mandatory, but it does not
 replace authenticated storage access.

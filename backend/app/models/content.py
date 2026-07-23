@@ -148,6 +148,7 @@ class DocumentVersion(Base):
         DateTime(timezone=True), nullable=False, default=utc_now
     )
     activated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    garbage_collected_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class Section(Base):

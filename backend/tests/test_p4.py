@@ -442,7 +442,9 @@ async def test_activation_failure_reconciliation_and_tombstone(tmp_path: Path) -
         )
         assert result.versions == 2
         async with factory() as session:
+            collected = await session.get(DocumentVersion, first_version)
             retained = await session.get(DocumentVersion, third_version)
+            assert collected is not None and collected.garbage_collected_at is not None
             assert retained is not None and storage.resolve(retained.storage_key).exists()
             assert list(
                 await session.scalars(

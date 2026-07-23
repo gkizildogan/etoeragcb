@@ -215,7 +215,7 @@ def _decode_cursor(codec: CursorCodec, cursor: str, kind: str) -> CursorPosition
         return codec.decode(cursor, expected_kind=kind)
     except InvalidCursorError as exc:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid cursor"
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Invalid cursor"
         ) from exc
 
 
