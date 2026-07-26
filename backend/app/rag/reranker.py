@@ -10,6 +10,9 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 from app.rag.cache import JsonCache, cache_key
 from app.rag.candidates import EvidenceCandidate, RerankedEvidence, stable_candidate_key
 
+DEFAULT_BATCH_SIZE = 8
+DEFAULT_TIMEOUT_SECONDS = 60.0
+
 
 class Reranker(Protocol):
     async def rerank(
@@ -37,9 +40,9 @@ class TeiReranker:
         *,
         model_revision: str,
         max_candidates: int,
-        batch_size: int = 32,
+        batch_size: int = DEFAULT_BATCH_SIZE,
         max_retries: int = 2,
-        timeout_seconds: float = 30.0,
+        timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
         cache: JsonCache | None = None,
         cache_ttl: int = 0,
         client: httpx.AsyncClient | None = None,

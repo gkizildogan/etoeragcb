@@ -348,12 +348,13 @@ class ChatCoordinator:
         except GenerationError as exc:
             await self._fail(accepted)
             yield _error(exc.code, retryable=exc.retryable)
-        except Exception:
+        except Exception as exc:
             await self._fail(accepted)
             logger.exception(
                 "chat_stream_failed",
                 tenant_id=str(accepted.tenant_id),
                 request_id=str(accepted.request.client_request_id),
+                error_type=type(exc).__name__,
             )
             yield _error("chat_unavailable", retryable=True)
         except BaseException:

@@ -10,7 +10,9 @@ change.
 1. Document chunks are converted to `EvidenceCandidate`; P7 web pages can use the same
    shape with `source_type=web`, a canonical URL, and a normalized domain.
 2. `TeiReranker` sorts by the original retrieval rank, bounds the pool, calls TEI `/rerank`
-   in batches of 32, validates one normalized score per input, and sorts deterministically.
+   in batches of 8 with a 60-second per-batch timeout, validates one normalized score per
+   input, and sorts deterministically. The bounded batch size fits the pinned CPU backend's
+   four-request execution limit without timing out on long chunks.
    Cache keys contain the query, reranker revision, candidate IDs, and content hashes.
 3. `deduplicate` collapses exact content hashes, exact lexical hashes, heavily overlapping
    spans, and high-Jaccard lexical shingles. Each removal records the survivor, reason, and

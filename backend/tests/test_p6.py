@@ -74,6 +74,35 @@ async def test_tei_reranker_batches_orders_and_caches_scores() -> None:
     assert first == second
 
 
+async def test_tei_reranker_default_batches_fit_the_cpu_backend_limit() -> None:
+    batch_sizes: list[int] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = json.loads(request.content)
+        batch_sizes.append(len(body["texts"]))
+        return httpx.Response(
+            200,
+            json=[{"index": index, "score": 0.5} for index, _text in enumerate(body["texts"])],
+            request=request,
+        )
+
+    candidates = tuple(
+        _evidence(f"item-{index}", f"candidate {index}", rank=index + 1) for index in range(17)
+    )
+    async with httpx.AsyncClient(
+        transport=httpx.MockTransport(handler), base_url="http://tei"
+    ) as client:
+        reranker = TeiReranker(
+            "http://tei",
+            model_revision=RERANKER_REVISION,
+            max_candidates=50,
+            client=client,
+        )
+        await reranker.rerank("query", candidates)
+
+    assert batch_sizes == [8, 8, 1]
+
+
 async def test_vllm_token_counter_uses_generation_serving_protocol() -> None:
     bodies: list[dict[str, Any]] = []
 
