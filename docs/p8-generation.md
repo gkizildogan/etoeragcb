@@ -125,7 +125,7 @@ links return 404; expired links return 410.
 
 Both public and LAN Caddy configurations route `/api/files/*` explicitly to
 the backend. Raw storage directories are never mounted into Caddy or
-Streamlit.
+the frontend.
 
 ## Observability and verification
 

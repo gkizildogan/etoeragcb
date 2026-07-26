@@ -47,6 +47,16 @@ class MessagePage(BaseModel):
     next_cursor: str | None
 
 
+class CitationPreviewResponse(BaseModel):
+    message_id: uuid.UUID
+    source_id: str = Field(pattern=r"^S[1-9][0-9]*$")
+    title: str
+    source_filename: str
+    page_start: int = Field(ge=1)
+    page_end: int = Field(ge=1)
+    text: str
+
+
 class FeedbackRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 

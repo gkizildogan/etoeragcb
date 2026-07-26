@@ -2,6 +2,10 @@
 
 **Audience:** a coding agent. Execute P0 through P11 in order. Each phase ends in a mandatory acceptance gate; do not advance while its gate is failing. The system is a small, closed-registration, multi-user public service with one initial shared document tenant, separate accounts, and private chat sessions.
 
+> P12 supersedes the original Streamlit-specific UI/runtime requirements while
+> preserving their historical acceptance evidence. Backend, retrieval, data,
+> model, and operational requirements remain unchanged.
+
 ## 0. Non-negotiable rules
 
 1. Do not use orchestration frameworks (LangChain, LlamaIndex, Haystack, Semantic Kernel, DSPy, or equivalents). Implement planning, retrieval, fusion, deduplication, context packing, generation, and citation resolution in Python.
@@ -311,7 +315,7 @@ Nightly backups include a transactionally consistent PostgreSQL dump, Qdrant sna
 - [x] Implement the explicit SSE contract and short-lived tenant/user-scoped signed file route through Caddy.
 - **Done when:** fragmented and fabricated markers never remain in the final rendered answer; persisted text equals the client result; reconnect/replay creates no duplicate; signed links open valid citations and reject tampering, expiry, disabled users, and cross-tenant access.
 
-## P9 — Streamlit client
+## P9 — Streamlit client (historical; superseded by P12)
 
 - [x] Implement auth, sessions, SSE/replacement, citations, feedback, errors/empty states, web checkbox, document/version polling, and collection management as pure API calls.
 - [x] Add mocked `streamlit.testing.AppTest` coverage and a public-domain manual workflow.
@@ -330,6 +334,28 @@ Nightly backups include a transactionally consistent PostgreSQL dump, Qdrant sna
 - [ ] Automate encrypted off-machine backups and monitoring; execute the full clean-environment restore in §9.
 - [ ] Test HTTPS renewal assumptions, host reboot recovery, ingestion interruption, Qdrant/PostgreSQL consistency, cache invalidation, account disablement, cross-tenant access, and signed-link expiry in the release checklist.
 - **Done when:** the pinned hardware/model smoke test, public HTTPS/isolation test, retrieval evaluation, and documented full restore drill all pass. Only then is v1 considered delivered.
+
+## P12 — SvelteKit frontend migration
+
+- [x] Replace `streamlit_app/` with an exact-pinned TypeScript SvelteKit
+  application under `frontend/`, including login, chat, documents, collections,
+  responsive navigation, role controls, polling, SSE/replay, feedback, and
+  tenant switching.
+- [x] Add the SvelteKit backend-for-frontend boundary with an AES-256-GCM
+  encrypted `__Host-rag_session` cookie, one-time refresh retry, concurrent
+  refresh deduplication, bounded rotation-result reuse, runtime validation, and
+  generic error mapping.
+- [x] Add the tenant/user/provenance-authorized citation preview endpoint and
+  plain-text focus-safe dialog while retaining signed-file API compatibility.
+- [x] Replace the Compose/Caddy/CI/audit image with digest-pinned Node
+  adapter-node; remove Streamlit runtime references; retain only Caddy 80/443.
+- [x] Add frontend unit/component/build checks, deterministic Playwright flows,
+  architecture/admin/deployment documentation, and atomic cutover/rollback
+  procedures.
+- **Done when:** the frontend image is healthy; login/chat/upload/collection
+  parity passes; chat is unbuffered; root HTML has nonce CSP without unsafe
+  script directives; Preview makes no `/api/files/*` request/download and
+  closes by button, Escape, and backdrop; and only Caddy publishes ports.
 
 ## 10. Required test matrix (release summary)
 

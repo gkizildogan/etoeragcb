@@ -8,6 +8,9 @@ Git and mounted read-only under `/run/secrets`:
   `postgresql+asyncpg://rag:<URL-encoded-password>@postgres:5432/rag`.
 - `jwt_secret`: at least 32 random bytes, preferably 64.
 - `signing_secret`: a different value of the same strength.
+- `frontend_session_secret`: exactly 32 random bytes encoded as Base64; create
+  it with `openssl rand -base64 32`. It encrypts the SvelteKit session cookie
+  and must not reuse either backend signing secret.
 - `backup_encryption_key`: a high-entropy Restic repository password. Restic
   encrypts and authenticates repository contents before rclone can transfer
   them.
@@ -16,8 +19,8 @@ Git and mounted read-only under `/run/secrets`:
 
 Use mode `0640`, owned by the deployment operator and the group configured as
 `SECRETS_GID`. Only that operator/group may contain host accounts. The
-non-root backend and PostgreSQL containers receive this GID as a supplemental
-read-only group. Store recoverable copies in the deployment secret manager,
+non-root backend, frontend, and PostgreSQL containers receive this GID as a
+supplemental read-only group. Store recoverable copies in the deployment secret manager,
 and never put secret values in `deploy/.env` or shell history.
 
 The Restic password and authenticated rclone configuration are both required

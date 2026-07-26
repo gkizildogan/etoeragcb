@@ -1,5 +1,9 @@
 # P9 Streamlit client
 
+> Historical evidence, superseded by P12. The `streamlit_app/` implementation
+> was removed during the validated SvelteKit cutover; this document is retained
+> to preserve the P9 contract and acceptance record.
+
 P9 adds a thin Streamlit client over the existing FastAPI contracts. It does
 not query PostgreSQL, Qdrant, Redis, model services, storage, SearXNG, or the
 worker directly. Caddy remains the only browser-visible service.

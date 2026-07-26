@@ -1,56 +1,75 @@
-# LAN RAG Chatbot
+# ETOERAGCB
 
-Implementation follows `rag-chatbot-plan.md` phase by phase. P0 qualification
-artifacts and immutable pins live in `docs/feasibility.md`,
-`docker-images.lock`, and `model-revisions.lock`.
+A closed-registration, multi-tenant RAG assistant with a FastAPI backend,
+SvelteKit frontend, versioned ingestion, hybrid PostgreSQL/Qdrant retrieval,
+optional isolated web evidence, local model serving, citation-safe SSE, and
+hardened Docker deployment.
 
-The current deployment scope is LAN-only. P1 provides the FastAPI operational
-shell, Streamlit login shell, fully locked private-network Compose stack, and
-Caddy internal-CA HTTPS boundary. P2 adds closed administrator-managed accounts,
-tenant authorization, rotating refresh tokens, rate limits, and origin checks.
-P3 adds private sessions/messages, feedback, collection/document membership,
-durable retrieval revisions, and idempotency claim/replay/recovery primitives.
-P4 adds staged, versioned ingestion and generation-safe activation. P5–P7 add
-bounded planning, tenant-scoped hybrid retrieval, reranking/confidence/context
-packing, and SSRF-resistant optional web evidence. P8 adds atomic chat
-generation, citation-safe SSE/replay, and tenant/user-scoped signed files. P9
-adds the API-only Streamlit client for rotating authentication, private
-sessions, safe streaming/citations, feedback, document status, and collection
-administration. P10 adds the versioned bilingual golden set, independent
-retrieval ablations, reproducible metrics/reporting, feedback export, and the
-model-bound calibrated confidence gate. P11 adds bounded cache/backup metrics,
-backup-gated data retention, local Prometheus alert rules, pinned
-dependency/image audits, resource/load and failure drills, encrypted
-Restic+rclone backups, and a clean-volume restore verifier. The local encrypted
-restore mechanics and authenticated encrypted Google Drive transfer pass, but
-v1 is not declared until a populated document/chat backup passes the strict
-off-machine restore drill. Gmail alert delivery and the Python 3.13 runtime
-upgrade pass. Public ACME/external isolation and the application host-reboot
-drill stay deferred for the selected LAN-only development phase.
+The deployment remains LAN-only pending the public ACME/external isolation and
+final host-reboot gates. Caddy is the only published service.
 
-Deployment instructions are in `docs/deployment.md`; the current API contract is
-summarized by the phase documents through
-`docs/p11-operations.md`.
+## Current architecture
 
-P11 operational checks are available as `deploy/dependency-audit.sh`,
-`deploy/security-scan.sh`, `deploy/load-smoke.sh`, and
-`deploy/failure-drills.sh`.
+- `frontend/`: TypeScript SvelteKit 2 / Svelte 5 application and server-side API
+  gateway. Browser code never receives FastAPI bearer or refresh tokens.
+- `backend/`: Python 3.13 FastAPI API, ARQ worker, ingestion, retrieval,
+  generation, evaluation, and operations.
+- `deploy/`: hardened Compose, Caddy, monitoring, backup, audit, and release
+  tooling.
+- `docs/`: phase contracts. P12 is the SvelteKit migration; P9 remains
+  historical evidence for the retired Streamlit client.
 
-Local backend checks:
+Sessions use an AES-256-GCM encrypted `__Host-rag_session` cookie. Document
+citations open an authorized in-app plain-text preview; the UI does not request
+signed files or downloads.
+
+See [architecture.md](architecture.md), [adminworks.md](adminworks.md),
+[docs/deployment.md](docs/deployment.md), and
+[docs/p12-sveltekit.md](docs/p12-sveltekit.md).
+
+## Verification
+
+Backend:
 
 ```bash
 cd backend
 uv sync --frozen --all-groups
-uv run ruff check app tests
+uv run ruff check .
+uv run ruff format --check .
 uv run mypy app
 uv run pytest
 ```
 
-Streamlit client checks:
+Frontend:
 
 ```bash
-cd streamlit_app
-uv sync --frozen --all-groups
-uv run ruff check .
-uv run pytest
+cd frontend
+npm ci
+npm run format:check
+npm run lint
+npm run check
+npm test
+npm run build
+npm run test:e2e
+npm audit --audit-level=high
 ```
+
+Deployment boundary:
+
+```bash
+python3 scripts/verify_compose_boundary.py
+docker compose --env-file deploy/.env -f deploy/compose.yml config --quiet
+```
+
+## Start the stack
+
+Copy the appropriate `deploy/.env*.example`, create every file documented in
+`deploy/secrets/README.md` (including the independent
+`frontend_session_secret`), then:
+
+```bash
+docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build
+```
+
+Only Caddy publishes TCP 80/443. Do not expose frontend, backend, data, model,
+or search service ports.

@@ -43,12 +43,23 @@ curl --cacert "${ca_file}" --fail --silent --show-error \
 "${compose[@]}" exec -T backend python -m app.evaluation.cli verify \
   | tee "${artifact_dir}/retrieval-evaluation.txt"
 "${compose[@]}" ps --format json >"${artifact_dir}/compose.json"
+"${compose[@]}" exec -T frontend node -e \
+  "fetch('http://127.0.0.1:3000/login').then(r=>{if(!r.ok)process.exit(1)})"
 
 (
   cd "${project_root}/backend"
   UV_CACHE_DIR=/tmp/etoeragcb-uv-cache uv run --frozen pytest \
     tests/test_auth.py tests/test_p3.py tests/test_p4.py tests/test_p8.py tests/test_p11.py
 ) | tee "${artifact_dir}/release-tests.txt"
+(
+  cd "${project_root}/frontend"
+  npm ci --ignore-scripts
+  npm run format:check
+  npm run lint
+  npm run check
+  npm test
+  npm run build
+) | tee "${artifact_dir}/frontend-release-tests.txt"
 
 python3 "${project_root}/scripts/load_test.py" \
   --base-url "https://${domain}" \

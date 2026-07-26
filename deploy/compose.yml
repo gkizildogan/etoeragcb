@@ -127,39 +127,46 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-      streamlit:
+      frontend:
         condition: service_healthy
     cpus: 1.0
     mem_limit: 256m
 
-  streamlit:
+  frontend:
     <<: *hardened
-    image: rag-chatbot-streamlit:0.1.0
+    image: rag-chatbot-frontend:0.1.0
     build:
-      context: ../streamlit_app
+      context: ../frontend
       args:
-        PYTHON_BASE_IMAGE: docker.io/library/python:3.13.14-slim-trixie@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
+        NODE_BASE_IMAGE: docker.io/library/node:24.18.0-alpine3.23@sha256:00295958df3ca22b4d3df4ae8dbffd823dbca1c53efbcf235f62fbf3fa5ca756
     environment:
       API_INTERNAL_URL: http://backend:8000/api
-      PUBLIC_BASE_URL: https://${PUBLIC_DOMAIN}
+      ORIGIN: https://${PUBLIC_DOMAIN}
+      BODY_SIZE_LIMIT: 55M
+      SHUTDOWN_TIMEOUT: "30"
+      FRONTEND_SESSION_SECRET_FILE: /run/secrets/frontend_session_secret
+    secrets:
+      - frontend_session_secret
+    group_add:
+      - ${SECRETS_GID:-1000}
     expose:
-      - "8501"
+      - "3000"
     tmpfs:
-      - /tmp:size=256m,mode=1777
+      - /tmp:size=128m,mode=1777
     networks:
       - edge
     healthcheck:
       test:
         - CMD
-        - python
-        - -c
-        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=2)"
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/login').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
       interval: 15s
       timeout: 3s
       retries: 10
-      start_period: 20s
+      start_period: 10s
     cpus: 1.0
-    mem_limit: 1g
+    mem_limit: 512m
 
   backend:
     <<: *hardened
@@ -763,6 +770,8 @@ secrets:
     file: ${JWT_SECRET_FILE:-./secrets/jwt_secret}
   signing_secret:
     file: ${SIGNING_SECRET_FILE:-./secrets/signing_secret}
+  frontend_session_secret:
+    file: ${FRONTEND_SESSION_SECRET_FILE:-./secrets/frontend_session_secret}
   backup_encryption_key:
     file: ${BACKUP_ENCRYPTION_KEY_FILE:-./secrets/backup_encryption_key}
   smtp_password:

@@ -56,6 +56,10 @@ def main() -> int:
         )
     if "fetch_egress" in service_networks.get("backend", set()):
         violations.append("backend must not have direct page-fetch egress")
+    if "streamlit" in service_networks:
+        violations.append("the retired streamlit service must not be present")
+    if service_networks.get("frontend") != {"edge"}:
+        violations.append("frontend must connect only to the private edge network")
     backup_egress_users = sorted(
         name for name, networks in service_networks.items() if "backup_egress" in networks
     )

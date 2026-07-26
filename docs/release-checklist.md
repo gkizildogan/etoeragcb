@@ -1,6 +1,6 @@
 # P11 release checklist
 
-Status date: 2026-07-23. **v1 is not delivered.**
+Status date: 2026-07-26. **v1 is not delivered.**
 
 | Gate | Status | Evidence / remaining action |
 |---|---|---|
@@ -23,8 +23,10 @@ Status date: 2026-07-23. **v1 is not delivered.**
 | Account disablement | Pass | Auth/P8 tests prove immediate API and signed-link denial |
 | Cross-tenant/session access | Pass | Auth/P3/P8 exhaustive negative tests |
 | Signed-link tamper/expiry | Pass | P8 tests and strict restore verifier |
-| Dependency audit | Pass | Pinned local `pip-audit` found no known vulnerabilities in either production lock; SHA-pinned CI job remains enforced |
-| Python runtime | Pass | Backend, worker, web fetcher, and Streamlit report Python 3.13.14; hash locks, static checks, strict typing, tests, live migration, HTTPS health, and P10 provenance verification pass |
+| P12 SvelteKit frontend | Implemented; deployment acceptance pending | Exact Node/SvelteKit pins, encrypted gateway cookie, feature routes, unit/component/build tests, deterministic Playwright flows, adapter-node image, and updated Caddy/Compose |
+| Citation text preview | Implemented; manual live smoke pending | Tenant/user/version/chunk cross-checks, generic 404, no-store, plain-text dialog; no schema migration |
+| Dependency audit | Pass at high gate | Backend hash-locked `pip-audit` and frontend `npm audit --audit-level=high`; exact direct pins and lockfiles remain enforced |
+| Runtime pins | Pass | Backend/worker/web-fetcher use Python 3.13.14; frontend build/runtime uses immutable Node 24.18.0 linux/amd64 digest |
 | Image scan | Pass under high gate | Digest-pinned Grype: zero active critical/high findings. Exact 3.13.14 suppression for CVE-2026-15308 is backed by CPython's security changelog showing `gh-153030` fixed in 3.13.14 |
 | Prometheus alerts | Pass | Six rules validate; private Alertmanager delivered `ETOERAGCB WARNING` through Gmail, recipient confirmed receipt, and counters showed one notification with zero email failures |
 | Resource/load smoke | Partial | `artifacts/p11/load-20260723T163811Z/`: post-upgrade 100/100 HTTP 200 at concurrency 10; authenticated chat load awaits populated data and operator credentials |
@@ -39,8 +41,8 @@ deploy/release-check.sh
 
 It validates the Compose boundary, LAN TLS chain/expiry, HTTPS health, strict
 live data consistency, committed retrieval evaluation, security-critical
-tests, and bounded health load. It intentionally fails while active document
-and retrieval evidence is absent.
+backend tests, frontend static/unit/build checks, and bounded health load. It
+intentionally fails while active document and retrieval evidence is absent.
 
 Run reversible dependency/cache/worker drills separately:
 

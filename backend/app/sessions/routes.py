@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import uuid
 from datetime import UTC, datetime
 from typing import Annotated, Literal, cast
@@ -11,8 +12,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.auth.dependencies import Principal, get_current_principal, load_owned_session
 from app.core.db import get_db_session
 from app.core.pagination import CursorCodec, CursorPosition, InvalidCursorError
-from app.models import ChatSession, Feedback, Message
+from app.models import ChatSession, Chunk, Document, DocumentVersion, Feedback, Message
 from app.sessions.schemas import (
+    CitationPreviewResponse,
     FeedbackRequest,
     FeedbackResponse,
     MessagePage,
@@ -23,6 +25,7 @@ from app.sessions.schemas import (
 )
 
 router = APIRouter(prefix="/api")
+SOURCE_ID_RE = re.compile(r"^S[1-9][0-9]*$")
 
 
 @router.get("/sessions", response_model=SessionPage)
@@ -190,6 +193,90 @@ async def submit_feedback(
     )
 
 
+@router.get(
+    "/messages/{message_id}/citations/{source_id}/preview",
+    response_model=CitationPreviewResponse,
+)
+async def preview_citation(
+    message_id: uuid.UUID,
+    source_id: str,
+    principal: Annotated[Principal, Depends(get_current_principal)],
+    session: Annotated[AsyncSession, Depends(get_db_session)],
+) -> Response:
+    not_found = HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Not found")
+    if SOURCE_ID_RE.fullmatch(source_id) is None:
+        raise not_found
+
+    message = await session.scalar(
+        select(Message).where(
+            Message.id == message_id,
+            Message.tenant_id == principal.tenant_id,
+            Message.user_id == principal.user_id,
+            Message.role == "assistant",
+        )
+    )
+    if message is None:
+        raise not_found
+
+    resolved = _resolve_document_source(message.meta, source_id)
+    if resolved is None:
+        raise not_found
+    chunk_id, document_id, document_version_id, content_sha256, section_id, chunk_index = resolved
+
+    statement = (
+        select(Chunk, Document, DocumentVersion)
+        .join(
+            Document,
+            and_(
+                Document.id == Chunk.document_id,
+                Document.tenant_id == Chunk.tenant_id,
+            ),
+        )
+        .join(
+            DocumentVersion,
+            and_(
+                DocumentVersion.id == Chunk.document_version_id,
+                DocumentVersion.document_id == Chunk.document_id,
+                DocumentVersion.tenant_id == Chunk.tenant_id,
+            ),
+        )
+        .where(
+            Chunk.id == chunk_id,
+            Chunk.tenant_id == principal.tenant_id,
+            Chunk.document_id == document_id,
+            Chunk.document_version_id == document_version_id,
+            Document.deleted_at.is_(None),
+            DocumentVersion.status.in_(("ready", "active", "superseded")),
+            DocumentVersion.garbage_collected_at.is_(None),
+        )
+    )
+    row = (await session.execute(statement)).one_or_none()
+    if row is None:
+        raise not_found
+    chunk, document, _version = row
+    if (
+        chunk.content_sha256 != content_sha256
+        or (section_id is not None and chunk.section_id != section_id)
+        or (chunk_index is not None and chunk.chunk_index != chunk_index)
+    ):
+        raise not_found
+
+    payload = CitationPreviewResponse(
+        message_id=message.id,
+        source_id=source_id,
+        title=document.title,
+        source_filename=document.source_filename,
+        page_start=chunk.page_start,
+        page_end=chunk.page_end,
+        text=chunk.text_original,
+    )
+    return Response(
+        content=payload.model_dump_json(),
+        media_type="application/json",
+        headers={"Cache-Control": "private, no-store"},
+    )
+
+
 def _session_response(item: ChatSession) -> SessionResponse:
     return SessionResponse(
         id=item.id,
@@ -221,3 +308,65 @@ def _decode_cursor(codec: CursorCodec, cursor: str, kind: str) -> CursorPosition
 
 def _as_utc(value: datetime) -> datetime:
     return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
+
+
+def _resolve_document_source(
+    metadata: object,
+    source_id: str,
+) -> tuple[uuid.UUID, uuid.UUID, uuid.UUID, str, uuid.UUID | None, int | None] | None:
+    if not isinstance(metadata, dict):
+        return None
+    citations = metadata.get("citations")
+    retrieval = metadata.get("retrieval")
+    if not isinstance(citations, dict) or not isinstance(retrieval, dict):
+        return None
+    citation = citations.get(f"[{source_id}]")
+    sources = retrieval.get("sources")
+    if (
+        not isinstance(citation, dict)
+        or citation.get("source_id") != source_id
+        or citation.get("source_type") != "document"
+        or not isinstance(sources, list)
+    ):
+        return None
+    matches = [
+        item
+        for item in sources
+        if isinstance(item, dict)
+        and item.get("source_id") == source_id
+        and item.get("source_type") == "document"
+    ]
+    if len(matches) != 1:
+        return None
+    source = matches[0]
+    provenance = source.get("provenance")
+    content_sha256 = source.get("content_sha256")
+    if not isinstance(provenance, dict) or not isinstance(content_sha256, str):
+        return None
+    try:
+        chunk_id = uuid.UUID(str(source.get("candidate_id")))
+        document_id = uuid.UUID(str(provenance.get("document_id")))
+        document_version_id = uuid.UUID(str(provenance.get("document_version_id")))
+        citation_document_id = uuid.UUID(str(citation.get("document_id")))
+        citation_version_id = uuid.UUID(str(citation.get("document_version_id")))
+        raw_section_id = provenance.get("section_id")
+        section_id = uuid.UUID(str(raw_section_id)) if raw_section_id is not None else None
+    except ValueError:
+        return None
+    if document_id != citation_document_id or document_version_id != citation_version_id:
+        return None
+    chunk_index = provenance.get("chunk_index")
+    if chunk_index is not None and (
+        not isinstance(chunk_index, int) or isinstance(chunk_index, bool) or chunk_index < 0
+    ):
+        return None
+    if re.fullmatch(r"[0-9a-f]{64}", content_sha256) is None:
+        return None
+    return (
+        chunk_id,
+        document_id,
+        document_version_id,
+        content_sha256,
+        section_id,
+        chunk_index,
+    )

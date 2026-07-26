@@ -22,5 +22,7 @@ audit_lock() {
 }
 
 audit_lock backend
-audit_lock streamlit_app
+npm --prefix "${project_root}/frontend" audit \
+  --audit-level=high \
+  --json >"${artifact_dir}/npm-audit-frontend.json"
 echo "Dependency audits passed; evidence is under artifacts/p11/security/."

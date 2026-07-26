@@ -29,9 +29,12 @@ from app.main import create_app
 from app.models import (
     Base,
     ChatSession,
+    Chunk,
     Document,
+    DocumentVersion,
     Feedback,
     Message,
+    Section,
     Tenant,
     User,
     UserTenant,
@@ -518,3 +521,222 @@ async def test_idempotent_message_persistence_creates_one_row(settings: Settings
                 .where(Message.client_request_id == client_request_id)
             )
             assert count == 1
+
+
+async def test_citation_preview_is_owned_validated_and_never_cached(settings: Settings) -> None:
+    async with p3_context(settings) as context:
+        message_id, _chunk_id, version_id = await _seed_citation_preview(context)
+        target = f"/api/messages/{message_id}/citations/S1/preview"
+
+        response = await context.client.get(target, headers=context.authorization("member"))
+        assert response.status_code == 200
+        assert response.headers["cache-control"] == "private, no-store"
+        assert response.json() == {
+            "message_id": str(message_id),
+            "source_id": "S1",
+            "title": "Tenant document",
+            "source_filename": "tenant.pdf",
+            "page_start": 2,
+            "page_end": 2,
+            "text": "The exact historical chunk text.",
+        }
+
+        malformed = await context.client.get(
+            f"/api/messages/{message_id}/citations/S0/preview",
+            headers=context.authorization("member"),
+        )
+        assert malformed.status_code == 404
+        for identity in ("peer", "other"):
+            denied = await context.client.get(target, headers=context.authorization(identity))
+            assert denied.status_code == 404
+
+        async with context.factory() as session:
+            version = await session.get(DocumentVersion, version_id)
+            assert version is not None
+            version.garbage_collected_at = datetime.now(UTC)
+            await session.commit()
+        garbage_collected = await context.client.get(
+            target, headers=context.authorization("member")
+        )
+        assert garbage_collected.status_code == 404
+
+
+async def test_citation_preview_rejects_web_deleted_and_mismatched_sources(
+    settings: Settings,
+) -> None:
+    async with p3_context(settings) as context:
+        message_id, chunk_id, version_id = await _seed_citation_preview(context)
+        target = f"/api/messages/{message_id}/citations/S1/preview"
+
+        async with context.factory() as session:
+            message = await session.get(Message, message_id)
+            assert message is not None
+            metadata = dict(message.meta)
+            retrieval = dict(metadata["retrieval"])
+            sources = list(retrieval["sources"])
+            source = dict(sources[0])
+            source["content_sha256"] = "0" * 64
+            retrieval["sources"] = [source]
+            metadata["retrieval"] = retrieval
+            message.meta = metadata
+            await session.commit()
+        mismatched = await context.client.get(target, headers=context.authorization("member"))
+        assert mismatched.status_code == 404
+
+        async with context.factory() as session:
+            message = await session.get(Message, message_id)
+            document = await session.get(Document, context.ids.document)
+            version = await session.get(DocumentVersion, version_id)
+            assert message is not None and document is not None and version is not None
+            message.meta = {
+                "citations": {
+                    "[S1]": {
+                        "source_id": "S1",
+                        "source_type": "web",
+                        "title": "External",
+                        "uri": "https://example.com",
+                    }
+                },
+                "retrieval": {
+                    "sources": [
+                        {
+                            "source_id": "S1",
+                            "source_type": "web",
+                            "candidate_id": "web-1",
+                        }
+                    ]
+                },
+            }
+            await session.commit()
+        web_source = await context.client.get(target, headers=context.authorization("member"))
+        assert web_source.status_code == 404
+
+        async with context.factory() as session:
+            message = await session.get(Message, message_id)
+            document = await session.get(Document, context.ids.document)
+            assert message is not None and document is not None
+            message.meta = _citation_metadata(
+                chunk_id=chunk_id,
+                document_id=context.ids.document,
+                version_id=version_id,
+            )
+            document.deleted_at = datetime.now(UTC)
+            await session.commit()
+        deleted = await context.client.get(target, headers=context.authorization("member"))
+        assert deleted.status_code == 404
+
+
+async def _seed_citation_preview(
+    context: P3Context,
+) -> tuple[uuid.UUID, uuid.UUID, uuid.UUID]:
+    version_id = uuid.uuid4()
+    version = DocumentVersion(
+        id=version_id,
+        tenant_id=context.ids.tenant,
+        document_id=context.ids.document,
+        version=1,
+        file_sha256="a" * 64,
+        file_size_bytes=128,
+        storage_key=f"{context.ids.document}/historical.pdf",
+        status="superseded",
+        page_count=3,
+        section_count=1,
+        chunk_count=1,
+    )
+    section_id = uuid.uuid4()
+    section = Section(
+        id=section_id,
+        tenant_id=context.ids.tenant,
+        document_id=context.ids.document,
+        document_version_id=version_id,
+        ordinal=0,
+        level=1,
+        heading_original="Policy",
+        heading_lexical="policy",
+        page_start=2,
+        page_end=2,
+        path_original="Policy",
+        path_lexical="policy",
+        source_metadata={},
+    )
+    chunk_id = uuid.uuid4()
+    chunk = Chunk(
+        id=chunk_id,
+        tenant_id=context.ids.tenant,
+        document_id=context.ids.document,
+        document_version_id=version_id,
+        section_id=section_id,
+        occurrence_index=0,
+        chunk_index=0,
+        page_start=2,
+        page_end=2,
+        char_start=0,
+        char_end=32,
+        content_sha256="b" * 64,
+        lexical_sha256="c" * 64,
+        token_count=7,
+        text_original="The exact historical chunk text.",
+        text_lexical="the exact historical chunk text",
+    )
+    assistant = Message(
+        tenant_id=context.ids.tenant,
+        session_id=context.ids.member_session,
+        user_id=context.ids.member,
+        role="assistant",
+        content="Historical answer [S1]",
+        meta=_citation_metadata(
+            chunk_id=chunk_id,
+            document_id=context.ids.document,
+            version_id=version_id,
+            section_id=section_id,
+        ),
+    )
+    async with context.factory() as session:
+        session.add_all([version, section, chunk, assistant])
+        await session.commit()
+    return assistant.id, chunk.id, version_id
+
+
+def _citation_metadata(
+    *,
+    chunk_id: uuid.UUID,
+    document_id: uuid.UUID,
+    version_id: uuid.UUID,
+    section_id: uuid.UUID | None = None,
+) -> dict[str, object]:
+    return {
+        "citations": {
+            "[S1]": {
+                "marker": "[S1]",
+                "source_id": "S1",
+                "source_type": "document",
+                "title": "Tenant document",
+                "document_id": str(document_id),
+                "document_version_id": str(version_id),
+                "source_filename": "tenant.pdf",
+                "page_start": 2,
+                "page_end": 2,
+                "uri": None,
+            }
+        },
+        "retrieval": {
+            "sources": [
+                {
+                    "source_id": "S1",
+                    "candidate_id": str(chunk_id),
+                    "source_type": "document",
+                    "source_key": str(document_id),
+                    "content_sha256": "b" * 64,
+                    "retrieval_rank": 1,
+                    "rerank_rank": 1,
+                    "rerank_score": 0.99,
+                    "provenance": {
+                        "document_id": str(document_id),
+                        "document_version_id": str(version_id),
+                        "section_id": str(section_id) if section_id is not None else None,
+                        "chunk_index": 0,
+                    },
+                }
+            ]
+        },
+    }

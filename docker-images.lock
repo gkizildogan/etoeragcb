@@ -1,4 +1,4 @@
-# Pulled and verified for linux/amd64; latest refresh 2026-07-23.
+# Pulled and verified for linux/amd64; latest refresh 2026-07-26.
 # Keep the human-readable tag and immutable registry digest together.
 
 CADDY_IMAGE=docker.io/library/caddy:2.11.4-alpine@sha256:5f5c8640aae01df9654968d946d8f1a56c497f1dd5c5cda4cf95ab7c14d58648
@@ -14,8 +14,9 @@ PROMETHEUS_IMAGE=docker.io/prom/prometheus:v3.11.3-distroless@sha256:cff72a3f499
 ALERTMANAGER_IMAGE=docker.io/prom/alertmanager:v0.32.1@sha256:51a825c2a40acc3e338fdd00d622e01ec090f72be2b3ea46be0839cd47a4d286
 GRYPE_IMAGE=docker.io/anchore/grype:v0.112.0@sha256:391bfda62888fb4e98ff5c4c81598f7431a3c1eac3f8519d69d1ff00df247c1d
 PYTHON_BASE_IMAGE=docker.io/library/python:3.13.14-slim-trixie@sha256:6771159cd4fa5d9bba1258caf0b82e6b73458c694d178ad97c5e925c2d0e1a91
+NODE_BASE_IMAGE=docker.io/library/node:24.18.0-alpine3.23@sha256:00295958df3ca22b4d3df4ae8dbffd823dbca1c53efbcf235f62fbf3fa5ca756
 DOCKERFILE_FRONTEND_IMAGE=docker.io/docker/dockerfile:1.10@sha256:865e5dd094beca432e8c0a1d5e1c465db5f998dca4e439981029b3b81fb39ed5
 
 # TEI_IMAGE is intentionally shared by the tei-embed and tei-rerank services.
-# backend, worker, and Streamlit are reproducible local builds from
-# PYTHON_BASE_IMAGE and the hash-locked requirements files.
+# backend and worker are reproducible local builds from PYTHON_BASE_IMAGE and
+# hash-locked requirements; frontend is built from NODE_BASE_IMAGE and package-lock.json.

@@ -31,7 +31,7 @@
    docker compose --env-file deploy/.env -f deploy/compose.yml up -d --build
    ```
 
-6. Wait for Caddy, backend, and Streamlit to be healthy, then inspect JSON
+6. Wait for Caddy, frontend, and backend to be healthy, then inspect JSON
    logs. Never paste logs containing credentials into tickets.
 
 7. Verify HTTP redirects, HTTPS, headers, and public route behavior:
@@ -47,8 +47,8 @@
    Readiness and metrics return 404 through Caddy. Check the certificate chain,
    HSTS, CSP, `nosniff`, referrer, and frame headers in the HTTPS response.
 
-The initial P1 page is intentionally only a login shell. Account creation and
-functional authentication begin in P2; there is no registration route.
+Registration remains closed. SvelteKit serves the login and authenticated
+application routes; account creation remains an administrative operation.
 
 ## Same-Wi-Fi HTTPS test
 
@@ -204,7 +204,8 @@ state is available as Prometheus gauges and redacted structured logs.
 
 ## Network design
 
-- `edge` is internal and connects only Caddy, backend, and Streamlit. Caddy has
+- `edge` is internal and connects Caddy, frontend, backend, and private
+  monitoring. The frontend connects only to this network. Caddy has
   fixed address `172.30.0.2`; uvicorn trusts forwarded headers only from it.
 - `data`, `model`, and `search` are internal Docker networks with no host
   published ports.
@@ -218,3 +219,37 @@ All application containers use read-only root filesystems, dropped
 capabilities, `no-new-privileges`, explicit resource limits, and non-root image
 users. Caddy retains only `NET_BIND_SERVICE` so its non-root process can bind
 80/443.
+
+## P12 SvelteKit deployment
+
+Create the independent frontend cookie key before starting P12:
+
+```bash
+openssl rand -base64 32 > deploy/secrets/frontend_session_secret
+chmod 0640 deploy/secrets/frontend_session_secret
+```
+
+Compose supplies `ORIGIN=https://${PUBLIC_DOMAIN}`,
+`API_INTERNAL_URL=http://backend:8000/api`, `BODY_SIZE_LIMIT=55M`, and the
+secret file. The adapter-node server listens only on the internal edge network
+at port 3000.
+
+Caddy routes `/api/*` and `/api/files/*` to FastAPI. It routes
+`/ui-api/*`, pages, and assets to SvelteKit; `/ui-api/chat` is flushed
+immediately for SSE. SvelteKit owns the nonce CSP, so Caddy must not inject a
+second generic CSP.
+
+Validate:
+
+```bash
+docker compose --env-file deploy/.env -f deploy/compose.yml build frontend
+docker compose --env-file deploy/.env -f deploy/compose.yml up -d frontend
+docker compose --env-file deploy/.env -f deploy/compose.yml ps frontend
+curl -sS -D - -o /dev/null "https://${PUBLIC_DOMAIN}/login"
+```
+
+The HTML CSP must contain a nonce and no unsafe script directives. Existing
+browser sessions do not migrate; users sign in again.
+
+For the atomic cutover and rollback sequence, use `adminworks.md` and
+`docs/p12-sveltekit.md`. P12 adds no database migration.

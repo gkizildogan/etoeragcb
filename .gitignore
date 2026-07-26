@@ -15,4 +15,10 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+frontend/.svelte-kit/
+frontend/build/
+frontend/coverage/
+frontend/node_modules/
+frontend/playwright-report/
+frontend/test-results/
 /docstoingest

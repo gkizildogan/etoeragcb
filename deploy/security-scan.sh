@@ -10,9 +10,9 @@ mkdir -p "${artifact_dir}"
 docker compose \
   --env-file "${env_file}" \
   -f "${project_root}/deploy/compose.yml" \
-  build backend streamlit
+  build backend frontend
 
-images=(rag-chatbot-backend:0.1.0 rag-chatbot-streamlit:0.1.0)
+images=(rag-chatbot-backend:0.1.0 rag-chatbot-frontend:0.1.0)
 if [[ "${SCAN_ALL_LOCAL_IMAGES:-0}" == 1 ]]; then
   mapfile -t images < <(
     docker compose \
