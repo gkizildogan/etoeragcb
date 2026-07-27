@@ -25,6 +25,8 @@ def test_accepts_measured_p0_limits(settings: Settings) -> None:
         ("backup_destination", "https://drive.google.com/public-folder"),
         ("chunk_overlap", 600),
         ("rerank_keep", 51),
+        ("context_rerank_score_min", 1.01),
+        ("context_rerank_top_delta", -0.01),
     ],
 )
 def test_rejects_unsafe_or_unqualified_values(

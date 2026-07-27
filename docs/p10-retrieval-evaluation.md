@@ -55,7 +55,7 @@ The evaluator uses:
 - production reciprocal-rank fusion, exact-term rank, ambiguous-hint rank,
   and explicit scope filtering;
 - the pinned BGE reranker through the production client;
-- production deduplication and context caps; and
+- production deduplication, candidate-confidence filtering, and context caps; and
 - the pinned vLLM serving tokenizer for every tentative packed context.
 
 Exact in-memory dense scoring isolates branch/model quality from approximate

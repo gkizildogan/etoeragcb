@@ -10,6 +10,7 @@ from typing import Any
 import httpx
 
 from app.rag.candidates import EvidenceCandidate, RerankedEvidence
+from app.rag.confidence import CandidateConfidenceFilter
 from app.rag.context import ContextPacker, VllmTokenCounter
 from app.rag.dedup import deduplicate
 from app.rag.gate import (
@@ -21,6 +22,7 @@ from app.rag.gate import (
     ModelProvenance,
     load_gate_artifact,
 )
+from app.rag.postprocess import PostRetrievalService
 from app.rag.reranker import TeiReranker
 
 EMBEDDING_REVISION = "5617a9f61b028005a4858fdac845db406aefb181"
@@ -101,6 +103,64 @@ async def test_tei_reranker_default_batches_fit_the_cpu_backend_limit() -> None:
         await reranker.rerank("query", candidates)
 
     assert batch_sizes == [8, 8, 1]
+
+
+def test_candidate_confidence_filter_uses_absolute_and_top_relative_cutoffs() -> None:
+    candidates = (
+        _reranked(_evidence("top", "best answer", rank=1), rank=1, score=0.99),
+        _reranked(_evidence("support", "supporting answer", rank=2), rank=2, score=0.96),
+        _reranked(_evidence("outside", "plausible tail", rank=3), rank=3, score=0.94),
+        _reranked(_evidence("weak", "irrelevant tail", rank=4), rank=4, score=0.7),
+    )
+    confidence_filter = CandidateConfidenceFilter(score_min=0.9, top_delta=0.04)
+
+    result = confidence_filter.filter(tuple(reversed(candidates)))
+
+    assert [item.candidate.candidate_id for item in result.candidates] == ["top", "support"]
+    assert result.top_score == 0.99
+    assert result.effective_score_cutoff == 0.95
+    assert {decision.candidate_id: decision.reason for decision in result.decisions} == {
+        "outside": "outside_top_delta",
+        "weak": "below_score_min",
+    }
+
+
+def test_candidate_confidence_filter_drops_every_candidate_when_top_is_weak() -> None:
+    candidates = (
+        _reranked(_evidence("weak-top", "weak answer", rank=1), rank=1, score=0.89),
+        _reranked(_evidence("weaker", "weaker answer", rank=2), rank=2, score=0.7),
+    )
+
+    result = CandidateConfidenceFilter(score_min=0.9, top_delta=0.04).filter(candidates)
+
+    assert result.candidates == ()
+    assert result.effective_score_cutoff == 0.9
+    assert {decision.reason for decision in result.decisions} == {"below_score_min"}
+
+
+async def test_post_retrieval_filters_weak_candidates_before_context_and_gate() -> None:
+    weak = _reranked(_evidence("weak", "weak answer", rank=1), rank=1, score=0.6)
+    service = PostRetrievalService(
+        FixedReranker((weak,)),
+        ContextPacker(
+            CharacterTokenCounter(),
+            token_budget=2_000,
+            max_candidates=12,
+            section_limit=4,
+            source_limit=6,
+            domain_limit=2,
+        ),
+        _calibrated_gate(),
+        CandidateConfidenceFilter(score_min=0.9, top_delta=0.04),
+    )
+
+    result = await service.process(query="question", candidates=(weak.candidate,))
+
+    assert result.reranked == (weak,)
+    assert result.confidence_filter.candidates == ()
+    assert result.context.sources == ()
+    assert result.gate.route == "no_answer"
+    assert result.gate.reasons == ("no_candidates",)
 
 
 async def test_vllm_token_counter_uses_generation_serving_protocol() -> None:
@@ -385,6 +445,17 @@ class MemoryCache:
     async def set_json(self, key: str, value: dict[str, Any], ttl_seconds: int) -> None:
         if ttl_seconds > 0:
             self.values[key] = value
+
+
+class FixedReranker:
+    def __init__(self, result: tuple[RerankedEvidence, ...]) -> None:
+        self._result = result
+
+    async def rerank(
+        self, query: str, candidates: tuple[EvidenceCandidate, ...]
+    ) -> tuple[RerankedEvidence, ...]:
+        del query, candidates
+        return self._result
 
 
 def _calibrated_gate(*, running_reranker_revision: str = RERANKER_REVISION) -> ConfidenceGate:

@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.metrics import Metrics
 from app.rag.candidates import EvidenceCandidate, RerankedEvidence
 from app.rag.combined import CombinedRetrievalService
+from app.rag.confidence import CandidateConfidenceFilter
 from app.rag.context import ContextPacker
 from app.rag.gate import ConfidenceGate, load_gate_artifact
 from app.rag.planner import PlanningResult, RetrievalPlan
@@ -561,6 +562,7 @@ def _post_service(*, domain_limit: int, web_limit: int) -> PostRetrievalService:
             web_limit=web_limit,
         ),
         gate,
+        CandidateConfidenceFilter(score_min=0.0, top_delta=1.0),
     )
 
 

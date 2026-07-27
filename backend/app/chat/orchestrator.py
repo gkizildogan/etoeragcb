@@ -554,6 +554,9 @@ def _assistant_metadata(
         for item in post.reranked
     }
     retained_ids = {item.candidate.candidate_id for item in post.deduplication.candidates}
+    confidence_retained_ids = {
+        item.candidate.candidate_id for item in post.confidence_filter.candidates
+    }
     packed_ids = {source.evidence.candidate.candidate_id for source in post.context.sources}
     pre_rerank_candidates = []
     for candidate in retrieval.combined_pool:
@@ -572,6 +575,7 @@ def _assistant_metadata(
                 "rerank_rank": outcome.get("rerank_rank"),
                 "rerank_score": outcome.get("rerank_score"),
                 "dedup_retained": candidate.candidate_id in retained_ids,
+                "confidence_retained": candidate.candidate_id in confidence_retained_ids,
                 "context_packed": candidate.candidate_id in packed_ids,
                 "provenance": {
                     key: value
@@ -620,6 +624,18 @@ def _assistant_metadata(
                 "dropped_candidate_ids": sorted(set(candidate_outcomes) - retained_ids),
                 "decisions": [
                     decision.model_dump(mode="json") for decision in post.deduplication.decisions
+                ],
+            },
+            "confidence_filter": {
+                "score_min": post.confidence_filter.score_min,
+                "top_delta": post.confidence_filter.top_delta,
+                "top_score": post.confidence_filter.top_score,
+                "effective_score_cutoff": post.confidence_filter.effective_score_cutoff,
+                "retained_candidate_ids": sorted(confidence_retained_ids),
+                "dropped_candidate_ids": sorted(retained_ids - confidence_retained_ids),
+                "decisions": [
+                    decision.model_dump(mode="json")
+                    for decision in post.confidence_filter.decisions
                 ],
             },
             "context": {

@@ -28,6 +28,7 @@ from app.rag.candidates import (
     RerankedEvidence,
     stable_reranked_key,
 )
+from app.rag.confidence import CandidateConfidenceFilter
 from app.rag.context import ContextPacker, TokenCounter
 from app.rag.dedup import deduplicate
 from app.rag.reranker import Reranker
@@ -50,6 +51,8 @@ class EvaluationConfig(BaseModel):
     sparse_limit: int = Field(ge=1, le=500)
     rerank_pool: int = Field(ge=1, le=200)
     rerank_keep: int = Field(ge=1, le=100)
+    context_rerank_score_min: float = Field(ge=0.0, le=1.0)
+    context_rerank_top_delta: float = Field(ge=0.0, le=1.0)
     context_token_budget: int = Field(ge=256, le=7_000)
     section_limit: int = Field(ge=1, le=20)
     source_limit: int = Field(ge=1, le=50)
@@ -93,6 +96,10 @@ async def evaluate(
         source_limit=config.source_limit,
         domain_limit=config.domain_limit,
         web_limit=config.web_limit,
+    )
+    confidence_filter = CandidateConfidenceFilter(
+        score_min=config.context_rerank_score_min,
+        top_delta=config.context_rerank_top_delta,
     )
     rankings: dict[ModeName, list[QueryRanking]] = {mode: [] for mode in MODES}
     observations: list[GateObservation] = []
@@ -173,7 +180,8 @@ async def evaluate(
         candidates = _evidence_candidates(query, scoped, scoped_records, config.rerank_pool)
         reranked = await reranker.rerank(query.query, candidates)
         deduplicated = deduplicate(reranked)
-        context = await packer.pack(deduplicated.candidates)
+        confident = confidence_filter.filter(deduplicated.candidates)
+        context = await packer.pack(confident.candidates)
         packed = tuple(source.evidence for source in context.sources)
         reranked_ids = tuple(item.candidate.candidate_id for item in reranked)
         reranked_scores = tuple(item.rerank_score for item in reranked)

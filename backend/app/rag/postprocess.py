@@ -3,6 +3,7 @@ from __future__ import annotations
 from pydantic import BaseModel, ConfigDict
 
 from app.rag.candidates import EvidenceCandidate, RerankedEvidence, document_evidence
+from app.rag.confidence import CandidateConfidenceFilter, CandidateConfidenceResult
 from app.rag.context import ContextPacker, PackedContext
 from app.rag.dedup import DeduplicationResult, deduplicate
 from app.rag.gate import ConfidenceGate, GateDecision
@@ -15,6 +16,7 @@ class PostRetrievalResult(BaseModel):
 
     reranked: tuple[RerankedEvidence, ...]
     deduplication: DeduplicationResult
+    confidence_filter: CandidateConfidenceResult
     context: PackedContext
     gate: GateDecision
 
@@ -25,10 +27,12 @@ class PostRetrievalService:
         reranker: Reranker,
         context_packer: ContextPacker,
         confidence_gate: ConfidenceGate,
+        confidence_filter: CandidateConfidenceFilter,
     ) -> None:
         self._reranker = reranker
         self._context_packer = context_packer
         self._confidence_gate = confidence_gate
+        self._confidence_filter = confidence_filter
 
     async def process_documents(
         self,
@@ -46,12 +50,14 @@ class PostRetrievalService:
     ) -> PostRetrievalResult:
         reranked = await self._reranker.rerank(query, candidates)
         deduplication = deduplicate(reranked)
-        context = await self._context_packer.pack(deduplication.candidates)
+        confidence_filter = self._confidence_filter.filter(deduplication.candidates)
+        context = await self._context_packer.pack(confidence_filter.candidates)
         packed_evidence = tuple(source.evidence for source in context.sources)
         gate = self._confidence_gate.evaluate(packed_evidence)
         return PostRetrievalResult(
             reranked=reranked,
             deduplication=deduplication,
+            confidence_filter=confidence_filter,
             context=context,
             gate=gate,
         )

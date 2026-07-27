@@ -9,6 +9,7 @@ from app.config import get_settings
 from app.ingest.normalization import normalize_lexical
 from app.rag.candidates import EvidenceCandidate
 from app.rag.combined import merge_candidate_pool
+from app.rag.confidence import CandidateConfidenceFilter
 from app.rag.context import ContextPacker, VllmTokenCounter
 from app.rag.gate import ConfidenceGate, load_gate_artifact
 from app.rag.postprocess import PostRetrievalService
@@ -71,13 +72,23 @@ async def run() -> dict[str, int | str]:
                 web_limit=settings.web_context_limit,
             ),
             gate,
+            CandidateConfidenceFilter(
+                score_min=settings.context_rerank_score_min,
+                top_delta=settings.context_rerank_top_delta,
+            ),
         ).process(
             query="Python asyncio open_connection",
             candidates=combined,
         )
-        source_types = {source.evidence.candidate.source_type for source in result.context.sources}
-        if source_types != {"document", "web"}:
-            raise RuntimeError("live combined context did not retain both source types")
+        if not result.context.sources:
+            raise RuntimeError("live combined context retained no confident evidence")
+        if any(
+            source.evidence.rerank_score < result.confidence_filter.effective_score_cutoff
+            for source in result.context.sources
+        ):
+            raise RuntimeError(
+                "live combined context retained evidence below its confidence cutoff"
+            )
         if result.context.token_count > settings.context_token_budget:
             raise RuntimeError("live P7 context exceeded its token budget")
         return {
@@ -86,6 +97,7 @@ async def run() -> dict[str, int | str]:
             "safe_web_candidates": len(web.candidates),
             "web_failures": len(web.failures),
             "packed_sources": len(result.context.sources),
+            "confidence_dropped": len(result.confidence_filter.decisions),
             "context_tokens": result.context.token_count,
             "private_target": blocked_code,
             "gate_reason": result.gate.reasons[0],

@@ -97,6 +97,8 @@ async def run_evaluation(args: argparse.Namespace) -> int:
         sparse_limit=settings.retrieve_sparse_n,
         rerank_pool=settings.rerank_pool_n,
         rerank_keep=settings.rerank_keep,
+        context_rerank_score_min=settings.context_rerank_score_min,
+        context_rerank_top_delta=settings.context_rerank_top_delta,
         context_token_budget=settings.context_token_budget,
         section_limit=settings.section_chunk_limit,
         source_limit=settings.document_chunk_limit,

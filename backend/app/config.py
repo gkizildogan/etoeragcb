@@ -83,6 +83,8 @@ class Settings(BaseSettings):
     retrieve_sparse_n: int = Field(ge=1, le=500)
     rerank_pool_n: int = Field(ge=1, le=200)
     rerank_keep: int = Field(ge=1, le=100)
+    context_rerank_score_min: float = Field(ge=0.0, le=1.0)
+    context_rerank_top_delta: float = Field(ge=0.0, le=1.0)
     history_turns: int = Field(ge=0, le=50)
     history_token_budget: int = Field(ge=0, le=4000)
     context_token_budget: int = Field(ge=256, le=7000)

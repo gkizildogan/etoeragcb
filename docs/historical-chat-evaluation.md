@@ -9,9 +9,9 @@ views separate:
   is never described as a complete historical reranker evaluation.
 - **Current-corpus replay** restores the original explicit document and
   collection scopes, then runs the current production planner, dense+sparse
-  Qdrant retrieval, reranker, deduplication, confidence gate, and context
-  packer. Redis caches, answer generation, and external web retrieval are
-  disabled.
+  Qdrant retrieval, reranker, deduplication, candidate-confidence filter,
+  confidence gate, and context packer. Redis caches, answer generation, and
+  external web retrieval are disabled.
 
 The first report is diagnostic. Do not use it to recalibrate the production
 confidence gate and do not make it a CI gate.
@@ -110,7 +110,7 @@ The run directory is mode `0700`; each file is mode `0600`. It contains:
 - `examples.jsonl` — private query/answer text, scopes, role group, feedback,
   route/gate metadata, and corpus comparability.
 - `candidates.jsonl` — review text and provenance plus recorded, hybrid branch,
-  rerank, deduplication, and packing outcomes.
+  rerank, deduplication, candidate-confidence filtering, and packing outcomes.
 - `labels.template.jsonl` and `labels.jsonl` — identical blank review records.
 - `ingestion-audit.json` — PASS/FAIL/WARN evidence for each version.
 - `report.json` and `report.md` — created after scoring.

@@ -18,13 +18,17 @@ change.
    spans, and high-Jaccard lexical shingles. Each removal records the survivor, reason, and
    similarity. A near/overlap removal cannot discard a candidate that adds a distinct exact
    identifier; exact-hash removals merge the identifier provenance into the survivor.
-4. `ContextPacker` considers the best representative for each exact identifier before the
+4. `CandidateConfidenceFilter` removes evidence below both the configured absolute relevance
+   floor and the score window relative to the best reranked candidate. The effective cutoff is
+   `max(CONTEXT_RERANK_SCORE_MIN, top_score - CONTEXT_RERANK_TOP_DELTA)`. If the best candidate
+   is below the absolute floor, the filter returns no evidence.
+5. `ContextPacker` considers the best representative for each exact identifier before the
    ordinary rerank order. Accepted sources must satisfy the per-section, per-source,
    per-domain, and total-candidate caps.
-5. Every tentative complete context is counted through the pinned generation server's
+6. Every tentative complete context is counted through the pinned generation server's
    `/tokenize` endpoint. A candidate is accepted only when the returned count is within
    `CONTEXT_TOKEN_BUDGET`; the packer never estimates with a different tokenizer.
-6. `ConfidenceGate` evaluates only evidence that actually reached the context. Its output
+7. `ConfidenceGate` evaluates only evidence that actually reached the context. Its output
    includes the route, all applicable reasons, observed top/second/margin/exact scores,
    evidence count, artifact hash, and calibration dataset provenance.
 
@@ -36,12 +40,19 @@ The deployment adds these explicit settings:
 
 - `DOCUMENT_CHUNK_LIMIT=6`: maximum packed chunks from one document or canonical source.
 - `DOMAIN_CHUNK_LIMIT=2`: maximum packed web chunks from one domain.
+- `CONTEXT_RERANK_SCORE_MIN=0.95`: minimum individual reranker score accepted for context.
+- `CONTEXT_RERANK_TOP_DELTA=0.04`: maximum accepted score drop from the top candidate.
 - `RETRIEVAL_GATE_CONFIG=/app/app/rag/calibration/retrieval_gate.v1.json`: versioned gate
   artifact loaded by the application.
 
 Existing `SECTION_CHUNK_LIMIT`, `RERANK_POOL_N`, `RERANK_KEEP`,
 `CONTEXT_TOKEN_BUDGET`, and `CACHE_RERANK_TTL` remain authoritative. Configuration rejects
 a section limit larger than the document/source limit.
+
+The candidate cutoff is an evidence-selection control, not a calibrated probability. Its
+retained IDs, dropped IDs, effective cutoff, and per-candidate reasons are persisted in the
+chat retrieval trace. Re-run the labeled retrieval evaluation when changing either value or
+the pinned reranker revision.
 
 ## Confidence artifact and P10 calibration
 

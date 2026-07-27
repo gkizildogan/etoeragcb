@@ -8,6 +8,7 @@ import orjson
 from app.config import get_settings
 from app.ingest.normalization import normalize_lexical
 from app.rag.candidates import EvidenceCandidate
+from app.rag.confidence import CandidateConfidenceFilter
 from app.rag.context import ContextPacker, VllmTokenCounter
 from app.rag.gate import ConfidenceGate, load_gate_artifact
 from app.rag.postprocess import PostRetrievalService
@@ -41,6 +42,10 @@ async def run() -> dict[str, int | str]:
             domain_limit=settings.domain_chunk_limit,
         ),
         gate,
+        CandidateConfidenceFilter(
+            score_min=settings.context_rerank_score_min,
+            top_delta=settings.context_rerank_top_delta,
+        ),
     )
     candidates = (
         _candidate(
@@ -70,6 +75,11 @@ async def run() -> dict[str, int | str]:
             raise RuntimeError("live reranker did not rank bilingual relevant evidence first")
         if result.context.token_count > settings.context_token_budget:
             raise RuntimeError("live context exceeded the serving-tokenizer budget")
+        if any(
+            source.evidence.rerank_score < result.confidence_filter.effective_score_cutoff
+            for source in result.context.sources
+        ):
+            raise RuntimeError("live context retained evidence below its confidence cutoff")
         if not result.gate.calibrated:
             raise RuntimeError("production gate does not contain P10 calibration")
         if result.gate.dataset_name != "etoeragcb-retrieval-golden":
@@ -78,6 +88,7 @@ async def run() -> dict[str, int | str]:
             "status": "ok",
             "top_candidate": result.reranked[0].candidate.candidate_id,
             "packed_sources": len(result.context.sources),
+            "confidence_dropped": len(result.confidence_filter.decisions),
             "context_tokens": result.context.token_count,
             "gate_route": result.gate.route,
             "gate_reason": result.gate.reasons[0],

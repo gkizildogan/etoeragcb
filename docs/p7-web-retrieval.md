@@ -61,9 +61,11 @@ input is never treated as a direct fetch URL.
 When `web_search=true`, the document and web tasks start concurrently. Results are merged
 deterministically by alternating document and web ranks into the bounded
 `RERANK_POOL_N=50` pool. Both branches then use the same P6 multilingual cross-encoder,
-deduplication, diversity, generation-tokenizer budget, and confidence gate.
+deduplication, candidate-confidence filter, diversity, generation-tokenizer budget, and
+confidence gate.
 
-Context packing reserves a representative of each available source type and applies:
+After candidate-confidence filtering, context packing reserves a representative of each
+remaining source type and applies:
 
 - the existing section and document/canonical-source caps;
 - `DOMAIN_CHUNK_LIMIT=2`;

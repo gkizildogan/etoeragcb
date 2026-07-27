@@ -49,6 +49,8 @@ def settings_values(tmp_path: Path) -> dict[str, Any]:
         "retrieve_sparse_n": 40,
         "rerank_pool_n": 50,
         "rerank_keep": 12,
+        "context_rerank_score_min": 0.95,
+        "context_rerank_top_delta": 0.04,
         "history_turns": 6,
         "history_token_budget": 1200,
         "context_token_budget": 5000,

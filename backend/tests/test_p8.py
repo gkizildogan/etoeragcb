@@ -20,8 +20,8 @@ from app.auth.rate_limit import RateLimitDecision
 from app.auth.security import SecurityService
 from app.chat.citations import CitationStreamSanitizer
 from app.chat.generator import GenerationChunk, VllmGenerator
-from app.chat.orchestrator import ChatCoordinator
-from app.chat.schemas import ChatRequest, UsageSummary
+from app.chat.orchestrator import ChatCoordinator, _assistant_metadata
+from app.chat.schemas import AcceptedChat, ChatRequest, UsageSummary
 from app.config import Settings
 from app.core.idempotency import canonical_request_hash, claim_idempotency
 from app.documents.files import FileTokenSigner
@@ -38,6 +38,7 @@ from app.models import (
 )
 from app.rag.candidates import EvidenceCandidate, RerankedEvidence
 from app.rag.combined import CombinedRetrievalResult
+from app.rag.confidence import CandidateConfidenceResult
 from app.rag.context import PackedContext, PackedSource, VllmTokenCounter
 from app.rag.dedup import DeduplicationResult
 from app.rag.gate import GateDecision, GateScores
@@ -287,6 +288,47 @@ async def test_prompt_budget_uses_vllm_chat_template_tokenization() -> None:
     assert captured["chat_template_kwargs"] == {"enable_thinking": False}
 
 
+def test_assistant_metadata_records_candidate_confidence_outcomes() -> None:
+    ids = P8Ids(
+        tenant_id=uuid.uuid4(),
+        user_id=uuid.uuid4(),
+        session_id=uuid.uuid4(),
+        document_id=uuid.uuid4(),
+        version_id=uuid.uuid4(),
+        storage_key="fixture",
+    )
+    request = ChatRequest(
+        session_id=ids.session_id,
+        message="What is ZX-42?",
+        document_ids=(ids.document_id,),
+        client_request_id=uuid.uuid4(),
+    )
+    accepted = AcceptedChat(
+        request=request,
+        tenant_id=ids.tenant_id,
+        user_id=ids.user_id,
+        user_message_id=uuid.uuid4(),
+        idempotency_key="fixture-key",
+    )
+
+    metadata = _assistant_metadata(
+        accepted=accepted,
+        route="answer",
+        usage=UsageSummary(),
+        citations={},
+        retrieval=_combined_result(ids),
+    )
+
+    trace = metadata["retrieval"]
+    assert isinstance(trace, dict)
+    candidate = trace["pre_rerank_candidates"][0]
+    confidence = trace["confidence_filter"]
+    assert candidate["confidence_retained"] is True
+    assert confidence["retained_candidate_ids"] == [candidate["candidate_id"]]
+    assert confidence["effective_score_cutoff"] == 0.95
+    assert confidence["decisions"] == []
+
+
 async def test_chat_sse_persists_authoritative_text_and_replays_without_duplicates(
     settings: Settings,
 ) -> None:
@@ -350,6 +392,10 @@ async def test_chat_sse_persists_authoritative_text_and_replays_without_duplicat
         assert trace["generation_id"] == 1
         assert trace["retrieval_revision"] == 1
         assert trace["rerank_order"][0]["rerank_rank"] == 1
+        assert trace["confidence_filter"]["retained_candidate_ids"] == [
+            trace["pre_rerank_candidates"][0]["candidate_id"]
+        ]
+        assert trace["pre_rerank_candidates"][0]["confidence_retained"] is True
         assert trace["pre_rerank_candidates"][0]["context_packed"] is True
         assert "text_original" not in trace["pre_rerank_candidates"][0]
         assert "text" not in trace["rerank_order"][0]
@@ -649,6 +695,14 @@ def _combined_result(ids: P8Ids, *, gate_route: str = "answer") -> CombinedRetri
     post = PostRetrievalResult(
         reranked=(reranked,),
         deduplication=DeduplicationResult(candidates=(reranked,), decisions=()),
+        confidence_filter=CandidateConfidenceResult(
+            candidates=(reranked,),
+            decisions=(),
+            top_score=reranked.rerank_score,
+            effective_score_cutoff=0.95,
+            score_min=0.95,
+            top_delta=0.04,
+        ),
         context=context,
         gate=decision,
     )

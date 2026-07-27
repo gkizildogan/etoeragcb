@@ -27,6 +27,7 @@ from app.evaluation.history_audit import QdrantPointReader, audit_ingestion
 from app.ingest.embedder import TeiClient
 from app.models import Chunk, Tenant
 from app.rag.combined import CombinedRetrievalResult, CombinedRetrievalService
+from app.rag.confidence import CandidateConfidenceFilter
 from app.rag.context import ContextPacker, VllmTokenCounter
 from app.rag.gate import ConfidenceGate, load_gate_artifact
 from app.rag.planner import VllmPlanner
@@ -111,6 +112,10 @@ def build_history_replay_runtime(settings: Settings) -> HistoryReplayRuntime:
             web_limit=settings.web_context_limit,
         ),
         gate,
+        CandidateConfidenceFilter(
+            score_min=settings.context_rerank_score_min,
+            top_delta=settings.context_rerank_top_delta,
+        ),
     )
     retrieval = CombinedRetrievalService(
         documents,
@@ -312,6 +317,9 @@ def _current_candidate_rows(
     retained = {
         item.candidate.candidate_id for item in replay.post_retrieval.deduplication.candidates
     }
+    confidence_retained = {
+        item.candidate.candidate_id for item in replay.post_retrieval.confidence_filter.candidates
+    }
     result: list[dict[str, Any]] = []
     for candidate in replay.combined_pool:
         if candidate.source_type != "document":
@@ -348,6 +356,7 @@ def _current_candidate_rows(
                 "current_rerank_rank": (current.rerank_rank if current is not None else None),
                 "current_rerank_score": (current.rerank_score if current is not None else None),
                 "dedup_retained": candidate.candidate_id in retained,
+                "confidence_retained": candidate.candidate_id in confidence_retained,
                 "context_packed": candidate.candidate_id in packed,
                 "availability": "available",
             }
@@ -440,6 +449,7 @@ async def _recorded_candidate_rows(
                 "current_rerank_rank": None,
                 "current_rerank_score": None,
                 "dedup_retained": None,
+                "confidence_retained": None,
                 "context_packed": None,
                 "availability": ("available" if chunk is not None else "unavailable_by_retention"),
             }
@@ -471,6 +481,7 @@ def _pool_candidates(
                     "current_rerank_score",
                     "recorded_rerank_rank",
                     "dedup_retained",
+                    "confidence_retained",
                     "context_packed",
                 }
             ):
@@ -561,6 +572,8 @@ def _configuration_sha256(settings: Settings) -> str:
         "retrieve_sparse_n": settings.retrieve_sparse_n,
         "rerank_pool_n": settings.rerank_pool_n,
         "rerank_keep": settings.rerank_keep,
+        "context_rerank_score_min": settings.context_rerank_score_min,
+        "context_rerank_top_delta": settings.context_rerank_top_delta,
         "context_token_budget": settings.context_token_budget,
         "section_chunk_limit": settings.section_chunk_limit,
         "document_chunk_limit": settings.document_chunk_limit,

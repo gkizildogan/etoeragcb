@@ -13,6 +13,7 @@ from app.core.metrics import Metrics
 from app.ingest.embedder import TeiClient
 from app.rag.cache import RedisJsonCache
 from app.rag.combined import CombinedRetrievalService
+from app.rag.confidence import CandidateConfidenceFilter
 from app.rag.context import ContextPacker, VllmTokenCounter
 from app.rag.gate import ConfidenceGate, load_gate_artifact
 from app.rag.planner import VllmPlanner
@@ -110,6 +111,10 @@ def build_chat_runtime(
             web_limit=settings.web_context_limit,
         ),
         gate,
+        CandidateConfidenceFilter(
+            score_min=settings.context_rerank_score_min,
+            top_delta=settings.context_rerank_top_delta,
+        ),
     )
     combined = CombinedRetrievalService(
         document_retrieval,
