@@ -344,6 +344,15 @@ async def test_chat_sse_persists_authoritative_text_and_replays_without_duplicat
         assert messages[1].role == "assistant"
         assert messages[1].content == rendered
         assert messages[1].meta["citations"] == citations
+        trace = messages[1].meta["retrieval"]
+        assert trace["schema_version"] == 2
+        assert trace["request_role"] == "member"
+        assert trace["generation_id"] == 1
+        assert trace["retrieval_revision"] == 1
+        assert trace["rerank_order"][0]["rerank_rank"] == 1
+        assert trace["pre_rerank_candidates"][0]["context_packed"] is True
+        assert "text_original" not in trace["pre_rerank_candidates"][0]
+        assert "text" not in trace["rerank_order"][0]
         assert context.retrieval.calls == 1
         assert context.generator.calls == 1
 

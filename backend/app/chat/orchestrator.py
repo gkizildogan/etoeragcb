@@ -85,6 +85,7 @@ class ChatCoordinator:
         history_token_budget: int,
         prompt_token_budget: int,
         metrics: Metrics | None = None,
+        retrieval_provenance: dict[str, str] | None = None,
     ) -> None:
         self._sessions = session_factory
         self._retrieval = retrieval
@@ -97,6 +98,7 @@ class ChatCoordinator:
             raise ValueError("prompt token budget must be positive")
         self._prompt_token_budget = prompt_token_budget
         self._metrics = metrics
+        self._retrieval_provenance = dict(retrieval_provenance or {})
 
     async def accept(
         self,
@@ -155,6 +157,7 @@ class ChatCoordinator:
                 user_id=principal.user_id,
                 user_message_id=user_message_id,
                 idempotency_key=idempotency_key,
+                request_role=_request_role(principal),
                 replay=replay,
             )
 
@@ -197,6 +200,7 @@ class ChatCoordinator:
             user_id=principal.user_id,
             user_message_id=user_message.id,
             idempotency_key=idempotency_key,
+            request_role=_request_role(principal),
         )
 
     async def events(self, accepted: AcceptedChat) -> AsyncIterator[StreamEvent]:
@@ -463,6 +467,7 @@ class ChatCoordinator:
                     usage=usage,
                     citations=citations,
                     retrieval=retrieval,
+                    retrieval_provenance=self._retrieval_provenance,
                 ),
             )
             session.add(assistant)
@@ -508,6 +513,7 @@ def _assistant_metadata(
     usage: UsageSummary,
     citations: dict[str, object],
     retrieval: CombinedRetrievalResult,
+    retrieval_provenance: dict[str, str] | None = None,
 ) -> dict[str, object]:
     post = retrieval.post_retrieval
     sources = []
@@ -540,6 +546,56 @@ def _assistant_metadata(
                 },
             }
         )
+    candidate_outcomes = {
+        item.candidate.candidate_id: {
+            "rerank_rank": item.rerank_rank,
+            "rerank_score": item.rerank_score,
+        }
+        for item in post.reranked
+    }
+    retained_ids = {item.candidate.candidate_id for item in post.deduplication.candidates}
+    packed_ids = {source.evidence.candidate.candidate_id for source in post.context.sources}
+    pre_rerank_candidates = []
+    for candidate in retrieval.combined_pool:
+        outcome = candidate_outcomes.get(candidate.candidate_id, {})
+        pre_rerank_candidates.append(
+            {
+                "candidate_id": candidate.candidate_id,
+                "source_type": candidate.source_type,
+                "source_key": candidate.source_key,
+                "content_sha256": candidate.content_sha256,
+                "retrieval_rank": candidate.retrieval_rank,
+                "retrieval_score": candidate.retrieval_score,
+                "branch_retrieval_rank": candidate.provenance.get("branch_retrieval_rank"),
+                "dense_rank": candidate.provenance.get("dense_rank"),
+                "sparse_rank": candidate.provenance.get("sparse_rank"),
+                "rerank_rank": outcome.get("rerank_rank"),
+                "rerank_score": outcome.get("rerank_score"),
+                "dedup_retained": candidate.candidate_id in retained_ids,
+                "context_packed": candidate.candidate_id in packed_ids,
+                "provenance": {
+                    key: value
+                    for key, value in candidate.provenance.items()
+                    if key
+                    in {
+                        "document_id",
+                        "document_version_id",
+                        "section_id",
+                        "chunk_index",
+                        "combined_pool_rank",
+                    }
+                },
+            }
+        )
+    rerank_order = [
+        {
+            "candidate_id": item.candidate.candidate_id,
+            "content_sha256": item.candidate.content_sha256,
+            "rerank_rank": item.rerank_rank,
+            "rerank_score": item.rerank_score,
+        }
+        for item in post.reranked
+    ]
     return {
         "client_request_id": str(accepted.request.client_request_id),
         "user_message_id": str(accepted.user_message_id),
@@ -547,14 +603,40 @@ def _assistant_metadata(
         "usage": usage.model_dump(mode="json"),
         "citations": citations,
         "retrieval": {
+            "schema_version": 2,
+            "request_role": accepted.request_role,
+            "generation_id": retrieval.documents.scope.generation_id,
+            "retrieval_revision": retrieval.documents.scope.retrieval_revision,
+            "model_provenance": dict(retrieval_provenance or {}),
             "intent": retrieval.documents.planning.plan.intent,
             "planner_fallback": retrieval.documents.planning.used_fallback,
             "web_status": retrieval.web.status,
             "gate": post.gate.model_dump(mode="json"),
             "context_tokens": post.context.token_count,
+            "pre_rerank_candidates": pre_rerank_candidates,
+            "rerank_order": rerank_order,
+            "deduplication": {
+                "retained_candidate_ids": sorted(retained_ids),
+                "dropped_candidate_ids": sorted(set(candidate_outcomes) - retained_ids),
+                "decisions": [
+                    decision.model_dump(mode="json") for decision in post.deduplication.decisions
+                ],
+            },
+            "context": {
+                "packed_candidate_ids": [
+                    source.evidence.candidate.candidate_id for source in post.context.sources
+                ],
+                "skipped": [skipped.model_dump(mode="json") for skipped in post.context.skipped],
+            },
             "sources": sources,
         },
     }
+
+
+def _request_role(principal: Principal) -> str:
+    if principal.is_superuser:
+        return "superuser"
+    return "admin" if principal.role == "admin" else "member"
 
 
 def _no_answer(message: str) -> str:

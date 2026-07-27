@@ -134,6 +134,14 @@ def build_chat_runtime(
         history_token_budget=settings.history_token_budget,
         prompt_token_budget=settings.max_model_len - settings.max_new_tokens,
         metrics=metrics,
+        retrieval_provenance={
+            "planner_model": settings.vllm_model,
+            "planner_revision": settings.vllm_model_revision,
+            "embedding_model": settings.embed_model,
+            "embedding_revision": settings.embed_revision,
+            "reranker_model": settings.rerank_model,
+            "reranker_revision": settings.rerank_revision,
+        },
     )
     return ChatRuntime(
         coordinator=coordinator,

@@ -88,4 +88,5 @@ class AcceptedChat(BaseModel):
     user_id: uuid.UUID
     user_message_id: uuid.UUID
     idempotency_key: str
+    request_role: Literal["member", "admin", "superuser"] = "member"
     replay: StoredChatReplay | None = None

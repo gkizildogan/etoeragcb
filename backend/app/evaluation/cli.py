@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import uuid
+from datetime import datetime
 from pathlib import Path
 
 import httpx
@@ -12,6 +13,9 @@ from app.core.db import create_database_engine, create_session_factory
 from app.evaluation.dataset import evaluator_sha256, load_dataset
 from app.evaluation.engine import EvaluationConfig, evaluate
 from app.evaluation.feedback import feedback_records, write_feedback_jsonl
+from app.evaluation.history import HistoryEvaluationError
+from app.evaluation.history_prepare import prepare_history_run
+from app.evaluation.history_report import score_history_run
 from app.evaluation.report import (
     verify_report,
     write_gate_configuration,
@@ -56,6 +60,20 @@ def build_parser() -> argparse.ArgumentParser:
     feedback.add_argument("--output", type=Path, required=True)
     feedback.add_argument("--include-content", action="store_true")
     feedback.add_argument("--overwrite", action="store_true")
+    history = subparsers.add_parser(
+        "prepare-history",
+        help="export and replay private historical knowledge chats for human labeling",
+    )
+    history.add_argument("--tenant-id", type=uuid.UUID, required=True)
+    history.add_argument("--output", type=Path, required=True)
+    history.add_argument("--include-private-content", action="store_true")
+    history.add_argument("--start-at", type=_rfc3339)
+    history.add_argument("--end-at", type=_rfc3339)
+    score_history = subparsers.add_parser(
+        "score-history",
+        help="strictly validate human labels and score a historical run",
+    )
+    score_history.add_argument("--run-dir", type=Path, required=True)
     return parser
 
 
@@ -149,12 +167,54 @@ async def export_feedback(args: argparse.Namespace) -> int:
     return 0
 
 
+async def prepare_history(args: argparse.Namespace) -> int:
+    settings = get_settings()
+    engine = create_database_engine(settings.resolved_database_url())
+    factory = create_session_factory(engine)
+    try:
+        manifest = await prepare_history_run(
+            factory,
+            settings=settings,
+            tenant_id=args.tenant_id,
+            output=args.output,
+            include_private_content=bool(args.include_private_content),
+            start_at=args.start_at,
+            end_at=args.end_at,
+        )
+    finally:
+        await engine.dispose()
+    print(f"Prepared {manifest['counts']['examples']} historical examples in {args.output}")
+    return 0
+
+
+def _rfc3339(value: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("expected RFC3339 date-time") from exc
+    if parsed.tzinfo is None:
+        raise argparse.ArgumentTypeError("RFC3339 date-time must include an offset")
+    return parsed
+
+
 def main() -> None:
     args = build_parser().parse_args()
     if args.command == "run":
         raise SystemExit(asyncio.run(run_evaluation(args)))
     if args.command == "export-feedback":
         raise SystemExit(asyncio.run(export_feedback(args)))
+    if args.command == "prepare-history":
+        try:
+            raise SystemExit(asyncio.run(prepare_history(args)))
+        except HistoryEvaluationError as exc:
+            raise SystemExit(str(exc)) from exc
+    if args.command == "score-history":
+        try:
+            historical_report = score_history_run(args.run_dir)
+        except HistoryEvaluationError as exc:
+            raise SystemExit(str(exc)) from exc
+        print((args.run_dir / "report.md").read_text(encoding="utf-8"))
+        raise SystemExit(0 if historical_report["diagnostic_only"] else 1)
     report = verify_report(
         args.report,
         dataset_root=args.dataset,
