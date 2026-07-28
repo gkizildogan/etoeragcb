@@ -221,6 +221,248 @@ hybrid dense/sparse retrieval, optional isolated web retrieval, reranking,
 deduplication/diversity, confidence gating, context packing, local generation,
 citation repair, and atomic persistence.
 
+## RAG: retrieval and generation control map
+
+This section is the practical map for changing the RAG pipeline. Line ranges
+refer to the current source tree; prefer the named class or function when a
+later edit shifts a range. The important boundary is that **PostgreSQL decides
+which evidence is eligible**, Qdrant only proposes chunk IDs, and the model only
+sees the evidence that survives post-retrieval processing and context packing.
+
+### End-to-end query path
+
+```mermaid
+flowchart TD
+    U["User question + explicit document/collection scope + web toggle"]
+    A["Chat API: authenticate, validate, claim idempotency, persist user message"]
+    P["Planner: classify intent, rewrite query, extract exact terms and hints"]
+    S["Scope resolver: tenant + active generation + explicit filters + safe hint resolution"]
+    Q["Query features: BGE-M3 dense embedding + normalized hashed sparse vector"]
+    D1["Qdrant dense search"]
+    D2["Qdrant sparse search"]
+    F["Reciprocal-rank fusion + exact-term/hint boosts"]
+    H["PostgreSQL hydration + provenance checks + section caps + neighbor expansion"]
+    W["Optional web branch: SearXNG search + isolated fetch + bounded text"]
+    M["Interleave document and web candidates into bounded pool"]
+    R["TEI cross-encoder rerank against planned query"]
+    DD["Deduplicate: hashes, overlapping spans, lexical shingles"]
+    CF["Candidate confidence filter"]
+    C["Diversity and token-budget context pack; assign S1, S2, ..."]
+    G{"Calibrated confidence gate"}
+    NA["Return deterministic no-answer message"]
+    L["vLLM generation with history, question, and SOURCE blocks"]
+    CR["Stream citation allow-list repair; build citation metadata"]
+    DB["Atomically persist answer, citations, packed sources, usage, and replay"]
+    SSE["SSE: delta/replace, citations, done"]
+
+    U --> A --> P --> S --> Q
+    Q --> D1 --> F
+    Q --> D2 --> F
+    F --> H --> M
+    U -. "web_search=true" .-> W --> M
+    M --> R --> DD --> CF --> C --> G
+    G -- "weak/unavailable evidence" --> NA --> DB
+    G -- answer --> L --> CR --> DB --> SSE
+```
+
+There are two deliberate short paths. A planner result of `smalltalk` or
+`meta` skips document vector retrieval and uses the ungrounded conversation
+prompt. A `knowledge` request whose calibrated gate does not pass never calls
+the generator; it returns a stable no-answer response instead. Web search can
+run beside document retrieval, but its failure is contained and document
+retrieval remains authoritative.
+
+### 1. Entry, query planning, and scope
+
+- `backend/app/chat/routes.py` lines 26-95 is the HTTP/SSE entry point. It
+  validates the idempotency key, accepts the request, and converts coordinator
+  events into SSE frames. `backend/app/chat/schemas.py` lines 9-33 defines the
+  controllable request inputs: question, session, explicit collection/document
+  IDs, web-search toggle, and client request UUID.
+- `backend/app/chat/orchestrator.py` lines 103-204 claims idempotency and stores
+  the user message; lines 206-409 execute retrieval/generation and emit the
+  stream; lines 411-507 bound conversation history. This is the top-level place
+  to change stage ordering, branching, persistence, or observable events.
+- `backend/app/rag/planner.py` lines 9-58 defines hard query/hint bounds and the
+  `RetrievalPlan`: `intent`, rewritten `query`, `exact_terms`, and document,
+  collection, and heading hints. Lines 64-139 contain the deterministic vLLM
+  JSON-schema request (`temperature=0`, thinking disabled); lines 142-172 are
+  the failure fallback, which preserves the bounded user text and extracts
+  quoted terms/identifiers. Change the system instruction here to experiment
+  with query rewriting or add plan fields here and in all consumers/cache keys.
+- `backend/app/rag/service.py` lines 56-118 orchestrates planning, scope,
+  feature construction, and retrieval. Notice that both the dense embedding
+  and sparse vector use **the planned query**, not necessarily the raw message.
+  Lines 120-153 implement fail-open Redis plan/retrieval caches; their keys
+  include tenant, active generation, retrieval revision, plan, model revision,
+  explicit scope, and algorithm signature so stale evidence is not reused.
+- `backend/app/rag/scope.py` lines 70-269 resolves only the tenant's active
+  generation manifest. Explicit document/collection IDs are hard filters and
+  invalid IDs fail closed. Exact unambiguous planner hints may narrow scope;
+  ambiguous/fuzzy hints only create ranking boosts, never authorization. Heading
+  matches expand to descendant sections. Lines 271-388 contain the exact/fuzzy
+  matching policy (`FUZZY_HINT_MINIMUM` is at line 26). Modify this module for
+  metadata interpretation, but never turn model-provided hints into permission.
+
+### 2. Index representation and hybrid document retrieval
+
+Retrieval behavior starts at ingestion, because query-time dense and sparse
+features must match the stored representation:
+
+- `backend/app/ingest/chunker.py` lines 44-105 makes tokenizer-aligned,
+  overlapping chunks, preserving original and normalized lexical text, offsets,
+  pages, hashes, and stable IDs. `CHUNK_TOKENS` and `CHUNK_OVERLAP` therefore
+  change both recall and index cardinality and require reindexing.
+- `backend/app/ingest/embedder.py` lines 18-99 calls TEI `/tokenize` and `/embed`,
+  validates token offsets and `EMBED_DIM`, and refuses silent truncation.
+  `backend/app/ingest/hashing.py` lines 41-53 creates the normalized hashed
+  bag-of-terms sparse vector (log term frequency, L2 normalization).
+- `backend/app/ingest/jobs.py` lines 39-500 owns parse -> section -> chunk ->
+  embed -> Qdrant upsert -> validation -> atomic generation activation.
+  `backend/app/ingest/indexer.py` lines 45-115 defines Qdrant's cosine `dense`
+  and on-disk `sparse` vectors plus scope/provenance payload indexes. Changing
+  embedding models, dimensions, sparse hashing, chunk identity, or payloads is
+  an ingestion/index migration, not just a query-time change.
+- `backend/app/rag/retriever.py` lines 85-157 sends independent dense and sparse
+  Qdrant queries with tenant, generation, version, document, and optional
+  section filters. Lines 159-240 fuse the branches, hydrate candidates from
+  PostgreSQL, apply limits, and add neighboring chunks. Lines 285-459 implement
+  RRF (`RRF_K=60`), exact-term/hint boosts, deterministic ties, and per-section
+  caps; lines 460-543 load neighbors. Qdrant text/payload is not trusted as the
+  final evidence: hydration rechecks active PostgreSQL rows and content hashes.
+
+The document ranking sequence is: dense rank + sparse rank -> reciprocal-rank
+fusion -> exact-term and metadata-hint boosts -> deterministic ordering ->
+per-section cap -> optional same-section neighbors. `RETRIEVE_DENSE_N` and
+`RETRIEVE_SPARSE_N` control branch recall; `RERANK_POOL_N` bounds the fused pool;
+`SECTION_CHUNK_LIMIT` limits concentration before reranking; and
+`SECTION_NEIGHBOR_RADIUS` trades topical continuity for pool space.
+
+### 3. Optional web evidence and candidate merging
+
+- `backend/app/rag/combined.py` lines 60-105 runs document retrieval and, only
+  when requested, web retrieval concurrently. Lines 107-114 isolate all web
+  errors. Lines 125-155 deterministically interleave document and web ranks up
+  to the rerank pool limit; this is the place to replace equal interleaving with
+  a source weighting or quota policy.
+- `backend/app/rag/web.py` lines 60-120 implement bounded SearXNG search, lines
+  122-159 call the isolated fetcher, and lines 161-224 deduplicate URLs, fetch
+  concurrently, and produce web candidates. Lines 227-289 validate results,
+  bound searchable text, and retain URL/title/domain provenance. Network and
+  payload controls live in `backend/app/web/` and the isolated `web-fetcher`
+  deployment; do not move arbitrary URL fetching into the backend container.
+
+Web uses the raw user message for search (`combined.py` line 79), whereas
+document retrieval and reranking use the planned query (`combined.py` lines
+96-99). This is an explicit modification point if experiments should make web
+search use the rewrite, multiple queries, or planner-generated web terms.
+
+### 4. Reranking, deduplication, filtering, and context diversity
+
+`backend/app/rag/postprocess.py` lines 45-63 is the exact post-retrieval order:
+
+1. `backend/app/rag/reranker.py` lines 34-97 bounds candidates and orders them
+   by TEI cross-encoder score, then retrieval rank and stable ID. Lines 99-158
+   batch original candidate text through `/rerank`, require one normalized
+   `[0,1]` score per item, and fail the request rather than silently using bad
+   scores. Lines 160-194 implement a content-hash/model-revision-aware cache.
+2. `backend/app/rag/dedup.py` lines 26-73 retains the best-ranked copy and records
+   every drop. Lines 76-136 compare exact content hash, normalized lexical hash,
+   same-source character-span overlap (default `0.80`), then 3-token Jaccard
+   similarity (default `0.85`). Evidence carrying a unique exact-term match is
+   preserved; lines 139-158 merge provenance of collapsed candidates. The two
+   thresholds are code defaults, not environment variables.
+3. `backend/app/rag/confidence.py` lines 30-73 keeps candidates scoring at least
+   `max(CONTEXT_RERANK_SCORE_MIN, top_score - CONTEXT_RERANK_TOP_DELTA)` and
+   records whether each rejection was absolutely weak or too far from the best.
+4. `backend/app/rag/context.py` lines 115-210 orders and packs surviving evidence
+   under candidate, section, source/document, domain, web-source, and exact token
+   limits. Lines 213-243 first reserve representatives for unmatched exact terms
+   and available document/web source types. Lines 246-269 assign stable `[S#]`
+   blocks; web text is visibly wrapped as untrusted data. This is the principal
+   place to experiment with diversity, ordering, source quotas, or formatting.
+5. `backend/app/rag/gate.py` lines 114-123 loads and hashes the committed
+   calibration artifact. Lines 126-186 verify embedding/reranker revisions and
+   decide `answer` versus `no_answer` from candidate count, top score, top-two
+   margin, and an exact-term exception. Thresholds come from
+   `backend/app/rag/calibration/retrieval_gate.v1.json`; recalibrate rather than
+   casually tuning a production gate against anecdotal questions.
+
+The candidate confidence filter and final gate are different controls: the
+filter decides **what the model may see**; the gate decides **whether the model
+may answer at all**. The gate evaluates only packed evidence, so context quotas
+and token budget can affect the route.
+
+### 5. Prompt construction, generation, citations, and storage
+
+- `backend/app/chat/prompts.py` lines 5-35 contains both system prompts and the
+  final message assembly. Knowledge answers receive bounded history, the raw
+  latest question, and packed source blocks; they are instructed to use only
+  sources, treat them as untrusted, answer in the user's language, and cite
+  factual claims. Smalltalk/meta receives no retrieval context and must not cite.
+- `backend/app/chat/orchestrator.py` lines 254-333 selects grounded/no-answer
+  routing, constructs prompts, and streams generation. Its prompt budget is
+  computed during runtime wiring so model input, history, context, and output
+  remain within `MAX_MODEL_LEN`.
+- `backend/app/chat/generator.py` lines 27-101 calls vLLM's streaming chat
+  completions endpoint with configured model and output bound, parses deltas,
+  captures usage, and maps malformed/failed streams to `GenerationError`.
+- `backend/app/chat/citations.py` lines 22-97 buffers partial markers during
+  streaming and emits only complete allow-listed `[S#]` markers. Lines 100-127
+  build public citation metadata only for markers actually used; lines 130-150
+  remove invented/incomplete/adjacent duplicate markers and preserve first-use
+  order. If repair changes already-streamed text, the coordinator emits an
+  authoritative `replace` event.
+- `backend/app/chat/orchestrator.py` lines 335-409 atomically stores final text,
+  citation map, packed-source provenance, gate/planner decisions, model usage,
+  and the idempotent replay transcript before emitting `done`. Citation preview
+  authorization and content revalidation live in
+  `backend/app/sessions/routes.py` lines 197-374; that path deliberately
+  retrieves original PostgreSQL chunk text rather than trusting client-supplied
+  citation data.
+
+Citation repair validates marker existence, not whether every factual sentence
+has a citation or whether a citation semantically entails a claim. Stronger
+claim-level citation coverage or entailment checking would be a new stage after
+generation and before atomic persistence.
+
+### Control surface and safe experimentation
+
+| Goal | Primary control | Code-level control / consequence |
+|---|---|---|
+| Query rewriting, intent, exact terms, hints | Planner prompt/schema | `rag/planner.py`; update cache signatures and tests when schema/semantics change |
+| Hard corpus selection | Request document/collection IDs | `rag/scope.py`; always retain tenant + active-generation checks |
+| Chunk size and overlap | `CHUNK_TOKENS`, `CHUNK_OVERLAP` | Reindex all affected documents |
+| Dense/sparse recall | `RETRIEVE_DENSE_N`, `RETRIEVE_SPARSE_N` | `rag/retriever.py`; larger values increase Qdrant/hydration cost |
+| Fusion and boosts | `RRF_K`, `_rank_hydrated` | Code-only; bump `retrieval_signature` to invalidate cache |
+| Neighbor/context locality | `SECTION_CHUNK_LIMIT`, `SECTION_NEIGHBOR_RADIUS` | Changes candidate composition before reranking |
+| Reranker breadth/output | `RERANK_POOL_N`, `RERANK_KEEP` | Pool also bounds combined web/document candidates; keep bounds context candidates |
+| Remove weak evidence | `CONTEXT_RERANK_SCORE_MIN`, `CONTEXT_RERANK_TOP_DELTA` | Candidate filter runs after dedup and before packing |
+| Duplicate sensitivity | `deduplicate()` thresholds | Code-only defaults; add config if frequent experiments are intended |
+| Context size/diversity | `CONTEXT_TOKEN_BUDGET`, `DOCUMENT_CHUNK_LIMIT`, `DOMAIN_CHUNK_LIMIT`, `WEB_CONTEXT_LIMIT` | `rag/context.py`; token count comes from the serving tokenizer |
+| Abstention | `RETRIEVAL_GATE_CONFIG` artifact | Calibrate with `backend/app/evaluation/`; artifact is model-revision bound |
+| Web breadth/safety | `WEB_TOP_RESULTS`, fetch timeout/concurrency/redirect/byte/text limits | `rag/web.py`, `app/web/`, isolated fetcher and network policy |
+| History and output | `HISTORY_TURNS`, `HISTORY_TOKEN_BUDGET`, `MAX_NEW_TOKENS`, `MAX_MODEL_LEN` | Cross-field validation prevents total reserved tokens exceeding model length |
+| Citation syntax/repair | Grounding prompt and `chat/citations.py` | Keep source IDs synchronized with `ContextPacker` formatting |
+| Reproducibility/cache | `CACHE_PLAN_TTL`, `CACHE_RETRIEVAL_TTL`, `CACHE_RERANK_TTL`, `CACHE_ANSWER_TTL` | Cache failures are non-fatal; revisions/generation/signatures prevent stale reuse |
+
+All validated knobs and cross-field constraints are declared in
+`backend/app/config.py` lines 53-123 and 206-239. Deployment values originate in
+`deploy/.env.example` and are passed to backend/worker services by
+`deploy/compose.yml`; copy the example to the uncommitted `deploy/.env` for a
+local experiment. Model identities are pinned in `model-revisions.lock` and
+changing a model revision can intentionally make the confidence gate abstain
+until a matching artifact is installed.
+
+For controlled experiments, change one stage at a time, add its parameters and
+model/index revisions to cache provenance, reindex when the stored
+representation changes, and record retrieval candidates, rerank/dedup/filter
+decisions, packed sources, gate result, final citations, latency, and answer
+quality. Relevant regression coverage can be located with
+`rg -l "app.rag|app.chat" backend/tests`, while evaluation tooling lives in
+`backend/app/evaluation/`; run backend lint, strict typing, and the full test
+suite before comparing results.
+
 ## Configuration and reproducibility
 
 Python dependencies remain hash-locked for Python 3.13. Frontend dependencies
