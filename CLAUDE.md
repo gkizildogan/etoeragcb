@@ -30,7 +30,7 @@ uv run ruff check . && uv run ruff format --check .
 uv run mypy app                       # strict
 uv run pytest                         # all tests
 uv run pytest tests/test_p6.py -k name   # single file / test
-uv run python -m app.evaluation.cli verify   # CI also verifies committed calibration
+uv run python -m app.evaluation.cli verify   # verify committed retrieval calibration
 ```
 
 Frontend (Node >= 24.18.0, run from `frontend/`):
@@ -44,9 +44,10 @@ npm run build && npm run test:e2e     # Playwright against tests/mock-api.mjs
 
 Deployment: `python3 scripts/verify_compose_boundary.py` (needs `docker compose`)
 and `docker compose --env-file deploy/.env -f deploy/compose.yml config --quiet`.
-CI (`.github/workflows/ci.yml`) runs all of the above plus dependency and image
-audits, so run the full suite for any component you modify. Backend tests need no
-running services (they use `aiosqlite` and fixtures in `backend/tests/conftest.py`).
+This is a personal project with no hosted CI/CD, so nothing runs these checks
+automatically: run the full suite for any component you modify before committing.
+Backend tests need no running services (they use `aiosqlite` and fixtures in
+`backend/tests/conftest.py`).
 
 ## Architecture essentials
 
