@@ -14,7 +14,7 @@ views separate:
   external web retrieval are disabled.
 
 The first report is diagnostic. Do not use it to recalibrate the production
-confidence gate and do not make it a CI gate.
+confidence gate and do not use it as a release gate.
 
 ## Prepare a run
 

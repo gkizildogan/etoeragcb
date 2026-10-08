@@ -234,7 +234,7 @@ docker compose --env-file deploy/.env -f deploy/compose.yml \
 Delivery begins after the configured 30-second group wait. The checked rules
 alert on dependency failure, missing/stale backups, sustained 5xx rate, cache
 errors, and sustained auth throttling. Validate rules and the example receiver
-configuration with the pinned `promtool` and `amtool` images in CI.
+configuration with the pinned `promtool` and `amtool` images.
 
 The explicit delivery test passed on 2026-07-23. The recipient confirmed the
 message arrived, and Alertmanager reported one email notification with zero
@@ -242,9 +242,9 @@ email failures.
 
 ## Security and load checks
 
-CI audits both hashed Python lock files with the SHA-pinned official
-`pip-audit` action. It builds and scans both application images with
-digest-pinned Grype, failing on active high or critical vulnerabilities.
+Audit both hashed Python lock files with `pip-audit`, and build and scan both
+application images with digest-pinned Grype, failing on active high or critical
+vulnerabilities.
 
 Local application-image scan:
 

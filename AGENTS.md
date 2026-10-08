@@ -16,8 +16,8 @@ boundaries.
 Use Python 3.13 and `uv`; dependencies are fully pinned.
 
 - `cd backend && uv sync --frozen --all-groups` installs backend dependencies.
-- `cd backend && uv run ruff check . && uv run ruff format --check .` runs CI
-  lint and formatting checks.
+- `cd backend && uv run ruff check . && uv run ruff format --check .` runs lint
+  and formatting checks.
 - `cd backend && uv run mypy app && uv run pytest` performs strict type checking
   and runs backend tests.
 - `cd frontend && npm ci && npm run format:check && npm run lint && npm run check`
@@ -50,7 +50,8 @@ History uses short, capitalized, scope-oriented subjects such as `P11 Updates`
 and `Hot-fix for document ingestion`. Keep commits focused and identify the
 phase or component. Pull requests should explain behavior and operational
 impact, link issues or phase documents, list verification commands, and include
-screenshots for visible SvelteKit changes. Ensure all CI checks pass.
+screenshots for visible SvelteKit changes. Run the relevant checks locally before
+merging.
 
 ## Security & Configuration
 

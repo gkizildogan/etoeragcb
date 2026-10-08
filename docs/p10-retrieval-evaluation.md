@@ -136,7 +136,7 @@ The committed gate artifact binds the dataset name/version/hash, 26 examples,
 and exact embedding/reranker model revisions. Runtime model mismatch and empty
 context remain fail-closed.
 
-## CI regression gate
+## Regression gate
 
 Run without model services:
 
@@ -145,9 +145,9 @@ cd backend
 python -m app.evaluation.cli verify
 ```
 
-CI performs the same check. It rejects a changed dataset, evaluator source,
+This check rejects a changed dataset, evaluator source,
 model provenance, gate threshold, failed metric, or failed acceptance target.
-This does not rerun GPU/CPU model inference in hosted CI; changing any bound
+This does not rerun GPU/CPU model inference; changing any bound
 input requires an intentional live regeneration of the report.
 
 ## Feedback export
