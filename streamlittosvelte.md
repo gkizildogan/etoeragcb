@@ -63,7 +63,7 @@ Return:
 - Route `/ui-api/*` and all page/assets traffic to `frontend:3000`; keep `/api/*` and `/api/files/*` routed to FastAPI. Disable proxy buffering for streamed chat.
 - Move HTML CSP ownership to SvelteKit’s nonce-based CSP and remove Streamlit’s `unsafe-inline`/`unsafe-eval` policy from Caddy. Preserve HSTS and the existing security headers.
 - Add the Node base-image digest to `docker-images.lock`; replace Streamlit pip auditing with `npm audit`; update Grype scans to scan the frontend image.
-- Split CI into Python backend and Node frontend jobs. Frontend CI runs install, formatting, lint, type/Svelte checks, unit tests, production build, Playwright tests, dependency audit, and image scan.
+- Run the Python backend and Node frontend checks separately. Frontend checks cover install, formatting, lint, type/Svelte checks, unit tests, production build, Playwright tests, dependency audit, and image scan.
 
 ## Replacement and Documentation Inventory
 
@@ -71,7 +71,7 @@ Return:
 |---|---|
 | Remove | Entire `streamlit_app/` tree, Python UI locks/tests, and Streamlit-specific Compose/image references |
 | Add | `frontend/`, SvelteKit source/tests/locks/Dockerfile, `frontend_session_secret`, citation-preview API schema/route/tests |
-| Infrastructure updates | Compose, both Caddyfiles, CI, boundary verification, dependency/security/release scripts, `.gitignore`, image lock |
+| Infrastructure updates | Compose, both Caddyfiles, boundary verification, dependency/security/release scripts, `.gitignore`, image lock |
 | Primary documentation | Rewrite `architecture.md` diagrams, repository map, frontend/auth flow, trust boundaries, tests, and development guidance; rewrite `adminworks.md` configuration, secret creation, health/logging, frontend deployment, audit, rollback, and troubleshooting commands |
 | Supporting documentation | Update `README.md`, `AGENTS.md`, `docs/deployment.md`, and the release checklist; add `docs/p12-sveltekit.md`; mark `docs/p9-streamlit.md` as historical/superseded rather than deleting its evidence; add a P12 migration entry to the phased plan |
 

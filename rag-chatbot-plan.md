@@ -265,10 +265,10 @@ Nightly backups include a transactionally consistent PostgreSQL dump, Qdrant sna
 
 ## P1 — Scaffolding and public HTTPS boundary
 
-- [ ] Build the repository layout, strict configuration, migrations, CI, health/readiness checks, structured logging, metrics, and pinned Compose stack.
+- [ ] Build the repository layout, strict configuration, migrations, health/readiness checks, structured logging, metrics, and pinned Compose stack.
 - [ ] Configure Caddy/domain certificates, `/api` and Streamlit routing, secure headers, trusted proxies, internal networks, unprivileged services, volumes, and firewall documentation.
 - [ ] Prove only 80/443 are publicly reachable; dependency readiness remains internal/authenticated as appropriate.
-- **Done when:** a clean deployment serves the login UI and API through valid HTTPS at the domain, redirecting HTTP, while an external port scan cannot reach application/data/model ports and CI passes.
+- **Done when:** a clean deployment serves the login UI and API through valid HTTPS at the domain, redirecting HTTP, while an external port scan cannot reach application/data/model ports.
 
 ## P2 — Closed auth, tenancy, and user administration
 
@@ -327,7 +327,7 @@ Nightly backups include a transactionally consistent PostgreSQL dump, Qdrant sna
 - [x] Build a representative bilingual golden set including exact IDs, headings, collections, semantic questions, repeated passages/pages, scoped queries, web+document cases, ambiguous hints, and answerable/unanswerable cases.
 - [x] Evaluate sparse-only, dense-only, hybrid, scoped hybrid, and reranked hybrid independently; report recall@k, MRR, nDCG, latency, source diversity, and gate precision/recall.
 - [x] Sweep and commit confidence thresholds with dataset/version/model provenance. Export feedback and produce a reproducible Markdown/JSON report; optional LLM judging supplements but does not replace retrieval labels.
-- **Done when:** one command reproduces the report, reranked/scoped hybrid meets documented acceptance targets, regressions are enforced in CI where practical, and calibrated thresholds replace all provisional values.
+- **Done when:** one command reproduces the report, reranked/scoped hybrid meets documented acceptance targets, regressions are checked by a local command, and calibrated thresholds replace all provisional values.
 
 ## P11 — Operations, backup, restore, and delivery
 
@@ -348,7 +348,7 @@ Nightly backups include a transactionally consistent PostgreSQL dump, Qdrant sna
   generic error mapping.
 - [x] Add the tenant/user/provenance-authorized citation preview endpoint and
   plain-text focus-safe dialog while retaining signed-file API compatibility.
-- [x] Replace the Compose/Caddy/CI/audit image with digest-pinned Node
+- [x] Replace the Compose/Caddy/audit image with digest-pinned Node
   adapter-node; remove Streamlit runtime references; retain only Caddy 80/443.
 - [x] Add frontend unit/component/build checks, deterministic Playwright flows,
   architecture/admin/deployment documentation, and atomic cutover/rollback
